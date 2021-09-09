@@ -71,7 +71,7 @@ class MoltenVKConan(ConanFile):
     @property
     def _vulkan_headers_version(self):
         return {
-            "1.1.4": "1.2.182",
+            "1.1.4": "1.2.190",
             "1.1.1": "1.2.162.0",
             "1.1.0": "1.2.154.0",
             "1.0.44": "1.2.148.0",
