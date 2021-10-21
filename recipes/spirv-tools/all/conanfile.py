@@ -54,6 +54,7 @@ class SpirvtoolsConan(ConanFile):
     @property
     def _get_compatible_spirv_headers_version(self):
         return {
+            "diligent-2.5.1": "diligent-2.5.1",
             "2021.2": "cci.20210616",
             "2020.5": "1.5.4",
             "2020.3": "1.5.3",
@@ -82,8 +83,8 @@ class SpirvtoolsConan(ConanFile):
         # - Before 2020.5, the shared lib is always built, but static libs might be built as shared
         #   with BUILD_SHARED_LIBS injection (which doesn't work due to symbols visibility, at least for msvc)
         # - From 2020.5, static and shared libs are fully controlled by upstream CMakeLists.txt
-        if tools.Version(self.version) < "2020.5":
-            cmake.definitions["BUILD_SHARED_LIBS"] = False
+        #if tools.Version(self.version) < "2020.5":
+        #    cmake.definitions["BUILD_SHARED_LIBS"] = False
 
         # Required by the project's CMakeLists.txt
         cmake.definitions["SPIRV-Headers_SOURCE_DIR"] = self.deps_cpp_info["spirv-headers"].rootpath.replace("\\", "/")
