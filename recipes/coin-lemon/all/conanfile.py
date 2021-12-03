@@ -80,3 +80,4 @@ class CoinLemonConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "LEMON"
         self.cpp_info.filenames["cmake_find_package"] = "LEMON"
         self.cpp_info.filenames["cmake_find_package_multi"] = "LEMON"
+        self.cpp_info.defines.append("LEMON_ONLY_TEMPLATES=True")
