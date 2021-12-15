@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+#include <QApplication>
 #include <QObject>
 #include <QString>
 #include <QTimer>
@@ -8,13 +8,14 @@
 #include <QSqlDatabase>
 #include <qtconcurrentfilter.h>
 #include <QDomText>
+#include <QtWidgets>
 
 #include "greeter.h"
 
 int main(int argc, char *argv[]){
-    QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName("Application Example");
-    QCoreApplication::setApplicationVersion("1.0.0");
+    QApplication app(argc, argv);
+    QApplication::setApplicationName("Application Example");
+    QApplication::setApplicationVersion("1.0.0");
 
     QString name = argc > 0 ? argv[1] : "";
     if (name.isEmpty()) {
@@ -43,6 +44,9 @@ int main(int argc, char *argv[]){
     });
 
     QDomText xmlTester;
+
+    QWidget* w = new QWidget();
+    w->show();
 
     return app.exec();
 }

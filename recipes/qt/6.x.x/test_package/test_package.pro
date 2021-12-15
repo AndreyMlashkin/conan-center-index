@@ -8,8 +8,6 @@ HEADERS += greeter.h
 
 RESOURCES = example.qrc
 
-QT += network sql concurrent xml
-
-QT -= gui
+QT += network sql concurrent xml widgets
 
 CONFIG += console
