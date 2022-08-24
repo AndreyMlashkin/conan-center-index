@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -54,7 +55,7 @@ class AngelScriptConan(ConanFile):
 
     def source(self):
         # Website blocks default user agent string.
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             headers={"User-Agent": "ConanCenter"},
@@ -74,15 +75,15 @@ class AngelScriptConan(ConanFile):
         cmake.build()
 
     def _extract_license(self):
-        header = tools.load(os.path.join(self._source_subfolder, "angelscript", "include", "angelscript.h"))
-        tools.save("LICENSE", header[header.find("/*", 1) + 3 : header.find("*/", 1)])
+        header = tools.files.load(self, os.path.join(self._source_subfolder, "angelscript", "include", "angelscript.h"))
+        tools.files.save(self, "LICENSE", header[header.find("/*", 1) + 3 : header.find("*/", 1)])
 
     def package(self):
         self._extract_license()
         self.copy("LICENSE", dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Angelscript")
