@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -27,7 +27,7 @@ class CistaConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -47,7 +47,7 @@ class CistaConan(ConanFile):
     def source(self):
         for file in self.conan_data["sources"][self.version]:
             filename = os.path.basename(file["url"])
-            tools.download(filename=filename, **file)
+            tools.files.download(self, filename=filename, **file)
 
     def package(self):
         self.copy("LICENSE", dst="licenses")
