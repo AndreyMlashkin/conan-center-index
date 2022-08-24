@@ -1,0 +1,58 @@
+Exporting package recipe
+android-ndk/r25@andrei/test exports: File 'conandata.yml' found. Exporting it...
+android-ndk/r25@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+android-ndk/r25@andrei/test exports_sources: Copied 1 '.cmd' file: cmake-wrapper.cmd
+android-ndk/r25@andrei/test exports_sources: Copied 1 file: cmake-wrapper
+android-ndk/r25@andrei/test: The stored package has not changed
+android-ndk/r25@andrei/test: Using the exported files summary hash as the recipe revision: 99010b0389d71455725bd70aa81275c0 
+android-ndk/r25@andrei/test: Exported revision: 99010b0389d71455725bd70aa81275c0
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+android-ndk/r25@andrei/test (test package): Installing package
+Requirements
+    android-ndk/r25@andrei/test from local cache - Cache
+Packages
+    android-ndk/r25@andrei/test:4db1be536558d833e52e862fd84d64d75c2b3656 - Cache
+
+Installing (downloading, building) binaries...
+android-ndk/r25@andrei/test: Already installed!
+android-ndk/r25@andrei/test: Creating ANDROID_NDK_ROOT environment variable: /home/andrei/.conan/data/android-ndk/r25/andrei/test/package/4db1be536558d833e52e862fd84d64d75c2b3656
+android-ndk/r25@andrei/test: Creating ANDROID_NDK_HOME environment variable: /home/andrei/.conan/data/android-ndk/r25/andrei/test/package/4db1be536558d833e52e862fd84d64d75c2b3656
+android-ndk/r25@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+android-ndk/r25@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+android-ndk/r25@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+android-ndk/r25@andrei/test (test package): Generator txt created conanbuildinfo.txt
+android-ndk/r25@andrei/test (test package): Aggregating env generators
+android-ndk/r25@andrei/test (test package): Generated conaninfo.txt
+android-ndk/r25@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/android-ndk/all/test_package/conan.lock'
+Using cached profile from lockfile
+android-ndk/r25@andrei/test (test package): Calling build()
+android-ndk/r25@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/android-ndk/all/test_package/build/generators/conanrun.sh" && ndk-build --version
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/android-ndk/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
+GNU Make 4.3
+Built for x86_64-pc-linux-gnu
+Copyright (C) 1988-2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
