@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import glob
 import os
@@ -69,7 +70,7 @@ class Bullet3Conan(ConanFile):
             raise ConanInvalidConfiguration("Shared libraries on Visual Studio not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -101,7 +102,7 @@ class Bullet3Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE.txt", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for cmake_file in glob.glob(os.path.join(self.package_folder, self._module_subfolder, "*.cmake")):
             if os.path.basename(cmake_file) != "UseBullet.cmake":
                 os.remove(cmake_file)
@@ -129,7 +130,7 @@ class Bullet3Conan(ConanFile):
             set(BULLET_ROOT_DIR "${{CMAKE_CURRENT_LIST_DIR}}/../../..")
             set(BULLET_VERSION_STRING {self.version})
         """)
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
