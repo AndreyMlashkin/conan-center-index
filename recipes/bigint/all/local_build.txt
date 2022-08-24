@@ -1,0 +1,70 @@
+Exporting package recipe
+bigint/2010.04.30@andrei/test exports: File 'conandata.yml' found. Exporting it...
+bigint/2010.04.30@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+bigint/2010.04.30@andrei/test: Calling export_sources()
+bigint/2010.04.30@andrei/test: Copied 1 '.txt' file: CMakeLists.txt
+bigint/2010.04.30@andrei/test: Copied 1 '.patch' file: 0001-deprecation-wanings.patch
+bigint/2010.04.30@andrei/test: The stored package has not changed
+bigint/2010.04.30@andrei/test: Using the exported files summary hash as the recipe revision: 0e3ba60dda352e19e8d8f55264aa73d4 
+bigint/2010.04.30@andrei/test: Exported revision: 0e3ba60dda352e19e8d8f55264aa73d4
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+bigint/2010.04.30@andrei/test (test package): Installing package
+Requirements
+    bigint/2010.04.30@andrei/test from local cache - Cache
+Packages
+    bigint/2010.04.30@andrei/test:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+
+Installing (downloading, building) binaries...
+bigint/2010.04.30@andrei/test: Already installed!
+bigint/2010.04.30@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+bigint/2010.04.30@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+bigint/2010.04.30@andrei/test (test package): Generator txt created conanbuildinfo.txt
+bigint/2010.04.30@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+bigint/2010.04.30@andrei/test (test package): Aggregating env generators
+bigint/2010.04.30@andrei/test (test package): Generated conaninfo.txt
+bigint/2010.04.30@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/conan.lock'
+Using cached profile from lockfile
+bigint/2010.04.30@andrei/test (test package): Calling build()
+bigint/2010.04.30@andrei/test (test package): CMake command: cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/."
+
+----Running------
+> cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/."
+-----------------
+-- Using Conan toolchain: /home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/generators/conan_toolchain.cmake
+-- Conan toolchain: C++ Standard 17 with extensions OFF
+-- Conan: Target declared 'bigint::bigint'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/Release
+bigint/2010.04.30@andrei/test (test package): CMake command: cmake --build "/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/Release" '--' '-j12'
+
+----Running------
+> cmake --build "/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/Release" '--' '-j12'
+-----------------
+Consolidate compiler generated dependencies of target test_package
+[100%] Built target test_package
+bigint/2010.04.30@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/generators/conanrun.sh" && ./test_package
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/bigint/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
+65536^8 = 340282366920938463463374607431768211456
