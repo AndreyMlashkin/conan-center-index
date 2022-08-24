@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -53,14 +54,14 @@ class DateConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     def package_id(self):
         if self.options.header_only:
             self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -72,8 +73,8 @@ class DateConan(ConanFile):
         cmake.definitions["USE_TZ_DB_IN_DOT"] = self.options.use_tz_db_in_dot
         cmake.definitions["BUILD_TZ_LIB"] = not self.options.header_only
         # workaround for clang 5 not having string_view
-        if tools.Version(self.version) >= "3.0.0" and self.settings.compiler == "clang" \
-                and tools.Version(self.settings.compiler.version) <= "5.0":
+        if tools.scm.Version(self.version) >= "3.0.0" and self.settings.compiler == "clang" \
+                and tools.scm.Version(self.settings.compiler.version) <= "5.0":
             cmake.definitions["DISABLE_STRING_VIEW"] = True
         cmake.configure()
 
@@ -82,7 +83,7 @@ class DateConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if not self.options.header_only:
             cmake = self._configure_cmake()
             cmake.build()
@@ -102,8 +103,8 @@ class DateConan(ConanFile):
         else:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-            tools.rmdir(os.path.join(self.package_folder, "CMake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "date"
@@ -113,7 +114,7 @@ class DateConan(ConanFile):
         if not self.options.header_only:
             self.cpp_info.components["date-tz"].names["cmake_find_package"] = "date-tz"
             self.cpp_info.components["date-tz"].names["cmake_find_package_multi"] = "date-tz"
-            lib_name = "{}tz".format("date-" if tools.Version(self.version) >= "3.0.0" else "")
+            lib_name = "{}tz".format("date-" if tools.scm.Version(self.version) >= "3.0.0" else "")
             self.cpp_info.components["date-tz"].libs = [lib_name]
             if self.settings.os == "Linux":
                 self.cpp_info.components["date-tz"].system_libs.append("pthread")
