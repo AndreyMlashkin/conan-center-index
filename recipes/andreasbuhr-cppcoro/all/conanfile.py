@@ -1,6 +1,8 @@
 import os
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.33.0"
 
@@ -52,7 +54,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self) < min_version:
                 raise ConanInvalidConfiguration("{} requires coroutine TS support. The current compiler {} {} does not support it.".format(
                     self.name, self.settings.compiler, self.settings.compiler.version))
 
@@ -67,7 +69,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -85,7 +87,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "cppcoro"
