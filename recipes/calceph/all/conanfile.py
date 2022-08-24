@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import functools
 import os
@@ -62,20 +62,20 @@ class CalcephConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         if self._is_msvc:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.vc"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.vc"),
                                   "CFLAGS = /O2 /GR- /MD /nologo /EHs",
                                   "CFLAGS = /nologo /EHs")
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 with self._msvc_build_environment():
                     self.run("nmake -f Makefile.vc {}".format(self._nmake_args))
         else:
             # relocatable shared lib on macOS
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "-install_name \\$rpath/",
                                   "-install_name @rpath/")
             autotools = self._configure_autotools()
@@ -116,16 +116,16 @@ class CalcephConan(ConanFile):
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
         if self._is_msvc:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 with self._msvc_build_environment():
                     self.run("nmake -f Makefile.vc install {}".format(self._nmake_args))
-            tools.rmdir(os.path.join(self.package_folder, "doc"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "libexec"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "libexec"))
 
     def package_info(self):
         prefix = "lib" if self._is_msvc else ""
