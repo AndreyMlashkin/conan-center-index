@@ -1,0 +1,123 @@
+Exporting package recipe
+corrade/2020.06@andrei/test exports: File 'conandata.yml' found. Exporting it...
+corrade/2020.06@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+corrade/2020.06@andrei/test: Calling export_sources()
+corrade/2020.06@andrei/test export_sources() method: Copied 1 '.txt' file: CMakeLists.txt
+corrade/2020.06@andrei/test export_sources() method: Copied 1 '.cmake' file: conan-corrade-vars.cmake
+corrade/2020.06@andrei/test export_sources() method: Copied 1 '.patch' file: 0001-emscripten-toolchain.patch
+corrade/2020.06@andrei/test: The stored package has not changed
+corrade/2020.06@andrei/test: Using the exported files summary hash as the recipe revision: 2bd1f1805779cbef954ea46e42360f41 
+corrade/2020.06@andrei/test: Exported revision: 2bd1f1805779cbef954ea46e42360f41
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+corrade/2020.06@andrei/test (test package): Installing package
+Requirements
+    corrade/2020.06@andrei/test from local cache - Cache
+Packages
+    corrade/2020.06@andrei/test:9158f98bea76e931df158ffa27cf9a3098a2664e - Cache
+
+Installing (downloading, building) binaries...
+corrade/2020.06@andrei/test: Already installed!
+corrade/2020.06@andrei/test: Appending PATH environment variable: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/bin
+corrade/2020.06@andrei/test (test package): Generator cmake_find_package created FindCorrade.cmake
+corrade/2020.06@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+corrade/2020.06@andrei/test (test package): Generator txt created conanbuildinfo.txt
+corrade/2020.06@andrei/test (test package): Aggregating env generators
+corrade/2020.06@andrei/test (test package): Generated conaninfo.txt
+corrade/2020.06@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+corrade/2020.06@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -DWITH_UTILITY="True" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake targets configuration
+-- Library CorradeInterconnect found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeInterconnect.a
+-- Library CorradePluginManager found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradePluginManager.a
+-- Library CorradeTestSuite found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeTestSuite.a
+-- Library CorradeUtility found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeUtility.a
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Conan: Using autogenerated FindCorrade.cmake
+-- Found Corrade: 2020.06 (found version "2020.06") 
+-- Library CorradeInterconnect found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeInterconnect.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeInterconnect.a
+-- Library CorradePluginManager found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradePluginManager.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradePluginManager.a
+-- Library CorradeTestSuite found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeTestSuite.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeTestSuite.a
+-- Library CorradeUtility found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeUtility.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeUtility.a
+-- Library CorradeUtility found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeUtility.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeUtility.a
+-- Library CorradeTestSuite found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeTestSuite.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeTestSuite.a
+-- Library CorradePluginManager found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradePluginManager.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradePluginManager.a
+-- Library CorradeInterconnect found /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeInterconnect.a
+-- Found: /home/andrei/.conan/data/corrade/2020.06/andrei/test/package/9158f98bea76e931df158ffa27cf9a3098a2664e/lib/libCorradeInterconnect.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/corrade/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/test_package.dir/test_package.cpp.o
+[100%] Linking CXX executable bin/test_package
+[100%] Built target test_package
+corrade/2020.06@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
+Test package for Corrade
+Corrade 2020.6
+Success
+
+----Running------
+> corrade-rc --help
+-----------------
+Usage:
+  corrade-rc [-h|--help] [--] name resources.conf outfile.cpp
+
+Resource compiler for Corrade.
+
+Arguments:
+  resources.conf  resource configuration file
+  outfile.cpp     output file
+  -h, --help      display this help message and exit
