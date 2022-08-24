@@ -1,5 +1,5 @@
 from conans import ConanFile, Meson, RunEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import glob
 
@@ -90,11 +90,11 @@ class AravisConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def _configure_meson(self):
         if self._meson:
@@ -123,11 +123,11 @@ class AravisConan(ConanFile):
     def _fix_library_names(self, path):
         # https://github.com/mesonbuild/meson/issues/1412
         if not self.options.shared and self._is_msvc:
-            with tools.chdir(path):
+            with tools.files.chdir(self, path):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
-                    tools.rename(filename_old, filename_new)
+                    tools.files.rename(self, filename_old, filename_new)
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses", keep_path=False)
@@ -138,10 +138,10 @@ class AravisConan(ConanFile):
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         if self.options.gst_plugin:
             self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, self.package_folder, "*.pdb")
         if not self.options.tools:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "arv-*")
+            tools.files.rm(self, os.path.join(self.package_folder, "bin"), "arv-*")
 
     def package_id(self):
         self.info.requires["glib"].full_package_mode()
