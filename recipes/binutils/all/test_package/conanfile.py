@@ -38,13 +38,13 @@ class TestPackageConan(ConanFile):
         return f"{self.deps_user_info['binutils'].prefix}{exe}"
 
     def build(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
 
             if not os.path.isfile(self._test_package_assembly_source):
                 self.output.warn(f"Missing {self._test_package_assembly_source}.\ntest_package does not support this target os/arch. Please consider adding it. (It's a great learning experience)")
             else:
-                tools.mkdir(os.path.join(self.build_folder, "bin"))
-                tools.mkdir(os.path.join(self.build_folder, "lib"))
+                tools.files.mkdir(self, os.path.join(self.build_folder, "bin"))
+                tools.files.mkdir(self, os.path.join(self.build_folder, "lib"))
 
                 gas = self._append_gnu_triplet("as")
                 ld = self._append_gnu_triplet("ld")
@@ -84,10 +84,10 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         # Run selftest (conversion between conan os/arch <=> gnu triplet)
-        with tools.chdir(os.path.dirname(self.deps_user_info["binutils"].recipe_path)):
+        with tools.files.chdir(self, os.path.dirname(self.deps_user_info["binutils"].recipe_path)):
             self.run(f"python -m unittest {os.path.basename(self.deps_user_info['binutils'].recipe_path)} --verbose")
 
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             if self._can_run_target() and os.path.isfile(self._test_package_assembly_source):
                 output = StringIO()
                 self.run(os.path.join("bin", "test_package"), output=output)
