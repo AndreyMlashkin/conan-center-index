@@ -1,0 +1,72 @@
+Exporting package recipe
+bzip2/1.0.8@andrei/test exports: File 'conandata.yml' found. Exporting it...
+bzip2/1.0.8@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+bzip2/1.0.8@andrei/test: Calling export_sources()
+bzip2/1.0.8@andrei/test: Copied 1 '.txt' file: CMakeLists.txt
+bzip2/1.0.8@andrei/test: The stored package has not changed
+bzip2/1.0.8@andrei/test: Using the exported files summary hash as the recipe revision: 62a8031289639043797cf53fa876d0ef 
+bzip2/1.0.8@andrei/test: Exported revision: 62a8031289639043797cf53fa876d0ef
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+bzip2/1.0.8@andrei/test (test package): Installing package
+Requirements
+    bzip2/1.0.8@andrei/test from local cache - Cache
+Packages
+    bzip2/1.0.8@andrei/test:e18203d1df1519e4a855a273390f0f15fef1850c - Cache
+
+Installing (downloading, building) binaries...
+bzip2/1.0.8@andrei/test: Already installed!
+bzip2/1.0.8@andrei/test: Appending PATH environment variable: /home/andrei/.conan/data/bzip2/1.0.8/andrei/test/package/e18203d1df1519e4a855a273390f0f15fef1850c/bin
+bzip2/1.0.8@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+bzip2/1.0.8@andrei/test (test package): Generator txt created conanbuildinfo.txt
+bzip2/1.0.8@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+bzip2/1.0.8@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+bzip2/1.0.8@andrei/test (test package): Aggregating env generators
+bzip2/1.0.8@andrei/test (test package): Generated conaninfo.txt
+bzip2/1.0.8@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/conan.lock'
+Using cached profile from lockfile
+bzip2/1.0.8@andrei/test (test package): Calling build()
+bzip2/1.0.8@andrei/test (test package): CMake command: cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/."
+
+----Running------
+> cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/."
+-----------------
+-- Using Conan toolchain: /home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/generators/conan_toolchain.cmake
+-- Conan toolchain: C++ Standard 17 with extensions OFF
+-- Conan: Target declared 'BZip2::BZip2'
+-- Conan: Including build module from '/home/andrei/.conan/data/bzip2/1.0.8/andrei/test/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/cmake/conan-official-bzip2-variables.cmake'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/Release
+bzip2/1.0.8@andrei/test (test package): CMake command: cmake --build "/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/Release" '--' '-j12'
+
+----Running------
+> cmake --build "/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/Release" '--' '-j12'
+-----------------
+Consolidate compiler generated dependencies of target test_package
+[100%] Built target test_package
+bzip2/1.0.8@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/generators/conanrun.sh" && ./test_package
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/bzip2/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
+Bzip2 version: 1.0.8, 13-Jul-2019
+Bzip2 compressed: BZh11AY&SY-íÞå
