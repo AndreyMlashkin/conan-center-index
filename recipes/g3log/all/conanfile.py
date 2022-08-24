@@ -1,8 +1,9 @@
 import os
 from os import path
-from conans import ConanFile, CMake, tools
-from conans.tools import Version
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.tools.scm import Version
+from conan.errors import ConanInvalidConfiguration
 
 
 class G3logConan(ConanFile):
@@ -40,7 +41,7 @@ class G3logConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
         if not self._has_support_for_cpp14():
             raise ConanInvalidConfiguration("g3log requires C++14 or higher support standard."
                                             " {} {} is not supported."
@@ -48,7 +49,7 @@ class G3logConan(ConanFile):
                                                     self.settings.compiler.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         dir_postfix = self.conan_data["sources"][self.version]["url"].split("/")[-1][:-7]
         os.rename("g3log-{}".format(dir_postfix), self._source_subfolder)
 
@@ -80,7 +81,7 @@ class G3logConan(ConanFile):
     def build(self):
         if "patches" in self.conan_data and self.version in self.conan_data["patches"]:
             for patch in self.conan_data["patches"][self.version]:
-                tools.patch(**patch)
+                tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -88,7 +89,7 @@ class G3logConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.libs = ["g3logger"]
