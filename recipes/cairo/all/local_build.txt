@@ -1,0 +1,242 @@
+Exporting package recipe
+cairo/1.17.4@andrei/test exports: File 'conandata.yml' found. Exporting it...
+cairo/1.17.4@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+cairo/1.17.4@andrei/test exports_sources: Copied 2 '.patch' files: binutils-2.34-libbfd-fix.patch, 0001-msvc-update-build-scripts-to-compile-with-more-featu.patch
+cairo/1.17.4@andrei/test: A new conanfile.py version was exported
+cairo/1.17.4@andrei/test: Folder: /home/andrei/.conan/data/cairo/1.17.4/andrei/test/export
+cairo/1.17.4@andrei/test: Using the exported files summary hash as the recipe revision: 6be6b3bd5d1e890b7e5db022672acb9e 
+cairo/1.17.4@andrei/test: Removing the local binary packages from different recipe revisions
+cairo/1.17.4@andrei/test: Exported revision: 6be6b3bd5d1e890b7e5db022672acb9e
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+cairo/1.17.4@andrei/test (test package): Installing package
+Requirements
+    brotli/1.0.9 from 'conancenter' - Cache
+    bzip2/1.0.8 from 'conancenter' - Cache
+    cairo/1.17.4@andrei/test from local cache - Cache
+    expat/2.4.8 from 'conancenter' - Cache
+    fontconfig/2.13.93 from 'conancenter' - Cache
+    freetype/2.11.0 from 'conancenter' - Cache
+    glib/2.70.0 from 'conancenter' - Cache
+    libelf/0.8.13 from 'conancenter' - Cache
+    libffi/3.4.2 from 'conancenter' - Cache
+    libmount/2.36.2 from 'conancenter' - Cache
+    libpng/1.6.37 from 'conancenter' - Cache
+    libselinux/3.3 from 'conancenter' - Cache
+    libuuid/1.0.3 from 'conancenter' - Cache
+    pcre/8.45 from 'conancenter' - Cache
+    pcre2/10.40 from 'conancenter' - Cache
+    pixman/0.40.0 from 'conancenter' - Cache
+    xorg/system from 'conancenter' - Cache
+    zlib/1.2.11 from 'conancenter' - Cache
+Packages
+    brotli/1.0.9:b6f45f661d53342860982dee02186c649186beee - Cache
+    bzip2/1.0.8:e18203d1df1519e4a855a273390f0f15fef1850c - Cache
+    cairo/1.17.4@andrei/test:dab356bd6dfe1c6bebf7d58287d348ebff218098 - Build
+    expat/2.4.8:9a9d842c0ceba718c8f1fd99f73ec28d0131f49e - Cache
+    fontconfig/2.13.93:b0d2e78589c2c875494c22905371b60026775101 - Cache
+    freetype/2.11.0:4194daae99e2dd83f01372a3983d1f48fdcb3080 - Cache
+    glib/2.70.0:600fb4f2eb05c829f425194ce4ede645b377b289 - Cache
+    libelf/0.8.13:b6f45f661d53342860982dee02186c649186beee - Cache
+    libffi/3.4.2:b6f45f661d53342860982dee02186c649186beee - Cache
+    libmount/2.36.2:b6f45f661d53342860982dee02186c649186beee - Cache
+    libpng/1.6.37:81eeea3a5c17b758b69f7990491f6ef9667496cf - Cache
+    libselinux/3.3:59bdd35de7f3906534f5a616c82dec6386a011a0 - Cache
+    libuuid/1.0.3:b6f45f661d53342860982dee02186c649186beee - Cache
+    pcre/8.45:ee94394f876c5add99031cc672b5a33d18f4bc66 - Cache
+    pcre2/10.40:86e3edd1262860d3cf56f0fcb8b0583d667152a2 - Cache
+    pixman/0.40.0:b6f45f661d53342860982dee02186c649186beee - Cache
+    xorg/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    zlib/1.2.11:b6f45f661d53342860982dee02186c649186beee - Cache
+Build requirements
+    autoconf/2.71 from 'conancenter' - Cache
+    automake/1.16.5 from 'conancenter' - Cache
+    gtk-doc-stub/cci.20181216 from 'conancenter' - Cache
+    libtool/2.4.6 from 'conancenter' - Cache
+    m4/1.4.19 from 'conancenter' - Cache
+    pkgconf/1.7.4 from 'conancenter' - Cache
+Build requirements packages
+    autoconf/2.71:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    automake/1.16.5:258f6f05ca54813b3d7180161753df7f9ccf7e1d - Cache
+    gtk-doc-stub/cci.20181216:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    libtool/2.4.6:d2fe9345ccee895f344ab4ea7fded64f9906b459 - Cache
+    m4/1.4.19:24647d9fe8ec489125dfbae4b3ebefaf7581674c - Cache
+    pkgconf/1.7.4:24647d9fe8ec489125dfbae4b3ebefaf7581674c - Cache
+
+Installing (downloading, building) binaries...
+brotli/1.0.9: Already installed!
+bzip2/1.0.8: Already installed!
+bzip2/1.0.8: Appending PATH environment variable: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/bin
+expat/2.4.8: Already installed!
+gtk-doc-stub/cci.20181216: Already installed!
+gtk-doc-stub/cci.20181216: Appending AUTOMAKE_CONAN_INCLUDES environment variable: /home/andrei/.conan/data/gtk-doc-stub/cci.20181216/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/res/aclocal
+libelf/0.8.13: Already installed!
+libffi/3.4.2: Already installed!
+libmount/2.36.2: Already installed!
+libuuid/1.0.3: Already installed!
+m4/1.4.19: Already installed!
+m4/1.4.19: Appending PATH environment variable: /home/andrei/.conan/data/m4/1.4.19/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin
+m4/1.4.19: Setting M4 environment variable: /home/andrei/.conan/data/m4/1.4.19/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin/m4
+pixman/0.40.0: Already installed!
+pkgconf/1.7.4: Already installed!
+pkgconf/1.7.4: Appending PATH env var: /home/andrei/.conan/data/pkgconf/1.7.4/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin
+pkgconf/1.7.4: Setting PKG_CONFIG env var: /home/andrei/.conan/data/pkgconf/1.7.4/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin/pkgconf
+pkgconf/1.7.4: Appending AUTOMAKE_CONAN_INCLUDES env var: /home/andrei/.conan/data/pkgconf/1.7.4/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin/aclocal
+xorg/system: Already installed!
+zlib/1.2.11: Already installed!
+autoconf/2.71: Already installed!
+autoconf/2.71: Appending PATH env var with : /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin
+autoconf/2.71: Setting AC_MACRODIR to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/share/autoconf
+autoconf/2.71: Setting AUTOCONF to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoconf
+autoconf/2.71: Setting AUTORECONF to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoreconf
+autoconf/2.71: Setting AUTOHEADER to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoheader
+autoconf/2.71: Setting AUTOM4TE to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autom4te
+autoconf/2.71: Setting AUTOM4TE_PERLLIBDIR to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/share/autoconf
+libpng/1.6.37: Already installed!
+pcre/8.45: Already installed!
+pcre/8.45: Appending PATH environment variable: /home/andrei/.conan/data/pcre/8.45/_/_/package/ee94394f876c5add99031cc672b5a33d18f4bc66/bin
+pcre2/10.40: Already installed!
+pcre2/10.40: Appending PATH environment variable: /home/andrei/.conan/data/pcre2/10.40/_/_/package/86e3edd1262860d3cf56f0fcb8b0583d667152a2/bin
+automake/1.16.5: Already installed!
+automake/1.16.5: Appending PATH environment variable:: /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin
+automake/1.16.5: Appending ACLOCAL environment variable with: /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin/aclocal
+automake/1.16.5: Setting AUTOMAKE_DATADIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res
+automake/1.16.5: Setting AUTOMAKE_LIBDIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res/automake-1.16
+automake/1.16.5: Setting AUTOMAKE_PERLLIBDIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res/automake-1.16
+automake/1.16.5: Setting AUTOMAKE to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin/automake
+automake/1.16.5: Append M4 include directories to AUTOMAKE_CONAN_INCLUDES environment variable
+freetype/2.11.0: Already installed!
+libselinux/3.3: Already installed!
+fontconfig/2.13.93: Already installed!
+fontconfig/2.13.93: Creating FONTCONFIG_FILE environment variable: /home/andrei/.conan/data/fontconfig/2.13.93/_/_/package/b0d2e78589c2c875494c22905371b60026775101/bin/etc/fonts/fonts.conf
+fontconfig/2.13.93: Creating FONTCONFIG_PATH environment variable: /home/andrei/.conan/data/fontconfig/2.13.93/_/_/package/b0d2e78589c2c875494c22905371b60026775101/bin/etc/fonts
+glib/2.70.0: Already installed!
+glib/2.70.0: Appending PATH env var with: /home/andrei/.conan/data/glib/2.70.0/_/_/package/600fb4f2eb05c829f425194ce4ede645b377b289/bin
+libtool/2.4.6: Already installed!
+libtool/2.4.6: Appending PATH env: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/bin
+libtool/2.4.6: Setting LIBTOOLIZE env to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/bin/libtoolize
+libtool/2.4.6: Setting LIBTOOL_PREFIX environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459
+libtool/2.4.6: Setting LIBTOOL_DATADIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res
+libtool/2.4.6: Setting LIBTOOL_PKGAUXDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/libtool/build-aux
+libtool/2.4.6: Setting LIBTOOL_PKGLTDLDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/libtool
+libtool/2.4.6: Setting LIBTOOL_ACLOCALDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+libtool/2.4.6: Appending ACLOCAL_PATH env: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+libtool/2.4.6: Appending AUTOMAKE_CONAN_INCLUDES environment variable: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+cairo/1.17.4@andrei/test: Applying build-requirement: libtool/2.4.6
+cairo/1.17.4@andrei/test: Applying build-requirement: pkgconf/1.7.4
+cairo/1.17.4@andrei/test: Applying build-requirement: gtk-doc-stub/cci.20181216
+cairo/1.17.4@andrei/test: Applying build-requirement: automake/1.16.5
+cairo/1.17.4@andrei/test: Applying build-requirement: autoconf/2.71
+cairo/1.17.4@andrei/test: Applying build-requirement: m4/1.4.19
+cairo/1.17.4@andrei/test: Copying sources to build folder
+cairo/1.17.4@andrei/test: Building your package in /home/andrei/.conan/data/cairo/1.17.4/andrei/test/build/dab356bd6dfe1c6bebf7d58287d348ebff218098
+cairo/1.17.4@andrei/test: Generator pkg_config created libtool.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created pkgconf.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gtk-doc-stub.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created fontconfig.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created uuid.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-dri3.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-util.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-event.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-aux.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-atom.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xkeyboard-config.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-xinerama.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-xfixes.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-sync.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-shm.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-shape.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-renderutil.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-render.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-randr.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-keysyms.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-image.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-icccm.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcb-xkb.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xtrans.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xxf86vm.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xvmc.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xv.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xtst.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xt.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xscrnsaver.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xres.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xrender.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xrandr.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xpm.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xmuu.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xmu.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xkbfile.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xinerama.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xi.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xfixes.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xext.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xdmcp.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xdamage.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcursor.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xcomposite.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xaw7.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xau.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created sm.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created ice.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created fontenc.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created x11-xcb.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created x11.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created xorg.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gresource.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created glib-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gobject-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gmodule-no-export-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gmodule-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gio-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gio-unix-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gthread-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created gmodule-export-2.0.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created glib.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created pixman-1.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created automake.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created freetype2.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created expat.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libffi.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre32.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre16.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcreposix.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created pcre.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libelf.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created mount.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libsepol.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libselinux.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created autoconf.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpng.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libbrotlicommon.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libbrotlienc.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libbrotlidec.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created brotli.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre2-32.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre2-16.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre2-8.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre2-posix.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created libpcre2.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created m4.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created zlib.pc
+cairo/1.17.4@andrei/test: Generator pkg_config created bzip2.pc
+cairo/1.17.4@andrei/test: Aggregating env generators
+cairo/1.17.4@andrei/test: Calling build()
+cairo/1.17.4@andrei/test: 
