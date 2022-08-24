@@ -1,5 +1,5 @@
 from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -41,7 +41,7 @@ class AvahiConan(ConanFile):
         self.requires("libevent/2.1.12")
 
     def validate(self):
-        if self.settings.os != "Linux" or tools.cross_building(self):
+        if self.settings.os != "Linux" or tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Only Linux is supported for this package.")
 
     def configure(self):
@@ -51,7 +51,7 @@ class AvahiConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -84,10 +84,10 @@ class AvahiConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "Avahi"
