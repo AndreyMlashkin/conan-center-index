@@ -1,0 +1,318 @@
+Exporting package recipe
+crowcpp-crow/1.0+3@andrei/test exports: File 'conandata.yml' found. Exporting it...
+crowcpp-crow/1.0+3@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+crowcpp-crow/1.0+3@andrei/test: Calling export_sources()
+crowcpp-crow/1.0+3@andrei/test: The stored package has not changed
+crowcpp-crow/1.0+3@andrei/test: Using the exported files summary hash as the recipe revision: 8aaeb834a8709ec4cae5b9f78482fe3b 
+crowcpp-crow/1.0+3@andrei/test: Exported revision: 8aaeb834a8709ec4cae5b9f78482fe3b
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+crowcpp-crow/1.0+3@andrei/test (test package): Installing package
+Requirements
+    boost/1.77.0 from 'conancenter' - Cache
+    bzip2/1.0.8 from 'conancenter' - Cache
+    crowcpp-crow/1.0+3@andrei/test from local cache - Cache
+    libbacktrace/cci.20210118 from 'conancenter' - Cache
+    zlib/1.2.12 from 'conancenter' - Cache
+Packages
+    boost/1.77.0:50fd0a8203a1144113823b2cc49dc540cc27be83 - Cache
+    bzip2/1.0.8:e18203d1df1519e4a855a273390f0f15fef1850c - Cache
+    crowcpp-crow/1.0+3@andrei/test:36dcbc6f6b87a997e9c9a47f12417de719c51d35 - Cache
+    libbacktrace/cci.20210118:b6f45f661d53342860982dee02186c649186beee - Cache
+    zlib/1.2.12:b6f45f661d53342860982dee02186c649186beee - Cache
+
+Installing (downloading, building) binaries...
+bzip2/1.0.8: Already installed!
+bzip2/1.0.8: Appending PATH environment variable: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/bin
+libbacktrace/cci.20210118: Already installed!
+zlib/1.2.12: Already installed!
+boost/1.77.0: Already installed!
+crowcpp-crow/1.0+3@andrei/test: Already installed!
+crowcpp-crow/1.0+3@andrei/test (test package): Generator txt created conanbuildinfo.txt
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake_find_package created Findcrow.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake_find_package created FindBoost.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake_find_package created FindZLIB.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake_find_package created FindBZip2.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake_find_package created Findlibbacktrace.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+crowcpp-crow/1.0+3@andrei/test (test package): Aggregating env generators
+crowcpp-crow/1.0+3@andrei/test (test package): Generated conaninfo.txt
+crowcpp-crow/1.0+3@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+crowcpp-crow/1.0+3@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -DCROW_AMALGAMATION="False" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake targets configuration
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Library bz2 found /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Library backtrace found /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Conan: Using autogenerated Findcrow.cmake
+-- Found crow: 1.0+3 (found version "1.0+3") 
+-- Conan: Using autogenerated FindBoost.cmake
+-- Found Boost: 1.77.0 (found version "1.77.0") 
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Conan: Using autogenerated FindBZip2.cmake
+-- Found BZip2: 1.0.8 (found version "1.0.8") 
+-- Library bz2 found /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Found: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Conan: Using autogenerated FindZLIB.cmake
+-- Found ZLIB: 1.2.12 (found version "1.2.12") 
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Found: /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Conan: Using autogenerated Findlibbacktrace.cmake
+-- Found libbacktrace: cci.20210118 (found version "cci.20210118") 
+-- Library backtrace found /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Skipping already existing target: CONAN_LIB::libbacktrace_backtrace
+-- Found: /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Found: /home/andrei/.conan/data/boost/1.77.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/crowcpp-crow/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/test_package.dir/test_package.cpp.o
+[100%] Linking CXX executable bin/test_package
+[100%] Built target test_package
+crowcpp-crow/1.0+3@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
