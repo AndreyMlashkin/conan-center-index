@@ -4,7 +4,7 @@ from conan.tools.build import cross_building, check_min_cppstd
 from conan.tools.microsoft import is_msvc
 from conan.errors import ConanInvalidConfiguration
 from conans import CMake
-from conans.tools import is_apple_os
+from conan.tools.apple import is_apple_os
 import json
 import os
 import re
@@ -151,7 +151,7 @@ class AbseilConan(ConanFile):
                                     for system_lib in ["bcrypt", "advapi32", "dbghelp"]:
                                         if system_lib in dependency:
                                             components[potential_lib_name].setdefault("system_libs", []).append(system_lib)
-                                elif is_apple_os(self.settings.os):
+                                elif is_apple_os(self):
                                     for framework in ["CoreFoundation"]:
                                         if framework in dependency:
                                             components[potential_lib_name].setdefault("frameworks", []).append(framework)

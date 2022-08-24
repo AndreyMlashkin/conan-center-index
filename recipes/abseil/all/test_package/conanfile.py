@@ -1,4 +1,6 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conans import CMake
 import os
 
 
@@ -8,12 +10,12 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["CXX20_SUPPORTED"] = tools.Version(self.deps_cpp_info["abseil"].version) > "20210324.2"
+        cmake.definitions["CXX20_SUPPORTED"] = tools.scm.Version(self.deps_cpp_info["abseil"].version) > "20210324.2"
         cmake.configure()
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
             self.run("%s -s" % bin_path, run_environment=True)
             bin_global_path = os.path.join("bin", "test_package_global")
