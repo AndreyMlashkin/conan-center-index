@@ -1,5 +1,5 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class BvdbergCtestConan(ConanFile):
@@ -16,7 +16,7 @@ class BvdbergCtestConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "ctest" + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
