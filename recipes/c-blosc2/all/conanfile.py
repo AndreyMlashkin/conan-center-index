@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.microsoft import is_msvc
 import os
 import functools
@@ -73,7 +74,7 @@ class CBlosc2Conan(ConanFile):
             self.requires("zstd/1.5.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -100,7 +101,7 @@ class CBlosc2Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         for filename in glob.glob(os.path.join(self._source_subfolder, "cmake", "Find*.cmake")):
             if os.path.basename(filename) not in [
@@ -119,11 +120,11 @@ class CBlosc2Conan(ConanFile):
             self.copy(license_file, dst="licenses", src=os.path.join(self._source_subfolder, "LICENSES"))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            tools.files.rm(self, os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "blosc2")
