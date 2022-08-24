@@ -1,0 +1,97 @@
+Exporting package recipe
+cpp-peglib/0.1.13@andrei/test exports: File 'conandata.yml' found. Exporting it...
+cpp-peglib/0.1.13@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+cpp-peglib/0.1.13@andrei/test: A new conanfile.py version was exported
+cpp-peglib/0.1.13@andrei/test: Folder: /home/andrei/.conan/data/cpp-peglib/0.1.13/andrei/test/export
+cpp-peglib/0.1.13@andrei/test: Using the exported files summary hash as the recipe revision: db2019f81c21f626b460b6d86f2547e3 
+cpp-peglib/0.1.13@andrei/test: Source folder is corrupted, forcing removal
+cpp-peglib/0.1.13@andrei/test: Exported revision: db2019f81c21f626b460b6d86f2547e3
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+cpp-peglib/0.1.13@andrei/test (test package): Installing package
+Requirements
+    cpp-peglib/0.1.13@andrei/test from local cache - Cache
+Packages
+    cpp-peglib/0.1.13@andrei/test:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Build
+
+Installing (downloading, building) binaries...
+cpp-peglib/0.1.13@andrei/test: Configuring sources in /home/andrei/.conan/data/cpp-peglib/0.1.13/andrei/test/source
+cpp-peglib/0.1.13@andrei/test: 
+cpp-peglib/0.1.13@andrei/test: Building your package in /home/andrei/.conan/data/cpp-peglib/0.1.13/andrei/test/build/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cpp-peglib/0.1.13@andrei/test: Generator txt created conanbuildinfo.txt
+cpp-peglib/0.1.13@andrei/test: Aggregating env generators
+cpp-peglib/0.1.13@andrei/test: Calling build()
+cpp-peglib/0.1.13@andrei/test: Package '5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9' built
+cpp-peglib/0.1.13@andrei/test: Build folder /home/andrei/.conan/data/cpp-peglib/0.1.13/andrei/test/build/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cpp-peglib/0.1.13@andrei/test: Generated conaninfo.txt
+cpp-peglib/0.1.13@andrei/test: Generated conanbuildinfo.txt
+cpp-peglib/0.1.13@andrei/test: Generating the package
+cpp-peglib/0.1.13@andrei/test: Package folder /home/andrei/.conan/data/cpp-peglib/0.1.13/andrei/test/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cpp-peglib/0.1.13@andrei/test: Calling package()
+cpp-peglib/0.1.13@andrei/test package(): Packaged 1 '.h' file: peglib.h
+cpp-peglib/0.1.13@andrei/test package(): Packaged 1 file: LICENSE
+cpp-peglib/0.1.13@andrei/test: Package '5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9' created
+cpp-peglib/0.1.13@andrei/test: Created package revision 603f665b45ed7449a2f25fba0edaf8ac
+cpp-peglib/0.1.13@andrei/test (test package): Generator txt created conanbuildinfo.txt
+cpp-peglib/0.1.13@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+cpp-peglib/0.1.13@andrei/test (test package): Aggregating env generators
+cpp-peglib/0.1.13@andrei/test (test package): Generated conaninfo.txt
+cpp-peglib/0.1.13@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+cpp-peglib/0.1.13@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/cpp-peglib/0.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/test_package.dir/test_package.cpp.o
+[100%] Linking CXX executable bin/test_package
+[100%] Built target test_package
+cpp-peglib/0.1.13@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
