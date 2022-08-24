@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -45,11 +46,11 @@ class DoubleConversionConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) < "14":
+           tools.scm.Version(self.settings.compiler.version) < "14":
             raise ConanInvalidConfiguration("Double Convertion could not be built by MSVC <14")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
@@ -65,7 +66,7 @@ class DoubleConversionConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
