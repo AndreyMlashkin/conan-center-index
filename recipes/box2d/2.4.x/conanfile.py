@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.29.1"
 
@@ -37,7 +38,7 @@ class Box2dConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("box2d-%s" % self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -51,7 +52,7 @@ class Box2dConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -59,12 +60,12 @@ class Box2dConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "box2d"
         self.cpp_info.names["cmake_find_package_multi"] = "box2d"
         self.cpp_info.libs = ["box2d"]
-        if tools.Version(self.version) >= "2.4.1" and self.options.shared:
+        if tools.scm.Version(self.version) >= "2.4.1" and self.options.shared:
             self.cpp_info.defines.append("B2_SHARED")
