@@ -49,7 +49,7 @@ class CppunitConan(ConanFile):
             self.build_requires("automake/1.16.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -57,9 +57,9 @@ class CppunitConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
@@ -107,9 +107,9 @@ class CppunitConan(ConanFile):
             os.rename(os.path.join(self.package_folder, "lib", "cppunit.dll.lib"),
                       os.path.join(self.package_folder, "lib", "cppunit.lib"))
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["cppunit"]

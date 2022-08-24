@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.43.0"
@@ -31,7 +31,7 @@ class CpphttplibConan(ConanFile):
         return "source_subfolder"
 
     def config_options(self):
-        if tools.Version(self.version) < "0.7.2":
+        if tools.scm.Version(self.version) < "0.7.2":
             del self.options.with_brotli
 
     def requirements(self):
@@ -44,13 +44,13 @@ class CpphttplibConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

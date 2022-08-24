@@ -2,8 +2,9 @@ from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.build import can_run
 from conan.tools.scm import Version
 from conan.tools import files
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -94,7 +95,7 @@ class FollyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(self.name, self.settings.compiler))
@@ -166,7 +167,7 @@ class FollyConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -28,7 +28,7 @@ class FtjamConan(ConanFile):
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("ftjam can't be cross-built")
 
     def package_id(self):
@@ -47,13 +47,13 @@ class FtjamConan(ConanFile):
             self.build_requires("bison/3.7.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "jamgram.c"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "jamgram.c"),
                               "\n#line", "\n//#line")
 
     def _configure_autotools(self):
@@ -62,13 +62,13 @@ class FtjamConan(ConanFile):
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
         # The configure MUST be run inside this directory
-        with tools.chdir(os.path.join(self.build_folder, self._source_subfolder, "builds", "unix")):
+        with tools.files.chdir(self, os.path.join(self.build_folder, self._source_subfolder, "builds", "unix")):
             self._autotools.configure()
         return self._autotools
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             if self.settings.os == "Windows":
                 # toolset name of the system building ftjam
                 jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
@@ -87,16 +87,16 @@ class FtjamConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        txt = tools.load(os.path.join(self._source_subfolder, "jam.c"))
+        txt = tools.files.load(self, os.path.join(self._source_subfolder, "jam.c"))
         license_txt = txt[:txt.find("*/")+3]
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), license_txt)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_txt)
         if self.settings.os == "Windows":
             if self.settings.compiler == "Visual Studio":
                 pass
             else:
                 self.copy("*.exe", src=os.path.join(self._source_subfolder, "bin.nt"), dst=os.path.join(self.package_folder, "bin"))
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 autotools = self._configure_autotools()
                 autotools.install()
 

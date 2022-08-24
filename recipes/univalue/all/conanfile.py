@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 from contextlib import contextmanager
 import os
 
@@ -47,7 +48,7 @@ class UnivalueConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -64,12 +65,12 @@ class UnivalueConan(ConanFile):
             conf_args.extend(["--disable-shared", "--enable-static"])
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file("libtool", "-Wl,-DLL,-IMPLIB", "-link -DLL -link -DLL -link -IMPLIB")
+            tools.files.replace_in_file(self, "libtool", "-Wl,-DLL,-IMPLIB", "-link -DLL -link -DLL -link -IMPLIB")
         return self._autotools
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     @contextmanager
     def _build_context(self):
@@ -81,7 +82,7 @@ class UnivalueConan(ConanFile):
                     "CPP": "cl -nologo -EP",
                     "LD": "link",
                     "CXXLD": "link",
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
                     "NM": "dumpbin -symbols",
                 }
                 with tools.environment_append(env):
@@ -91,7 +92,7 @@ class UnivalueConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} --verbose --install --force".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -103,10 +104,10 @@ class UnivalueConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
                          os.path.join(self.package_folder, "lib", "univalue.lib"))
 
     def package_info(self):

@@ -1,6 +1,7 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration, ConanException
 import conan.tools.files
 import textwrap, shutil
 import functools
@@ -129,9 +130,9 @@ class ogrecmakeconan(ConanFile):
          OGRE 1.x is very old and will not work with latest gcc, clang and msvc compilers.
          TODO: determine incompatible msvc compilers
         """
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) >= 11:
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) >= 11:
             raise ConanInvalidConfiguration("OGRE 1.x not supported with gcc version greater than 11")
-        if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) >= 11:
+        if self.settings.compiler == "clang" and tools.scm.Version(self.settings.compiler.version) >= 11:
             raise ConanInvalidConfiguration("OGRE 1.x not supported with clang version greater than 11")
         
         miss_boost_required_comp = any(getattr(self.options["boost"], "without_{}".format(boost_comp), True) for boost_comp in self._required_boost_components)
@@ -169,7 +170,7 @@ class ogrecmakeconan(ConanFile):
         cmake.definitions["OGRE_CONFIG_NODE_INHERIT_TRANSFORM"] = False
         cmake.definitions["OGRE_GLSUPPORT_USE_EGL"] = self.options.glsupport_use_egl
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         else:
             # INFO: OpenEXR requires C++11
             cmake.definitions["CMAKE_CXX_STANDARD"] = 11
@@ -211,10 +212,10 @@ class ogrecmakeconan(ConanFile):
 
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # the pkgs below are not available as conan recipes yet
         # TODO: delte line 200-208 once the conan recipes are available
         ogre_pkg_modules = ["AMDQBS", "Cg", "HLSL2GLSL", "GLSLOptimizer", "OpenGLES", "OpenGLES2", "OpenGLES3", "SDL2", "Softimage", "Wix"]
@@ -235,13 +236,13 @@ class ogrecmakeconan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="License.md", dst="licenses", src=os.path.join(self._source_subfolder, "Docs"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.Version(self.version)
+            tools.scm.Version(self.version)
         )
         
         
@@ -258,7 +259,7 @@ class ogrecmakeconan(ConanFile):
             set(OGRE_PLUGIN_DIR "${{OGRE_PREFIX_DIR}}/lib/OGRE")
             set(OGRE_CONFIG_DIR "${{OGRE_PREFIX_DIR}}/share/OGRE") 
         """.format(major=version.major, minor=version.minor, patch=version.patch))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
 
     @property

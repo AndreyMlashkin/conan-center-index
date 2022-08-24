@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import glob
 import os
 import shutil
@@ -33,17 +34,17 @@ class FoxiConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("foxi-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(cmakelists, "add_msvc_runtime_flag(foxi_loader)", "")
-        tools.replace_in_file(cmakelists, "add_msvc_runtime_flag(foxi_dummy)", "")
-        tools.replace_in_file(cmakelists,
+        tools.files.replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_loader)", "")
+        tools.files.replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_dummy)", "")
+        tools.files.replace_in_file(self, cmakelists,
                               "DESTINATION lib",
                               "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib")
 

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -70,7 +71,7 @@ class LibuvcConan(ConanFile):
             raise ConanInvalidConfiguration("libuvc is not compatible with Visual Studio.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -82,7 +83,7 @@ class LibuvcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -90,8 +91,8 @@ class LibuvcConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         cmake_target = "UVCShared" if self.options.shared else "UVCStatic"
@@ -99,7 +100,7 @@ class LibuvcConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "LibUVC::{}".format(cmake_target))
         self.cpp_info.set_property("pkg_config_name", "libuvc")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_libuvc"].libs = tools.collect_libs(self)
+        self.cpp_info.components["_libuvc"].libs = tools.files.collect_libs(self, self)
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "libuvc"

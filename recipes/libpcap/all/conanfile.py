@@ -1,6 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag
 from conans import AutoToolsBuildEnvironment, tools, ConanFile, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
@@ -71,12 +71,12 @@ class LibPcapConan(ConanFile):
             self.requires("libusb/1.0.24")
 
     def validate(self):
-        if tools.Version(self.version) < "1.10.0" and self.settings.os == "Macos" and self.options.shared:
+        if tools.scm.Version(self.version) < "1.10.0" and self.settings.os == "Macos" and self.options.shared:
             raise ConanInvalidConfiguration("libpcap {} can not be built as shared on OSX.".format(self.version))
-        if hasattr(self, "settings_build") and tools.cross_building(self) and \
-           self.options.shared and tools.is_apple_os(self.settings.os):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self) and \
+           self.options.shared and tools.apple.is_apple_os(self):
             raise ConanInvalidConfiguration("cross-build of libpcap shared is broken on Apple")
-        if tools.Version(self.version) < "1.10.1" and self.settings.os == "Windows" and not self.options.shared:
+        if tools.scm.Version(self.version) < "1.10.1" and self.settings.os == "Windows" and not self.options.shared:
             raise ConanInvalidConfiguration("libpcap can not be built static on Windows below version 1.10.1.")
 
     def package_id(self):
@@ -90,7 +90,7 @@ class LibPcapConan(ConanFile):
             self.build_requires("flex/2.6.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -110,14 +110,14 @@ class LibPcapConan(ConanFile):
             "--disable-dbus",
             "--disable-rdma",
         ]
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             target_os = "linux" if self.settings.os == "Linux" else "null"
             configure_args.append("--with-pcap=%s" % target_os)
         elif "arm" in self.settings.arch and self.settings.os == "Linux":
             configure_args.append("--host=arm-linux")
         self._autotools.configure(args=configure_args, configure_dir=self._source_subfolder)
         # Relocatable shared lib on macOS
-        tools.replace_in_file("Makefile", "-install_name $(libdir)/", "-install_name @rpath/")
+        tools.files.replace_in_file(self, "Makefile", "-install_name $(libdir)/", "-install_name @rpath/")
         return self._autotools
 
     def _configure_cmake(self):
@@ -149,9 +149,9 @@ class LibPcapConan(ConanFile):
         if self.settings.os == "Windows":
             cmake = self._configure_cmake()
             cmake.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             if self.options.shared:
-                tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "pcap_static.lib")
+                tools.files.rm(self, "pcap_static.lib", os.path.join(self.package_folder, "lib"))
 
             def flatten_filetree(folder):
                 for file in glob.glob(folder + "/**/*"):
@@ -160,16 +160,16 @@ class LibPcapConan(ConanFile):
                     os.rmdir(subdir)
 
             # libpcap installs into a subfolder like x64 or amd64
-            with tools.chdir(self.package_folder):
+            with tools.files.chdir(self, self.package_folder):
                 flatten_filetree("bin")
                 flatten_filetree("lib")
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             if self.options.shared:
-                tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+                tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libpcap")

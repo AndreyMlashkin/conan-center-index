@@ -1,8 +1,9 @@
 import shutil
 from conan import tools
 from conan.tools.scm import Version
-from conans import ConanFile, CMake, tools as tools_legacy
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake as tools_legacy
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.49.0"
@@ -308,7 +309,7 @@ class grpcConan(ConanFile):
             return ["wsock32"] if self.settings.os == "Windows" else []
 
         def corefoundation():
-            return ["CoreFoundation"] if tools_legacy.is_apple_os(self.settings.os) else []
+            return ["CoreFoundation"] if tools_legacy.is_apple_os(self) else []
 
         components = {
             "address_sorting": {

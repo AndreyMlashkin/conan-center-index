@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 import textwrap
@@ -68,14 +69,14 @@ class RapidcheckConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self._is_msvc and self.options.shared:
             raise ConanInvalidConfiguration("shared is not supported using Visual Studio")
         if self.options.enable_gmock and not self.deps_cpp_info["gtest"].build_gmock:
             raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires gtest:build_gmock=True`")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -92,7 +93,7 @@ class RapidcheckConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -100,7 +101,7 @@ class RapidcheckConan(ConanFile):
         self.copy(pattern="LICENSE*", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -123,7 +124,7 @@ class RapidcheckConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -135,7 +136,7 @@ class RapidcheckConan(ConanFile):
         self.cpp_info.components["rapidcheck_rapidcheck"].set_property("cmake_target_name", "rapidcheck")
         self.cpp_info.components["rapidcheck_rapidcheck"].libs = ["rapidcheck"]
         version = str(self.version)[4:]
-        if tools.Version(version) < "20201218":
+        if tools.scm.Version(version) < "20201218":
             if self.options.enable_rtti:
                 self.cpp_info.components["rapidcheck_rapidcheck"].defines.append("RC_USE_RTTI")
         else:

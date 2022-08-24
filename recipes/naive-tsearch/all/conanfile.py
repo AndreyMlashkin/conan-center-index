@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -36,7 +37,7 @@ class NaiveTsearchConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -56,9 +57,9 @@ class NaiveTsearchConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         del self.info.options.header_only

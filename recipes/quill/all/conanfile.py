@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -63,32 +64,32 @@ class QuillConan(ConanFile):
         if not any(arch in str(self.settings.arch) for arch in supported_archs):
             raise ConanInvalidConfiguration("{} is not supported by {}".format(self.settings.arch, self.name))
 
-        cxx_std = "17" if tools.Version(self.version) >= "2.0.0" else "14"
+        cxx_std = "17" if tools.scm.Version(self.version) >= "2.0.0" else "14"
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, cxx_std)
+            tools.build.check_min_cppstd(self, cxx_std)
 
         compilers_minimum_version = self._compilers_minimum_versions[cxx_std]
         minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++{}, which your compiler does not support.".format(self.name, cxx_std))
         else:
             self.output.warn("{} requires C++{}. Your compiler is unknown. Assuming it supports C++{}.".format(self.name, cxx_std, cxx_std))
 
-        if tools.Version(self.version) >= "2.0.0" and \
-            self.settings.compiler== "clang" and tools.Version(self.settings.compiler.version).major == "11" and \
+        if tools.scm.Version(self.version) >= "2.0.0" and \
+            self.settings.compiler== "clang" and tools.scm.Version(self.settings.compiler.version).major == "11" and \
             self.settings.compiler.libcxx == "libstdc++":
             raise ConanInvalidConfiguration("{}/{} requires C++ filesystem library, which your compiler doesn't support.".format(self.name, self.version))
 
     def requirements(self):
-        if tools.Version(self.version) >= "1.6.3":
+        if tools.scm.Version(self.version) >= "1.6.3":
             self.requires("fmt/9.0.0")
         else:
             self.requires("fmt/7.1.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -102,15 +103,15 @@ class QuillConan(ConanFile):
         return cmake
 
     def build(self):
-        if tools.Version(self.version) >= "2.0.0":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        if tools.scm.Version(self.version) >= "2.0.0":
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 """set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/quill/cmake" CACHE STRING "Modules for CMake" FORCE)""",
                 """set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/quill/cmake")"""
             )
 
         # remove bundled fmt
-        tools.rmdir(os.path.join(self._source_subfolder, "quill", "quill", "include", "quill", "bundled", "fmt"))
-        tools.rmdir(os.path.join(self._source_subfolder, "quill", "quill", "src", "bundled", "fmt"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "quill", "quill", "include", "quill", "bundled", "fmt"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "quill", "quill", "src", "bundled", "fmt"))
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -121,15 +122,15 @@ class QuillConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.defines = ["QUILL_FMT_EXTERNAL"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-        if tools.Version(self.version) >= "2.0.0" and \
-            self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version).major == "8":
+        if tools.scm.Version(self.version) >= "2.0.0" and \
+            self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version).major == "8":
             self.cpp_info.system_libs.append("stdc++fs")

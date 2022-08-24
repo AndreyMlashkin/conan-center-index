@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -30,7 +31,7 @@ class DiligentToolsConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package_id(self):
         if self.settings.compiler == "Visual Studio":
@@ -49,11 +50,11 @@ class DiligentToolsConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.options.shared:
             raise ConanInvalidConfiguration("Can't build diligent tools as shared lib")
 
@@ -115,11 +116,11 @@ class DiligentToolsConan(ConanFile):
         self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.a", src=self._build_subfolder, dst="lib", keep_path=False)
-        tools.rmdir(os.path.join(self.package_folder, "Licenses"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "Licenses"))
         self.copy("License.txt", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools"))
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
 

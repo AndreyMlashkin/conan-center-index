@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class Rangev3Conan(ConanFile):
@@ -19,7 +19,7 @@ class Rangev3Conan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        rangev3_version = tools.Version(self.version)
+        rangev3_version = tools.scm.Version(self.version)
         return {
             "gcc": "5" if rangev3_version < "0.10.0" else "6.5",
             "Visual Studio": "16",
@@ -35,12 +35,12 @@ class Rangev3Conan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            tools.build.check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("{0} {1} support for range-v3 is unknown, assuming it is supported."
                              .format(self.settings.compiler, self.settings.compiler.version))
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("range-v3 {0} requires C++{1} with {2}, which is not supported by {2} {3}"
                                             .format(self.version,
                                                     self._min_cppstd,
@@ -51,7 +51,7 @@ class Rangev3Conan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_folder = self.name + "-" + self.version
         os.rename(extracted_folder, self._source_subfolder)
 
@@ -64,7 +64,7 @@ class Rangev3Conan(ConanFile):
         self.cpp_info.components["range-v3-meta"].names["cmake_find_package_multi"] = "meta"
         if self.settings.compiler == "Visual Studio":
             self.cpp_info.components["range-v3-meta"].cxxflags = ["/permissive-"]
-            version = tools.Version(self.version)
+            version = tools.scm.Version(self.version)
             if "0.9.0" <= version and version < "0.11.0":
                 self.cpp_info.components["range-v3-meta"].cxxflags.append("/experimental:preprocessor")
         self.cpp_info.components["range-v3-concepts"].names["cmake_find_package"] = "concepts"

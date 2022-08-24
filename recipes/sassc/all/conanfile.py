@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools, MSBuild
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -41,11 +41,11 @@ class SasscConan(ConanFile):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self.build_folder, self._source_subfolder, "win", "sassc.vcxproj"),
             "$(LIBSASS_DIR)\\win\\libsass.targets",
             os.path.join(self.build_folder, "conanbuildinfo.props"))
@@ -67,17 +67,17 @@ class SasscConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             if self._is_msvc:
                 self._build_msbuild()
             else:
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
-                tools.save(path="VERSION", content="%s" % self.version)
+                tools.files.save(self, path="VERSION", content="%s" % self.version)
                 autotools = self._configure_autotools()
                 autotools.make()
 
     def package(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             if self._is_msvc:
                 self.copy("*.exe", dst="bin", src=os.path.join(self._source_subfolder, "bin"), keep_path=False)
             else:

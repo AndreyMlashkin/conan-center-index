@@ -47,7 +47,7 @@ class OpencoreAmrConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -58,7 +58,7 @@ class OpencoreAmrConan(ConanFile):
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link -nologo",
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -76,7 +76,7 @@ class OpencoreAmrConan(ConanFile):
         ]
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
-            if tools.Version(self.settings.compiler.version) >= "12":
+            if tools.scm.Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
         self._autotools.configure(args=args, configure_dir=self._source_subfolder)
         return self._autotools
@@ -89,11 +89,11 @@ class OpencoreAmrConan(ConanFile):
     def package(self):
         self._autotools.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
             for lib in ("opencore-amrwb", "opencore-amrnb"):
-                tools.rename(os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
+                tools.files.rename(self, os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
                              os.path.join(self.package_folder, "lib", "{}.lib".format(lib)))
 
     def package_info(self):

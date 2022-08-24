@@ -1,4 +1,6 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan import ConanFile
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -43,16 +45,16 @@ class RectangleBinPackConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0],
+        tools.files.get(self, **self.conan_data["sources"][self.version][0],
                   strip_root=True, destination=self._source_subfolder)
-        tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

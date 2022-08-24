@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -20,7 +20,7 @@ class TlConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "6.4",
@@ -46,7 +46,7 @@ class TlConan(ConanFile):
                 "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("tl-%s" % self.version, self._source_subfolder)
 
     def package(self):

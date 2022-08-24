@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -114,25 +115,25 @@ class GtsamConan(ConanFile):
         if self.options.with_TBB and not self.options["onetbb"].tbbmalloc:
             raise ConanInvalidConfiguration("gtsam with tbb requires onetbb:tbbmalloc=True")
 
-        if is_msvc(self) and tools.Version(self.settings.compiler.version) < 15:
+        if is_msvc(self) and tools.scm.Version(self.settings.compiler.version) < 15:
             raise ConanInvalidConfiguration ("GTSAM requires MSVC >= 15")
 
-        if is_msvc(self) and tools.Version(self.version) >= '4.1' \
+        if is_msvc(self) and tools.scm.Version(self.version) >= '4.1' \
                 and self.options.shared:
             raise ConanInvalidConfiguration("GTSAM does not support shared builds on MSVC. see https://github.com/borglab/gtsam/issues/1087")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if is_msvc(self):
-            tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "GtsamBuildTypes.cmake"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "GtsamBuildTypes.cmake"),
                                   "/MD ",
                                   "/{} ".format(msvc_runtime_flag(self)))
-            tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "GtsamBuildTypes.cmake"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "GtsamBuildTypes.cmake"),
                                   "/MDd ",
                                   "/{} ".format(msvc_runtime_flag(self)))
 
@@ -184,8 +185,8 @@ class GtsamConan(ConanFile):
         cmake.install()
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         self.copy("LICENSE.BSD", src=self._source_subfolder, dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "CMake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -208,7 +209,7 @@ class GtsamConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -227,7 +228,7 @@ class GtsamConan(ConanFile):
             self.cpp_info.components["libgtsam"].requires.append("onetbb::onetbb")
         if self.options.support_nested_dissection:
             self.cpp_info.components["libgtsam"].requires.append("libmetis-gtsam")
-        if self.settings.os == "Windows" and tools.Version(self.version) >= "4.0.3":
+        if self.settings.os == "Windows" and tools.scm.Version(self.version) >= "4.0.3":
             self.cpp_info.components["libgtsam"].system_libs = ["dbghelp"]
 
         if self.options.build_unstable:

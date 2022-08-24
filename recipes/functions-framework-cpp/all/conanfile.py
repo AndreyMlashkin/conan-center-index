@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -79,7 +80,7 @@ class FunctionsFrameworkCppConan(ConanFile):
             )
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -96,13 +97,13 @@ class FunctionsFrameworkCppConan(ConanFile):
         if self._is_msvc and self.options.shared:
             raise ConanInvalidConfiguration("Fails to build for Visual Studio as a DLL")
 
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration(
                 "Recipe not prepared for cross-building (yet)"
             )
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             strip_root=True
@@ -120,7 +121,7 @@ class FunctionsFrameworkCppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -128,8 +129,8 @@ class FunctionsFrameworkCppConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "functions_framework_cpp")

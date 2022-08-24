@@ -2,7 +2,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import rename, get
 from conans import tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 class AclConan(ConanFile):
@@ -25,9 +25,9 @@ class AclConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "11"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("acl can't be compiled by {0} {1}".format(self.settings.compiler,
                                                                                       self.settings.compiler.version))
 

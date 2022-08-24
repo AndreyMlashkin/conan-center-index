@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 import shutil
 
@@ -54,7 +55,7 @@ class LibDaemonConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -67,7 +68,7 @@ class LibDaemonConan(ConanFile):
             "--enable-static={}".format(yes_no(not self.options.shared)),
             "--disable-examples",
         ]
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             args.append("ac_cv_func_setpgrp_void=yes")
         self._autotools.configure(configure_dir=self._source_subfolder, args=args)
         return self._autotools
@@ -84,9 +85,9 @@ class LibDaemonConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libdaemon"

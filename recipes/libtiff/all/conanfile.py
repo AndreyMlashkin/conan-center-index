@@ -1,8 +1,9 @@
 from conan.tools.files import get, rename, rmdir
 from conan.tools.microsoft import is_msvc
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.47.0"
@@ -115,7 +116,7 @@ class LibtiffConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         # Rename the generated Findjbig.cmake and Findzstd.cmake to avoid case insensitive conflicts with FindJBIG.cmake and FindZSTD.cmake on Windows
         if Version(self.version) >= "4.3.0":
@@ -130,19 +131,19 @@ class LibtiffConan(ConanFile):
 
         if self.options.shared and is_msvc(self):
             # https://github.com/Microsoft/vcpkg/blob/master/ports/tiff/fix-cxx-shared-libs.patch
-            tools.replace_in_file(os.path.join(self._source_subfolder, "libtiff", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "libtiff", "CMakeLists.txt"),
                                   r"set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
                                   r"set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} "
                                   r"WINDOWS_EXPORT_ALL_SYMBOLS ON)")
         cmakefile = os.path.join(self._source_subfolder, "CMakeLists.txt")
         if self.settings.os == "Windows" and not is_msvc(self):
             if Version(self.version) < "4.2.0":
-                tools.replace_in_file(cmakefile,
+                tools.files.replace_in_file(self, cmakefile,
                                     "find_library(M_LIBRARY m)",
                                     "if (NOT MINGW)\n  find_library(M_LIBRARY m)\nendif()")
             if Version(self.version) < "4.0.9":
-                tools.replace_in_file(cmakefile, "if (UNIX)", "if (UNIX OR MINGW)")
-        tools.replace_in_file(cmakefile,
+                tools.files.replace_in_file(self, cmakefile, "if (UNIX)", "if (UNIX OR MINGW)")
+        tools.files.replace_in_file(self, cmakefile,
                               "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
                               "add_subdirectory(man)\nadd_subdirectory(html)", "")
 
@@ -167,7 +168,7 @@ class LibtiffConan(ConanFile):
             # Workaround for cross-build to at least iOS/tvOS/watchOS,
             # when dependencies like libdeflate, jbig and zstd are found with find_path() and find_library()
             # see https://github.com/conan-io/conan-center-index/issues/6637
-            if tools.cross_building(self):
+            if tools.build.cross_building(self, self):
                 self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_INCLUDE"] = "BOTH"
                 self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_LIBRARY"] = "BOTH"
 

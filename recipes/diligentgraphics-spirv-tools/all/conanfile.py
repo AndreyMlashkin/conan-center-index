@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -63,7 +64,7 @@ class SpirvtoolsConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def _validate_dependency_graph(self):
         if self.deps_cpp_info["diligentgraphics-spirv-headers"].version != self._get_compatible_spirv_headers_version:
@@ -71,7 +72,7 @@ class SpirvtoolsConan(ConanFile):
                                             .format(self.version, self._get_compatible_spirv_headers_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -106,10 +107,10 @@ class SpirvtoolsConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # CMAKE_POSITION_INDEPENDENT_CODE was set ON for the entire
         # project in the lists file.
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def package(self):
@@ -117,21 +118,21 @@ class SpirvtoolsConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "SPIRV-Tools"))
-        tools.rmdir(os.path.join(self.package_folder, "SPIRV-Tools-link"))
-        tools.rmdir(os.path.join(self.package_folder, "SPIRV-Tools-opt"))
-        tools.rmdir(os.path.join(self.package_folder, "SPIRV-Tools-reduce"))
-        tools.rmdir(os.path.join(self.package_folder, "SPIRV-Tools-lint"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-link"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-opt"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-reduce"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-lint"))
 
         if self.options.shared:
             for file_name in ["*SPIRV-Tools", "*SPIRV-Tools-opt", "*SPIRV-Tools-link", "*SPIRV-Tools-reduce"]:
                 for ext in [".a", ".lib"]:
-                    tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), file_name + ext)
+                    tools.files.rm(self, file_name + ext, os.path.join(self.package_folder, "lib"))
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*SPIRV-Tools-shared.dll")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*SPIRV-Tools-shared*")
+            tools.files.rm(self, "*SPIRV-Tools-shared.dll", os.path.join(self.package_folder, "bin"))
+            tools.files.rm(self, "*SPIRV-Tools-shared*", os.path.join(self.package_folder, "lib"))
 
         if self.options.shared:
             targets = {"SPIRV-Tools-shared": "diligentgraphics-spirv-tools::SPIRV-Tools"}
@@ -158,7 +159,7 @@ class SpirvtoolsConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

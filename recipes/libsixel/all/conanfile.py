@@ -1,7 +1,7 @@
 import os
 import functools
 from conans import ConanFile, Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.33.0"
@@ -49,7 +49,7 @@ class LibSixelConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
         if is_msvc(self):
             raise ConanInvalidConfiguration("{}/{} does not support Visual Studio".format(self.name, self.version))
@@ -71,7 +71,7 @@ class LibSixelConan(ConanFile):
             self.requires("libpng/1.6.37")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -99,8 +99,8 @@ class LibSixelConan(ConanFile):
         self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["sixel"]

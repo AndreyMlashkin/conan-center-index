@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -60,10 +61,10 @@ class STXConan(ConanFile):
             )
 
         compiler = self.settings.compiler
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         if compiler.get_safe('cppstd'):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         if compiler == 'Visual Studio' and compiler_version < 16:
             raise ConanInvalidConfiguration(
@@ -100,19 +101,19 @@ class STXConan(ConanFile):
             )
 
         if (compiler == 'Visual Studio' and self.options.shared and
-                tools.Version(self.version) <= '1.0.1'):
+                tools.scm.Version(self.version) <= '1.0.1'):
             raise ConanInvalidConfiguration(
                 'shared library build does not work on windows with '
                 'STX version <= 1.0.1'
             )
 
     def source(self):
-        tools.get(**self.conan_data['sources'][self.version],
+        tools.files.get(self, **self.conan_data['sources'][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get('patches', {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmake = CMake(self)
         cmake.definitions['STX_BUILD_SHARED'] = self.options.shared
@@ -143,7 +144,7 @@ class STXConan(ConanFile):
         self.copy('LICENSE', dst='licenses', src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         if self.options.backtrace:
             self.cpp_info.requires = [

@@ -1,6 +1,6 @@
 import os
 import glob
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class NanobenchConan(ConanFile):
@@ -18,7 +18,7 @@ class NanobenchConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob(self.name + "-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 

@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.45.0"
@@ -23,9 +24,9 @@ class MoldConan(ConanFile):
             raise ConanInvalidConfiguration('Mold can only be built with libstdc++11; specify mold:compiler.libcxx=libstdc++11 in your build profile')
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f'{self.name} can not be built on {self.settings.os}.')
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "11":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "11":
             raise ConanInvalidConfiguration("GCC version 11 or higher required")
-        if (self.settings.compiler == "clang" or self.settings.compiler == "apple-clang") and tools.Version(self.settings.compiler.version) < "12":
+        if (self.settings.compiler == "clang" or self.settings.compiler == "apple-clang") and tools.scm.Version(self.settings.compiler.version) < "12":
             raise ConanInvalidConfiguration("Clang version 12 or higher required")
         if self.settings.compiler == "apple-clang" and "armv8" == self.settings.arch :
             raise ConanInvalidConfiguration(f'{self.name} is still not supported by Mac M1.')
@@ -45,9 +46,9 @@ class MoldConan(ConanFile):
 
     def _patch_sources(self):
         if self.settings.compiler == "apple-clang":
-            tools.replace_in_file("source_subfolder/Makefile", "-std=c++20", "-std=c++2a")
+            tools.files.replace_in_file(self, "source_subfolder/Makefile", "-std=c++20", "-std=c++2a")
 
-        tools.replace_in_file("source_subfolder/Makefile", "-Ithird-party/xxhash ", "-I{} -I{} -I{} -I{} -I{}".format(
+        tools.files.replace_in_file(self, "source_subfolder/Makefile", "-Ithird-party/xxhash ", "-I{} -I{} -I{} -I{} -I{}".format(
         self._get_include_path("zlib"),
         self._get_include_path("openssl"),
         self._get_include_path("xxhash"),
@@ -55,10 +56,10 @@ class MoldConan(ConanFile):
         self._get_include_path("onetbb")
         ))
 
-        tools.replace_in_file("source_subfolder/Makefile", "MOLD_LDFLAGS += -ltbb", "MOLD_LDFLAGS += -L{} -ltbb".format(
+        tools.files.replace_in_file(self, "source_subfolder/Makefile", "MOLD_LDFLAGS += -ltbb", "MOLD_LDFLAGS += -L{} -ltbb".format(
             self.deps_cpp_info["onetbb"].lib_paths[0]))
 
-        tools.replace_in_file("source_subfolder/Makefile", "MOLD_LDFLAGS += -lmimalloc", "MOLD_LDFLAGS += -L{} -lmimalloc".format(
+        tools.files.replace_in_file(self, "source_subfolder/Makefile", "MOLD_LDFLAGS += -lmimalloc", "MOLD_LDFLAGS += -L{} -lmimalloc".format(
             self.deps_cpp_info["mimalloc"].lib_paths[0]))
 
     def requirements(self):
@@ -69,12 +70,12 @@ class MoldConan(ConanFile):
         self.requires("mimalloc/2.0.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.make(target="mold", args=['SYSTEM_TBB=1', 'SYSTEM_MIMALLOC=1'])
 

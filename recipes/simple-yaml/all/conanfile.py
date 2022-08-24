@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -27,7 +27,7 @@ class SimpleYamlConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):
@@ -54,7 +54,7 @@ class SimpleYamlConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "20")
+            tools.build.check_min_cppstd(self, "20")
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"] and self.settings.compiler.version == "11":
             raise ConanInvalidConfiguration("clang 11 with libstdc++ is not supported due to old libstdc++ missing C++17 support")
         minimum_version = self._minimum_compilers_version.get(
@@ -62,7 +62,7 @@ class SimpleYamlConan(ConanFile):
         if not minimum_version:
             self.output.warn(
                 "simple-yaml requires C++20. Your compiler is unknown. Assuming it fully supports C++20.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "simple-yaml requires C++20, which your compiler does not support.")
 

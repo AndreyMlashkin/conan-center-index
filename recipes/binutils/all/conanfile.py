@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import re
@@ -133,7 +133,7 @@ class BinutilsConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @property
@@ -150,14 +150,14 @@ class BinutilsConan(ConanFile):
             "--with-system-zlib",
             "--disable-nls",
             f"--program-prefix={self.options.prefix}",
-            f"exec_prefix={tools.unix_path(self._exec_prefix)}",
+            f"exec_prefix={tools.microsoft.unix_path(self, self._exec_prefix)}",
         ]
         autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         return autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -166,9 +166,9 @@ class BinutilsConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

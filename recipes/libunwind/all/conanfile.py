@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -54,7 +54,7 @@ class LiunwindConan(ConanFile):
             self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -76,7 +76,7 @@ class LiunwindConan(ConanFile):
 
     def build(self):
         for patch_data in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch_data)
+            tools.files.patch(self, **patch_data)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -84,8 +84,8 @@ class LiunwindConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.components["unwind"].names["pkg_config"] = "libunwind"

@@ -1,6 +1,7 @@
 import os
 from io import StringIO
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
@@ -12,7 +13,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             output = StringIO()
             bin_path = os.path.join("bin", "test_package")
             option_string = "-f 41 --bar baria --baz";

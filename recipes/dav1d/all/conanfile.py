@@ -2,7 +2,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import rename, get
 from conans import Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -49,11 +49,11 @@ class Dav1dConan(ConanFile):
         if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug":
             # debug builds with assembly often causes linker hangs or LNK1000
             self.options.assembly = False
-        if tools.Version(self.version) < "1.0.0":
+        if tools.scm.Version(self.version) < "1.0.0":
             del self.options.with_avx512
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     def configure(self):
@@ -77,7 +77,7 @@ class Dav1dConan(ConanFile):
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "meson.build"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                               "subdir('doc')", "")
 
     def _configure_meson(self):
@@ -86,7 +86,7 @@ class Dav1dConan(ConanFile):
         self._meson = Meson(self)
         self._meson.options["enable_tests"] = False
         self._meson.options["enable_asm"] = self.options.assembly
-        if tools.Version(self.version) < "1.0.0":
+        if tools.scm.Version(self.version) < "1.0.0":
             self._meson.options["enable_avx512"] = self.options.get_safe("with_avx512", False)
         self._meson.options["enable_tools"] = self.options.with_tools
         if self.options.bit_depth == "all":
@@ -106,10 +106,10 @@ class Dav1dConan(ConanFile):
         meson = self._configure_meson()
         meson.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
         if self.settings.compiler == "Visual Studio" and not self.options.shared:
             # https://github.com/mesonbuild/meson/issues/7378

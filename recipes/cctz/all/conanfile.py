@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -47,11 +48,11 @@ class CCTZConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) < 14:
+           tools.scm.Version(self.settings.compiler.version) < 14:
             raise ConanInvalidConfiguration("CCTZ requires MSVC >= 14")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -66,7 +67,7 @@ class CCTZConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -74,13 +75,13 @@ class CCTZConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "cctz"
         self.cpp_info.names["cmake_find_package_multi"] = "cctz"
         self.cpp_info.libs = ["cctz"]
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
 
         if self.options.build_tools:

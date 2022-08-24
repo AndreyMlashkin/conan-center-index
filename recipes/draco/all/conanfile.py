@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -66,10 +67,10 @@ class DracoConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -77,7 +78,7 @@ class DracoConan(ConanFile):
         cmake = CMake(self)
 
         # use different cmake definitions based on package version
-        if tools.Version(self.version) < "1.4.0":
+        if tools.scm.Version(self.version) < "1.4.0":
             cmake.definitions["ENABLE_POINT_CLOUD_COMPRESSION"] = self.options.enable_point_cloud_compression
             cmake.definitions["ENABLE_MESH_COMPRESSION"] = self.options.enable_mesh_compression
             if self.options.enable_mesh_compression:
@@ -137,7 +138,7 @@ class DracoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -145,13 +146,13 @@ class DracoConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if tools.Version(self.version) < "1.4.0":
-            tools.rmdir(os.path.join(self.package_folder, "lib", "draco"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        if tools.scm.Version(self.version) < "1.4.0":
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "draco"))
         else:
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
             if self.options.shared:
-                tools.remove_files_by_mask(
+                tools.files.rm(self, 
                     os.path.join(self.package_folder, "lib"),
                     "*draco.a",
                 )

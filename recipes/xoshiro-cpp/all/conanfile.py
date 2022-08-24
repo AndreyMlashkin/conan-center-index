@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.33.0"
 
@@ -34,12 +35,12 @@ class XoshiroCppConan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.Version(compiler.version) < min_version:
+            if tools.scm.Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {}."
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -52,7 +53,7 @@ class XoshiroCppConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

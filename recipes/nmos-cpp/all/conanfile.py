@@ -1,7 +1,8 @@
 import json
 import os
 import re
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -77,13 +78,13 @@ class NmosCppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.requires["boost"].minor_mode()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -116,14 +117,14 @@ class NmosCppConan(ConanFile):
         cmake_folder = os.path.join(self.package_folder, "lib", "cmake")
         self._create_components_file_from_cmake_target_file(os.path.join(cmake_folder, "nmos-cpp", "nmos-cpp-targets.cmake"))
         # remove the project's own generated config-file package
-        tools.rmdir(cmake_folder)
+        tools.files.rmdir(self, cmake_folder)
 
     # based on abseil recipe
     # see https://github.com/conan-io/conan-center-index/blob/master/recipes/abseil/all/conanfile.py
     def _create_components_file_from_cmake_target_file(self, target_file_path):
         components = {}
 
-        target_content = tools.load(target_file_path)
+        target_content = tools.files.load(self, target_file_path)
 
         cmake_functions = re.findall(r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", target_content)
         for (cmake_function_name, cmake_function_args) in cmake_functions:
@@ -226,7 +227,7 @@ class NmosCppConan(ConanFile):
             libdir = os.path.join(libdir, config_install_dir)
 
         def _register_components():
-            components_json_file = tools.load(self._components_helper_filepath)
+            components_json_file = tools.files.load(self, self._components_helper_filepath)
             components = json.loads(components_json_file)
             for component_name, values in components.items():
                 cmake_target = values["cmake_target"]

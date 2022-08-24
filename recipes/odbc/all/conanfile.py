@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import shutil
@@ -57,12 +57,12 @@ class OdbcConan(ConanFile):
         self.build_requires("gnu-config/cci.20201022")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -72,7 +72,7 @@ class OdbcConan(ConanFile):
             os.path.join(self._source_subfolder, "configure"),
             os.path.join(self._source_subfolder, "libltdl", "configure"),
         ]:
-            tools.replace_in_file(configure, "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -101,10 +101,10 @@ class OdbcConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

@@ -1,6 +1,7 @@
 import os
 import glob
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 required_conan_version = ">=1.33.0"
@@ -44,7 +45,7 @@ class MeshOptimizerConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -58,9 +59,9 @@ class MeshOptimizerConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Don't override warning levels for msvc
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "add_compile_options(/W4 /WX)", "")
 
     def build(self):
@@ -72,12 +73,12 @@ class MeshOptimizerConan(ConanFile):
         self.copy(pattern="LICENSE.md", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         for f in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.remove(f)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if not self.options.shared and tools.stdcpp_library(self):
             self.cpp_info.system_libs.append(tools.stdcpp_library(self))
         if self.options.shared and self.settings.os == "Windows":

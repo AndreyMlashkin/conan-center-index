@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.tools import Version
+from conan import ConanFile, tools
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.43.0"
@@ -26,7 +26,7 @@ class SophusConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name.capitalize() + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

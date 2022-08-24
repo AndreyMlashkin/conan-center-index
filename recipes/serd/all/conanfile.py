@@ -2,8 +2,9 @@ import os
 
 from conan.tools.build import cross_building
 from conan.tools.microsoft import is_msvc
-from conans import ConanFile, tools, Meson
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import Meson
+from conan.errors import ConanInvalidConfiguration
 from conans.tools import rmdir
 
 required_conan_version = ">=1.33.0"
@@ -29,7 +30,7 @@ class Recipe(ConanFile):
     _meson = None
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self.folders.base_source,
                   strip_root=True)
 

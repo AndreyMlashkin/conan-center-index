@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -86,12 +87,12 @@ class EnjinCppSdk(ConanFile):
         compiler = self.settings.compiler
 
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         minimum_version = self._minimum_compilers_version.get(str(compiler), False)
         if not minimum_version:
             self.output.warn("C++17 support is required. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(compiler.version) < minimum_version:
+        elif tools.scm.Version(compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support is required, which your compiler does not support.")
 
         if compiler == "clang" and compiler.libcxx != "libstdc++11":
@@ -106,7 +107,7 @@ class EnjinCppSdk(ConanFile):
                                             f"with_default_http_client=True.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -126,8 +127,8 @@ class EnjinCppSdk(ConanFile):
         self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "enjinsdk"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "enjinsdk"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "enjinsdk::enjinsdk")

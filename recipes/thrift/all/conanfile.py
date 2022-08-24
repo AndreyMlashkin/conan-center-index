@@ -1,5 +1,5 @@
 from conans import tools, CMake, ConanFile
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -90,7 +90,7 @@ class ThriftConan(ConanFile):
             self.build_requires("bison/3.7.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -123,7 +123,7 @@ class ThriftConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         for f in ["Findflex.cmake", "Findbison.cmake"]:
             if os.path.isfile(f):
                 os.unlink(f)
@@ -137,8 +137,8 @@ class ThriftConan(ConanFile):
         # Copy generated headers from build tree
         build_source_dir = os.path.join(self._build_subfolder, self._source_subfolder)
         self.copy(pattern="*.h", dst="include", src=build_source_dir, keep_path=True)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         targets = {}
@@ -163,7 +163,7 @@ class ThriftConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -185,7 +185,7 @@ class ThriftConan(ConanFile):
         self.cpp_info.components["libthrift"].libs = ["thrift" + libsuffix]
         if self.settings.os == "Windows":
             self.cpp_info.components["libthrift"].defines.append("NOMINMAX")
-            if tools.Version(self.version) >= "0.15.0":
+            if tools.scm.Version(self.version) >= "0.15.0":
                 self.cpp_info.components["libthrift"].system_libs.append("shlwapi")
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libthrift"].system_libs.extend(["m", "pthread"])

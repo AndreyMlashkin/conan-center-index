@@ -1,7 +1,8 @@
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class SbpConan(ConanFile):
@@ -38,8 +39,8 @@ class SbpConan(ConanFile):
     def source(self):
         data = self.conan_data["sources"][self.version]
 
-        tools.get(**data["source"], strip_root=True, destination=self._source_subfolder)
-        tools.get(**data["cmake"], strip_root=True, destination=os.path.join(self._source_subfolder, "c", "cmake", "common"))
+        tools.files.get(self, **data["source"], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **data["cmake"], strip_root=True, destination=os.path.join(self._source_subfolder, "c", "cmake", "common"))
 
     def _configure_cmake(self):
         if self._cmake:

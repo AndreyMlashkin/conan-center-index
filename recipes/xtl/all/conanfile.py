@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 import textwrap
 
@@ -22,7 +23,7 @@ class XtlConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
 
         minimum_version = {
             "clang": "3.9",
@@ -35,7 +36,7 @@ class XtlConan(ConanFile):
                 "Unknown compiler {} {}. Assuming compiler supports C++14."
                 .format(self.settings.compiler, self.settings.compiler.version))
         else:
-            version = tools.Version(self.settings.compiler.version)
+            version = tools.scm.Version(self.settings.compiler.version)
             if version < minimum_version:
                 raise ConanInvalidConfiguration(
                     "The compiler {} {} does not support C++14."
@@ -45,7 +46,7 @@ class XtlConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -68,7 +69,7 @@ class XtlConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

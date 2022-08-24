@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 from contextlib import contextmanager
 import functools
 import os
@@ -37,7 +38,7 @@ class M4Conan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -60,7 +61,7 @@ class M4Conan(ConanFile):
             if self.settings.build_type in ("Debug", "RelWithDebInfo"):
                 autotools.link_flags.append("-PDB")
         elif self.settings.compiler == "clang":
-            if tools.Version(self.version) < "1.4.19":
+            if tools.scm.Version(self.version) < "1.4.19":
                 autotools.flags.extend(["-rtlib=compiler-rt", "-Wno-unused-command-line-argument"])
         if self.settings.os == 'Windows':
             conf_args.extend(["ac_cv_func__set_invalid_parameter_handler=yes"])
@@ -74,7 +75,7 @@ class M4Conan(ConanFile):
         if self._is_msvc:
             with tools.vcvars(self.settings):
                 env.update({
-                    "AR": "{}/build-aux/ar-lib lib".format(tools.unix_path(self._source_subfolder)),
+                    "AR": "{}/build-aux/ar-lib lib".format(tools.microsoft.unix_path(self, self._source_subfolder)),
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link",
@@ -91,11 +92,11 @@ class M4Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
-            tools.save("help2man", '#!/usr/bin/env bash\n:')
+        with tools.files.chdir(self, self._source_subfolder):
+            tools.files.save(self, "help2man", '#!/usr/bin/env bash\n:')
             if os.name == 'posix':
                 os.chmod("help2man", os.stat("help2man").st_mode | 0o111)
         self._patch_sources()
@@ -104,7 +105,7 @@ class M4Conan(ConanFile):
             autotools.make()
             if tools.get_env("CONAN_RUN_TESTS", False):
                 self.output.info("Running m4 checks...")
-                with tools.chdir("tests"):
+                with tools.files.chdir(self, "tests"):
                     autotools.make(target="check")
 
     def package(self):
@@ -112,7 +113,7 @@ class M4Conan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

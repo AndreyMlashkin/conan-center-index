@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -41,7 +42,7 @@ class PahoMqttcConan(ConanFile):
 
     @property
     def _has_high_performance_option(self):
-        return tools.Version(self.version) >= "1.3.2"
+        return tools.scm.Version(self.version) >= "1.3.2"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -64,14 +65,14 @@ class PahoMqttcConan(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def validate(self):
-        if not self.options.shared and tools.Version(self.version) < "1.3.4":
+        if not self.options.shared and tools.scm.Version(self.version) < "1.3.4":
             raise ConanInvalidConfiguration("{}/{} does not support static linking".format(self.name, self.version))
 
     def package_id(self):
         del self.info.options.samples
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -97,12 +98,12 @@ class PahoMqttcConan(ConanFile):
 
     def _patch_source(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "SET(CMAKE_MODULE_PATH \"${CMAKE_SOURCE_DIR}/cmake/modules\")",
                               "LIST(APPEND CMAKE_MODULE_PATH \"${CMAKE_SOURCE_DIR}/cmake/modules\")")
         if not self.options.get_safe("fPIC", True):
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), "POSITION_INDEPENDENT_CODE ON", "")
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), "POSITION_INDEPENDENT_CODE ON", "")
 
     def build(self):
         self._patch_source()
@@ -117,8 +118,8 @@ class PahoMqttcConan(ConanFile):
         self.copy(pattern="MQTT*.h", src=os.path.join(self._source_subfolder, "src"), dst="include")
         self.copy(os.path.join("lib", "*{}.*".format(self._lib_target)), dst="lib", keep_path=False)
         self.copy(os.path.join("bin", "*{}.*".format(self._lib_target)), dst="bin", keep_path=False)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "eclipse-paho-mqtt-c"
@@ -167,6 +168,6 @@ class PahoMqttcConan(ConanFile):
             target += "s"
         if not self.options.shared:
             # https://github.com/eclipse/paho.mqtt.c/blob/317fb008e1541838d1c29076d2bc5c3e4b6c4f53/src/CMakeLists.txt#L154
-            if tools.Version(self.version) < "1.3.2" or self.settings.os == "Windows":
+            if tools.scm.Version(self.version) < "1.3.2" or self.settings.os == "Windows":
                 target += "-static"
         return target

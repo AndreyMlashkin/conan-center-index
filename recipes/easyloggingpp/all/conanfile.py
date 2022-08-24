@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 required_conan_version = ">=1.33.0"
@@ -49,7 +50,7 @@ class EasyloggingppConan(ConanFile):
         return self._cmake
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -59,7 +60,7 @@ class EasyloggingppConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy(pattern="LICENSE",
                   dst="licenses",
                   src=self._source_subfolder)

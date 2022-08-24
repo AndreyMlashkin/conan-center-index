@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -51,13 +52,13 @@ class SpdlogConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        if tools.Version(self.version) >= "1.10.0":
+        if tools.scm.Version(self.version) >= "1.10.0":
             self.requires("fmt/8.1.1")
-        elif tools.Version(self.version) >= "1.9.0":
+        elif tools.scm.Version(self.version) >= "1.9.0":
             self.requires("fmt/8.0.1")
-        elif tools.Version(self.version) >= "1.7.0":
+        elif tools.scm.Version(self.version) >= "1.7.0":
             self.requires("fmt/7.1.3")
-        elif tools.Version(self.version) >= "1.5.0":
+        elif tools.scm.Version(self.version) >= "1.5.0":
             self.requires("fmt/6.2.1")
         else:
             self.requires("fmt/6.0.0")
@@ -66,7 +67,7 @@ class SpdlogConan(ConanFile):
         if self.settings.os != "Windows" and (self.options.wchar_support or self.options.wchar_filenames):
             raise ConanInvalidConfiguration("wchar is only supported under windows")
         if self.options.get_safe("shared", False):
-            if self.settings.os == "Windows" and tools.Version(self.version) < "1.6.0":
+            if self.settings.os == "Windows" and tools.scm.Version(self.version) < "1.6.0":
                 raise ConanInvalidConfiguration("spdlog shared lib is not yet supported under windows")
             if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
                 raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
@@ -76,7 +77,7 @@ class SpdlogConan(ConanFile):
             self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -97,7 +98,7 @@ class SpdlogConan(ConanFile):
         self._cmake.definitions["SPDLOG_NO_EXCEPTIONS"] = self.options.no_exceptions
         if self.settings.os in ("iOS", "tvOS", "watchOS"):
             self._cmake.definitions["SPDLOG_NO_TLS"] = True
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             # Workaround to find CMake config files in some cross-build scenario
             # TODO: to remove if something like https://github.com/conan-io/conan/issues/9427#issuecomment-993685376
             # is implemented
@@ -106,10 +107,10 @@ class SpdlogConan(ConanFile):
         return self._cmake
 
     def _disable_werror(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "utils.cmake"), "/WX", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "utils.cmake"), "/WX", "")
 
     def build(self):
-        if tools.Version(self.version) < "1.7" and tools.Version(self.deps_cpp_info["fmt"].version) >= "7":
+        if tools.scm.Version(self.version) < "1.7" and tools.scm.Version(self.deps_cpp_info["fmt"].version) >= "7":
             raise ConanInvalidConfiguration("The project {}/{} requires fmt < 7.x".format(self.name, self.version))
 
         self._disable_werror()
@@ -124,9 +125,9 @@ class SpdlogConan(ConanFile):
         else:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "spdlog", "cmake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "spdlog", "cmake"))
 
     def package_info(self):
         target = "spdlog_header_only" if self.options.header_only else "spdlog"
@@ -142,7 +143,7 @@ class SpdlogConan(ConanFile):
         self.cpp_info.components["libspdlog"].defines.append("SPDLOG_FMT_EXTERNAL")
         self.cpp_info.components["libspdlog"].requires = ["fmt::fmt"]
         if not self.options.header_only:
-            self.cpp_info.components["libspdlog"].libs = tools.collect_libs(self)
+            self.cpp_info.components["libspdlog"].libs = tools.files.collect_libs(self, self)
             self.cpp_info.components["libspdlog"].defines.append("SPDLOG_COMPILED_LIB")
         if self.options.wchar_support:
             self.cpp_info.components["libspdlog"].defines.append("SPDLOG_WCHAR_TO_UTF8_SUPPORT")

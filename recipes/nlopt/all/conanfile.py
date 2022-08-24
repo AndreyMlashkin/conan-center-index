@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -50,7 +51,7 @@ class NloptConan(ConanFile):
             del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -61,8 +62,8 @@ class NloptConan(ConanFile):
     def _patch_sources(self):
         # don't force PIC
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(cmakelists, "set (CMAKE_C_FLAGS \"-fPIC ${CMAKE_C_FLAGS}\")", "")
-        tools.replace_in_file(cmakelists, "set (CMAKE_CXX_FLAGS \"-fPIC ${CMAKE_CXX_FLAGS}\")", "")
+        tools.files.replace_in_file(self, cmakelists, "set (CMAKE_C_FLAGS \"-fPIC ${CMAKE_C_FLAGS}\")", "")
+        tools.files.replace_in_file(self, cmakelists, "set (CMAKE_CXX_FLAGS \"-fPIC ${CMAKE_CXX_FLAGS}\")", "")
 
     def _configure_cmake(self):
         if self._cmake:
@@ -99,10 +100,10 @@ class NloptConan(ConanFile):
                       src= os.path.join(self._source_subfolder, "src", "algs", alg_license["subdir"]))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "NLopt")

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -48,7 +49,7 @@ class HdrhistogramcConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -65,7 +66,7 @@ class HdrhistogramcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -74,7 +75,7 @@ class HdrhistogramcConan(ConanFile):
         cmake.install()
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         self.copy("COPYING.txt", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         target = "hdr_histogram" if self.options.shared else "hdr_histogram_static"
@@ -82,7 +83,7 @@ class HdrhistogramcConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "hdr_histogram::{}".format(target))
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["hdr_histrogram"].libs = tools.collect_libs(self)
+        self.cpp_info.components["hdr_histrogram"].libs = tools.files.collect_libs(self, self)
         self.cpp_info.components["hdr_histrogram"].includedirs.append(os.path.join("include", "hdr"))
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -38,17 +39,17 @@ class SentryBreakpadConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
-        if tools.Version(self.version) <= "0.4.1":
-            if self.settings.os == "Android" or tools.is_apple_os(self.settings.os):
+        if tools.scm.Version(self.version) <= "0.4.1":
+            if self.settings.os == "Android" or tools.apple.is_apple_os(self):
                 raise ConanInvalidConfiguration("Versions <=0.4.1 do not support Apple or Android")
-        if tools.Version(self.version) <= "0.2.6":
+        if tools.scm.Version(self.version) <= "0.2.6":
             if self.settings.os == "Windows":
                 raise ConanInvalidConfiguration("Versions <=0.2.6 do not support Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -58,7 +59,7 @@ class SentryBreakpadConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         # FIXME: convert to patches
         import textwrap
@@ -86,13 +87,13 @@ class SentryBreakpadConan(ConanFile):
         ]
 
         for file in files_to_patch:
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "external", "breakpad", file),
                 "#include \"third_party/lss/linux_syscall_support.h\"",
                 "#include <linux_syscall_support.h>"
             )
 
-        tools.save(os.path.join(self._source_subfolder, "external", "CMakeLists.txt"),
+        tools.files.save(self, os.path.join(self._source_subfolder, "external", "CMakeLists.txt"),
                    textwrap.dedent("""\
                     install(TARGETS breakpad_client
                         ARCHIVE DESTINATION lib
@@ -144,7 +145,7 @@ class SentryBreakpadConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "breakpad-client"
         self.cpp_info.libs = ["breakpad_client"]
         self.cpp_info.includedirs.append(os.path.join("include", "breakpad"))
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")

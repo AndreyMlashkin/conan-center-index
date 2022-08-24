@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 class TypeSafe(ConanFile):
@@ -21,13 +21,13 @@ class TypeSafe(ConanFile):
         return os.path.join(self.source_folder, self._source_subfolder)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name +  "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, '11')
+            tools.build.check_min_cppstd(self, '11')
 
     def package(self):
         self.copy("*LICENSE", dst="licenses", keep_path=False)

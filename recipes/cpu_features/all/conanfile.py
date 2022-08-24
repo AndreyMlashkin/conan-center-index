@@ -1,4 +1,6 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.43.0"
@@ -45,26 +47,26 @@ class CpuFeaturesConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
-        if tools.Version(self.version) < "0.7.0":
+        if tools.scm.Version(self.version) < "0.7.0":
             self._cmake.definitions["BUILD_PIC"] = self.options.get_safe("fPIC", True)
-        if tools.Version(self.version) >= "0.7.0":
+        if tools.scm.Version(self.version) >= "0.7.0":
             self._cmake.definitions["BUILD_TESTING"] = False
         # TODO: should be handled by CMake helper
-        if tools.is_apple_os(self.settings.os) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
+        if tools.apple.is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
             self._cmake.definitions["CMAKE_SYSTEM_PROCESSOR"] = "aarch64"
         self._cmake.configure() # Does not support out of source builds
         return self._cmake
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -72,7 +74,7 @@ class CpuFeaturesConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CpuFeatures")

@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -88,7 +89,7 @@ class SDLImageConan(ConanFile):
             self.requires("libwebp/1.2.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -120,7 +121,7 @@ class SDLImageConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.rmdir(os.path.join(self._source_subfolder, "external"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "external"))
         cmake = self._configure_cmake()
         cmake.build()
 

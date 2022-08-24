@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os, functools
 
 required_conan_version = ">=1.43.0"
@@ -46,10 +47,10 @@ class ImathConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -66,9 +67,9 @@ class ImathConan(ConanFile):
         cm = self._configure_cmake()
         cm.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")
 
@@ -86,7 +87,7 @@ class ImathConan(ConanFile):
         imath_lib = self.cpp_info.components["imath_lib"]
         imath_lib.set_property("cmake_target_name", "Imath::Imath")
         imath_lib.set_property("pkg_config_name", "Imath")
-        imath_lib.libs = tools.collect_libs(self)
+        imath_lib.libs = tools.files.collect_libs(self, self)
         imath_lib.requires = ["imath_config"]
         if self.settings.os == "Windows" and self.options.shared:
             imath_lib.defines.append("IMATH_DLL")

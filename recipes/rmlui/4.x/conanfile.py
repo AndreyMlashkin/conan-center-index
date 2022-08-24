@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -59,7 +60,7 @@ class RmluiConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -92,7 +93,7 @@ class RmluiConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -135,12 +136,12 @@ class RmluiConan(ConanFile):
         cmakelists_path = os.path.join(
             self._source_subfolder, "CMakeLists.txt")
         for key, value in replace_mapping.items():
-            tools.replace_in_file(cmakelists_path, key, value, strict=False)
+            tools.files.replace_in_file(self, cmakelists_path, key, value, strict=False)
 
         if self.options.with_thirdparty_containers:
             config_path = os.path.join(self._source_subfolder,
                                        "Include", "RmlUi", "Config", "Config.h")
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 config_path, "\"../Core/Containers/robin_hood.h\"", "<robin_hood.h>")
 
     def build(self):

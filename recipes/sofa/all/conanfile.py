@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -45,7 +46,7 @@ class SofaConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -60,12 +61,12 @@ class SofaConan(ConanFile):
         return cmake
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
         cmake = self._configure_cmake()
         cmake.install()
 
     def _get_license(self):
-        sofa_header = tools.load(os.path.join(self._source_subfolder, self.version, "c", "src", "sofa.h"))
+        sofa_header = tools.files.load(self, os.path.join(self._source_subfolder, self.version, "c", "src", "sofa.h"))
         begin = sofa_header.find("/*----------------------------------------------------------------------")
         return sofa_header[begin:]
 

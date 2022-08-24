@@ -1,7 +1,8 @@
 import os
 
-from conans.errors import ConanInvalidConfiguration
-from conans import ConanFile, CMake, tools
+from conan.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -19,7 +20,7 @@ class STTreeConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -32,7 +33,7 @@ class STTreeConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

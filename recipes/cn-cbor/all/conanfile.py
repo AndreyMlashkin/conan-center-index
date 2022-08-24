@@ -1,6 +1,7 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class CnCborStackConan(ConanFile):
@@ -46,7 +47,7 @@ class CnCborStackConan(ConanFile):
             raise ConanInvalidConfiguration("Windows shared builds are not supported right now")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -72,11 +73,11 @@ class CnCborStackConan(ConanFile):
         cmake.install()
         os.remove(os.path.join(self.package_folder, "README.md"))
         os.remove(os.path.join(self.package_folder, "LICENSE"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cn-cbor", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cn-cbor", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]

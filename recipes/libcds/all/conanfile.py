@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -48,12 +49,12 @@ class LibcdsConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("Macos M1 not supported (yet)")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -72,7 +73,7 @@ class LibcdsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -80,14 +81,14 @@ class LibcdsConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         cmake_target = "cds" if self.options.shared else "cds-s"
         self.cpp_info.set_property("cmake_file_name", "LibCDS")
         self.cpp_info.set_property("cmake_target_name", "LibCDS::{}".format(cmake_target))
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_libcds"].libs = tools.collect_libs(self)
+        self.cpp_info.components["_libcds"].libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows" and not self.options.shared:
             self.cpp_info.components["_libcds"].defines = ["CDS_BUILD_STATIC_LIB"]
         if self.settings.os in ["Linux", "FreeBSD"]:

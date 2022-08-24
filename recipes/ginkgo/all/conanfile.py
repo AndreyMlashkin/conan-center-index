@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -75,7 +76,7 @@ class GinkgoConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -98,7 +99,7 @@ class GinkgoConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -121,7 +122,7 @@ class GinkgoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -129,8 +130,8 @@ class GinkgoConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Ginkgo")
@@ -138,7 +139,7 @@ class GinkgoConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "ginkgo")
 
         debug_suffix = "d" if self.settings.build_type == "Debug" else ""
-        has_dpcpp_device = tools.Version(self.version) >= "1.4.0"
+        has_dpcpp_device = tools.scm.Version(self.version) >= "1.4.0"
 
         self.cpp_info.components["ginkgo_core"].set_property("cmake_target_name", "Ginkgo::ginkgo")
         self.cpp_info.components["ginkgo_core"].set_property("pkg_config_name", "ginkgo")

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -94,10 +95,10 @@ class FreeImageConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -115,16 +116,16 @@ class FreeImageConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibPNG"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibTIFF4"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibOpenJPEG"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibJXR"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibWebP"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "LibRawLite"))
-        tools.rmdir(os.path.join(self._source_subfolder, "Source", "OpenEXR"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibPNG"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibTIFF4"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibOpenJPEG"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibJXR"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibWebP"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "LibRawLite"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "Source", "OpenEXR"))
 
         for patch in self.conan_data.get("patches", {}).get(self.version, {}):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

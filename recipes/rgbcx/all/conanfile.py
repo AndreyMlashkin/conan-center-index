@@ -1,6 +1,6 @@
 import os
 import glob
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class RgbcxConan(ConanFile):
@@ -16,12 +16,12 @@ class RgbcxConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('bc7enc-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "rgbcx.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "rgbcx.h"),
                               "#include <stdlib.h>",
                               "#include <stdlib.h>\n#include <string.h>")
 

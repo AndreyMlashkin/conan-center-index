@@ -1,5 +1,5 @@
 from conans import ConanFile, Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 import os
 import functools
@@ -51,7 +51,7 @@ class InihConan(ConanFile):
         self.build_requires("meson/0.61.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-r{}".format(self.name, self.version), self._source_subfolder)
 
     @functools.lru_cache(1)
@@ -70,7 +70,7 @@ class InihConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.settings.compiler == "Visual Studio":
             # https://github.com/mesonbuild/meson/issues/7378

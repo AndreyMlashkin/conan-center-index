@@ -1,7 +1,8 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.33.0"
 
@@ -21,12 +22,12 @@ class CtreConan(ConanFile):
 
     def validate(self):
         compiler = self.settings.compiler
-        compiler_version = tools.Version(self.settings.compiler.version)
-        ctre_version = tools.Version(self.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        ctre_version = tools.scm.Version(self.version)
 
         min_gcc = "7.4" if ctre_version < "3" else "8"
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         if is_msvc(self):
             if compiler_version < "15":
                 raise ConanInvalidConfiguration("{}/{} doesn't support MSVC < 15".format(self.name, self.version))
@@ -49,7 +50,7 @@ class CtreConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))

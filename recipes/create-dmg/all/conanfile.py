@@ -1,6 +1,6 @@
 from conan.tools.files import apply_conandata_patches
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -25,7 +25,7 @@ class CreateDmgConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} works only on MacOS")
 
     def build(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
         apply_conandata_patches(self)
 
@@ -34,7 +34,7 @@ class CreateDmgConan(ConanFile):
         self.copy("create-dmg", dst="bin", src=self._source_subfolder)
         self.copy("*", dst=os.path.join("res", "create-dmg", "support"), src=os.path.join(self._source_subfolder,"support"))
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.header_only()

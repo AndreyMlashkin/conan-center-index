@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import functools
 import os
@@ -62,7 +62,7 @@ class LibIdnConan(ConanFile):
             self.build_requires("automake/1.16.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -70,10 +70,10 @@ class LibIdnConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -87,7 +87,7 @@ class LibIdnConan(ConanFile):
         if not self.options.shared:
             autotools.defines.append("LIBIDN_STATIC")
         if self.settings.compiler == "Visual Studio":
-            if tools.Version(self.settings.compiler.version) >= "12":
+            if tools.scm.Version(self.settings.compiler.version) >= "12":
                 autotools.flags.append("-FS")
             autotools.link_flags.extend("-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.lib_paths)
         yes_no = lambda v: "yes" if v else "no"
@@ -95,7 +95,7 @@ class LibIdnConan(ConanFile):
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
             "--enable-threads={}".format(yes_no(self.options.threads)),
-            "--with-libiconv-prefix={}".format(tools.unix_path(self.deps_cpp_info["libiconv"].rootpath)),
+            "--with-libiconv-prefix={}".format(tools.microsoft.unix_path(self, self.deps_cpp_info["libiconv"].rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]
@@ -104,13 +104,13 @@ class LibIdnConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
             if self.settings.arch in ("x86_64", "armv8", "armv8.3"):
                 ssize = "signed long long int"
             else:
                 ssize = "signed long int"
-            tools.replace_in_file(os.path.join(self._source_subfolder, "lib", "stringprep.h"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "stringprep.h"),
                                   "ssize_t", ssize)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -122,9 +122,9 @@ class LibIdnConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["idn"]

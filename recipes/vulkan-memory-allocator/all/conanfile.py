@@ -1,4 +1,5 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.33.0"
@@ -19,7 +20,7 @@ class VulkanMemoryAllocatorConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        return "11" if tools.Version(self.version) < "3.0.0" else "14"
+        return "11" if tools.scm.Version(self.version) < "3.0.0" else "14"
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -33,19 +34,19 @@ class VulkanMemoryAllocatorConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            tools.build.check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
         self.copy("LICENSE.txt", src=self._source_subfolder, dst="licenses")
-        if tools.Version(self.version) < "3.0.0":
+        if tools.scm.Version(self.version) < "3.0.0":
             include_dir = os.path.join(self._source_subfolder, "src")
         else:
             include_dir = os.path.join(self._source_subfolder, "include")

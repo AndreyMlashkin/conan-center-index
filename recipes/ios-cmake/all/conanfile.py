@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 import os
 
@@ -43,7 +43,7 @@ class IosCMakeConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def configure(self):
-        if not tools.is_apple_os(self.settings.os):
+        if not tools.apple.is_apple_os(self):
             raise ConanInvalidConfiguration("This package only supports Apple operating systems")
 
     def _guess_toolchain_target(self, os, arch):
@@ -67,7 +67,7 @@ class IosCMakeConan(ConanFile):
 
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("ios-cmake-{}".format(self.version), self._source_subfolder)
 
     def build(self):
@@ -83,7 +83,7 @@ class IosCMakeConan(ConanFile):
 
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder, keep_path=False)
         # satisfy KB-H014 (header_only recipes require headers)
-        tools.save(os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
+        tools.files.save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
         if self.settings.os == "Macos":

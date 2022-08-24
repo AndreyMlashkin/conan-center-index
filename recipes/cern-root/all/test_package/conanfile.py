@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, RunEnvironment, tools
+from conan import ConanFile
+from conans import CMake, RunEnvironment, tools
 import os
 
 
@@ -8,7 +9,7 @@ class TestPackageConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
     @property
     def _minimum_cpp_standard(self):
@@ -34,7 +35,7 @@ class TestPackageConan(ConanFile):
             return "11"
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             self._check_binaries_are_found()
             self._check_root_dictionaries()
 

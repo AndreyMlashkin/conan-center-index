@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import textwrap
@@ -80,7 +81,7 @@ class Hdf5Conan(ConanFile):
             self.requires("openmpi/4.1.0")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self, skip_x64_x86=True):
             # While building it runs some executables like H5detect
             raise ConanInvalidConfiguration("Current recipe doesn't support cross-building (yet)")
         if self.options.parallel:
@@ -93,7 +94,7 @@ class Hdf5Conan(ConanFile):
             raise ConanInvalidConfiguration("encoding must be enabled in szip dependency (szip:enable_encoding=True)")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         self._patch_sources()
@@ -102,9 +103,9 @@ class Hdf5Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Do not force PIC
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     @functools.lru_cache(1)
@@ -115,14 +116,14 @@ class Hdf5Conan(ConanFile):
         cmake.definitions["HDF5_USE_FOLDERS"] = False
         cmake.definitions["HDF5_NO_PACKAGES"] = True
         cmake.definitions["ALLOW_UNSUPPORTED"] = False
-        if tools.Version(self.version) >= "1.10.6":
+        if tools.scm.Version(self.version) >= "1.10.6":
             cmake.definitions["ONLY_SHARED_LIBS"] = self.options.shared
         cmake.definitions["BUILD_STATIC_EXECS"] = False
         cmake.definitions["HDF5_ENABLE_COVERAGE"] = False
         cmake.definitions["HDF5_ENABLE_USING_MEMCHECKER"] = False
-        if tools.Version(self.version) >= "1.10.0":
+        if tools.scm.Version(self.version) >= "1.10.0":
             cmake.definitions["HDF5_MEMORY_ALLOC_SANITY_CHECK"] = False
-        if tools.Version(self.version) >= "1.10.5":
+        if tools.scm.Version(self.version) >= "1.10.5":
             cmake.definitions["HDF5_ENABLE_PREADWRITE"] = True
         cmake.definitions["HDF5_ENABLE_DEPRECATED_SYMBOLS"] = True
         cmake.definitions["HDF5_BUILD_GENERATORS"] = False
@@ -145,7 +146,7 @@ class Hdf5Conan(ConanFile):
         cmake.definitions["HDF5_BUILD_HL_LIB"] = self.options.hl
         cmake.definitions["HDF5_BUILD_FORTRAN"] = False
         cmake.definitions["HDF5_BUILD_CPP_LIB"] = self.options.enable_cxx
-        if tools.Version(self.version) >= "1.10.0":
+        if tools.scm.Version(self.version) >= "1.10.0":
             cmake.definitions["HDF5_BUILD_JAVA"] = False
 
         cmake.configure(build_folder=self._build_subfolder)
@@ -194,7 +195,7 @@ class Hdf5Conan(ConanFile):
                 endif()
             """)
         content += textwrap.dedent("set(HDF5_IS_PARALLEL {})".format("ON" if is_parallel else "OFF"))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -205,7 +206,7 @@ class Hdf5Conan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         os.remove(os.path.join(self.package_folder, "lib", "libhdf5.settings"))
         # Mimic the official CMake FindHDF5 targets. HDF5::HDF5 refers to the global target as per conan,
         # but component targets have a lower case namespace prefix. hdf5::hdf5 refers to the C library only

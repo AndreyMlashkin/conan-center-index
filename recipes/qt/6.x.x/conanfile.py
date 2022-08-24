@@ -10,7 +10,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.microsoft import msvc_runtime_flag
 from conans import tools, RunEnvironment, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conans.model import Generator
 
 required_conan_version = ">=1.43.0"
@@ -251,14 +251,14 @@ class QtConan(ConanFile):
     def validate(self):
         # C++ minimum standard required
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 
-        if tools.Version(self.version) >= "6.3.0" and self.settings.compiler == "clang" and "libstdc++" in str(self.settings.compiler.libcxx):
+        if tools.scm.Version(self.version) >= "6.3.0" and self.settings.compiler == "clang" and "libstdc++" in str(self.settings.compiler.libcxx):
             raise ConanInvalidConfiguration("Qt needs recent libstdc++, with charconv. please switch to gcc, of to libc++")
 
         if self.options.get_safe("qtwebengine"):
@@ -271,7 +271,7 @@ class QtConan(ConanFile):
             if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
                 raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
 
-            if tools.Version(self.version) < "6.3.0":
+            if tools.scm.Version(self.version) < "6.3.0":
                 # Check if a valid python2 is available in PATH or it will failflex
                 # Start by checking if python2 can be found
                 python_exe = tools.which("python2")
@@ -292,7 +292,7 @@ class QtConan(ConanFile):
                 verstr = mybuf.getvalue().strip().split("Python ")[1]
                 if verstr.endswith("+"):
                     verstr = verstr[:-1]
-                version = tools.Version(verstr)
+                version = tools.scm.Version(verstr)
                 # >= 2.7.5 & < 3
                 v_min = "2.7.5"
                 v_max = "3.0.0"
@@ -338,7 +338,7 @@ class QtConan(ConanFile):
             self.requires("pcre2/10.37") # needs to be < 10.38 or qt fails to detect visual studio static library
         if self.options.get_safe("with_vulkan"):
             self.requires("vulkan-loader/1.3.221.0")
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 self.requires("moltenvk/1.1.10")
         if self.options.with_glib:
             self.requires("glib/2.73.2")
@@ -423,12 +423,12 @@ class QtConan(ConanFile):
             self.build_requires("wayland/1.21.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination="qt6")
 
         # patching in source method because of no_copy_source attribute
 
-        tools.replace_in_file(os.path.join("qt6", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join("qt6", "CMakeLists.txt"),
                         "enable_testing()",
                         "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\nconan_basic_setup(KEEP_RPATHS)\n"
                                "set(QT_EXTRA_INCLUDEPATHS ${CONAN_INCLUDE_DIRS})\n"
@@ -437,15 +437,15 @@ class QtConan(ConanFile):
                                "enable_testing()")
 
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        if tools.Version(self.version) >= "6.2.0":
+            tools.files.patch(self, **patch)
+        if tools.scm.Version(self.version) >= "6.2.0":
             for f in ["renderer", os.path.join("renderer", "core"), os.path.join("renderer", "platform")]:
-                tools.replace_in_file(os.path.join(self.source_folder, "qt6", "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
+                tools.files.replace_in_file(self, os.path.join(self.source_folder, "qt6", "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
                                       "  if (enable_precompiled_headers) {\n    if (is_win) {",
                                       "  if (enable_precompiled_headers) {\n    if (false) {"
                                       )
 
-        tools.replace_in_file(os.path.join("qt6", "qtbase", "cmake", "QtInternalTargets.cmake"),
+        tools.files.replace_in_file(self, os.path.join("qt6", "qtbase", "cmake", "QtInternalTargets.cmake"),
                               "-Zc:wchar_t",
                               "-Zc:wchar_t -Zc:twoPhase-")
         for f in ["FindPostgreSQL.cmake"]:
@@ -454,10 +454,10 @@ class QtConan(ConanFile):
                 os.remove(file)
 
         # workaround QTBUG-94356
-        if tools.Version(self.version) >= "6.1.1":
-            zlib_file_name = "FindWrapSystemZLIB.cmake" if tools.Version(self.version) >= "6.3.1" else "FindWrapZLIB.cmake"
-            tools.replace_in_file(os.path.join("qt6", "qtbase", "cmake", zlib_file_name), '"-lz"', 'ZLIB::ZLIB')
-            tools.replace_in_file(os.path.join("qt6", "qtbase", "configure.cmake"),
+        if tools.scm.Version(self.version) >= "6.1.1":
+            zlib_file_name = "FindWrapSystemZLIB.cmake" if tools.scm.Version(self.version) >= "6.3.1" else "FindWrapZLIB.cmake"
+            tools.files.replace_in_file(self, os.path.join("qt6", "qtbase", "cmake", zlib_file_name), '"-lz"', 'ZLIB::ZLIB')
+            tools.files.replace_in_file(self, os.path.join("qt6", "qtbase", "configure.cmake"),
                 "set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)",
                 "")
 
@@ -564,7 +564,7 @@ class QtConan(ConanFile):
         with tools.vcvars(self) if self._is_msvc else tools.no_op():
             # next lines force cmake package to be in PATH before the one provided by visual studio (vcvars)
             build_env = tools.RunEnvironment(self).vars if self._is_msvc else {}
-            build_env["MAKEFLAGS"] = "j%d" % tools.cpu_count()
+            build_env["MAKEFLAGS"] = "j%d" % tools.cpu_count(self, )
             build_env["PKG_CONFIG_PATH"] = [self.build_folder]
             if self.settings.os == "Windows":
                 if "PATH" not in build_env:
@@ -577,8 +577,8 @@ class QtConan(ConanFile):
             with tools.environment_append(build_env):
 
                 if tools.os_info.is_macos:
-                    tools.save(".qmake.stash" , "")
-                    tools.save(".qmake.super" , "")
+                    tools.files.save(self, ".qmake.stash" , "")
+                    tools.files.save(self, ".qmake.super" , "")
                 yield
 
     @functools.lru_cache(1)
@@ -714,37 +714,37 @@ class QtConan(ConanFile):
             cmake_err_log = os.path.join(self.build_folder, "CMakeFiles", "CMakeError.log")
             cmake_out_log = os.path.join(self.build_folder, "CMakeFiles", "CMakeOutput.log")
             if os.path.isfile(cmake_err_log):
-                self.output.info(tools.load(cmake_err_log))
+                self.output.info(tools.files.load(self, cmake_err_log))
             if os.path.isfile(cmake_out_log):
-                self.output.info(tools.load(cmake_out_log))
+                self.output.info(tools.files.load(self, cmake_out_log))
             raise
         return cmake
 
     def build(self):
         for f in glob.glob("*.cmake"):
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:>",
                 "", strict=False)
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,MODULE_LIBRARY>:>",
                 "", strict=False)
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:>",
                 "", strict=False)
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:-Wl,--export-dynamic>",
                 "", strict=False)
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,MODULE_LIBRARY>:-Wl,--export-dynamic>",
                 "", strict=False)
-            tools.replace_in_file(f,
+            tools.files.replace_in_file(self, f,
                 " IMPORTED)\n",
                 " IMPORTED GLOBAL)\n", strict=False)
 
         with self._build_context():
             cmake = self._configure_cmake()
             if tools.os_info.is_macos:
-                tools.save("bash_env", 'export DYLD_LIBRARY_PATH="%s"' % ":".join(RunEnvironment(self).vars["DYLD_LIBRARY_PATH"]))
+                tools.files.save(self, "bash_env", 'export DYLD_LIBRARY_PATH="%s"' % ":".join(RunEnvironment(self).vars["DYLD_LIBRARY_PATH"]))
             with tools.environment_append({
                 "BASH_ENV": os.path.abspath("bash_env")
             }) if tools.os_info.is_macos else tools.no_op():
@@ -767,30 +767,30 @@ class QtConan(ConanFile):
         with self._build_context():
             cmake = self._configure_cmake()
             cmake.install()
-        tools.save(os.path.join(self.package_folder, "bin", "qt.conf"), qt.content_template("..", "res", self.settings.os))
+        tools.files.save(self, os.path.join(self.package_folder, "bin", "qt.conf"), qt.content_template("..", "res", self.settings.os))
         self.copy("*LICENSE*", src="qt6/", dst="licenses")
         for module in self._get_module_tree:
             if module != "qtbase" and not self.options.get_safe(module):
-                tools.rmdir(os.path.join(self.package_folder, "licenses", module))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+                tools.files.rmdir(self, os.path.join(self.package_folder, "licenses", module))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for mask in ["Find*.cmake", "*Config.cmake", "*-config.cmake"]:
-            tools.remove_files_by_mask(self.package_folder, mask)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la*")
-        tools.remove_files_by_mask(self.package_folder, "*.pdb*")
-        tools.remove_files_by_mask(self.package_folder, "ensure_pro_file.cmake")
+            tools.files.rm(self, mask, self.package_folder)
+        tools.files.rm(self, "*.la*", os.path.join(self.package_folder, "lib"))
+        tools.files.rm(self, "*.pdb*", self.package_folder)
+        tools.files.rm(self, "ensure_pro_file.cmake", self.package_folder)
         os.remove(os.path.join(self.package_folder, "bin", "qt-cmake-private-install.cmake"))
 
         for m in os.listdir(os.path.join(self.package_folder, "lib", "cmake")):
             module = os.path.join(self.package_folder, "lib", "cmake", m, "%sMacros.cmake" % m)
             helper_modules = glob.glob(os.path.join(self.package_folder, "lib", "cmake", m, "QtPublic*Helpers.cmake"))
             if not os.path.isfile(module) and not helper_modules:
-                tools.rmdir(os.path.join(self.package_folder, "lib", "cmake", m))
+                tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake", m))
 
         extension = ""
         if self.settings.os == "Windows":
             extension = ".exe"
         filecontents = "set(QT_CMAKE_EXPORT_NAMESPACE Qt6)\n"
-        ver = tools.Version(self.version)
+        ver = tools.scm.Version(self.version)
         filecontents += "set(QT_VERSION_MAJOR %s)\n" % ver.major
         filecontents += "set(QT_VERSION_MINOR %s)\n" % ver.minor
         filecontents += "set(QT_VERSION_PATCH %s)\n" % ver.patch
@@ -835,7 +835,7 @@ class QtConan(ConanFile):
             endif()
             """ % ver.major)
         filecontents += 'set(CMAKE_AUTOMOC_MACRO_NAMES "Q_OBJECT" "Q_GADGET" "Q_GADGET_EXPORT" "Q_NAMESPACE" "Q_NAMESPACE_EXPORT")\n'
-        tools.save(os.path.join(self.package_folder, self._cmake_executables_file), filecontents)
+        tools.files.save(self, os.path.join(self.package_folder, self._cmake_executables_file), filecontents)
 
         def _create_private_module(module, dependencies=[]):
             dependencies_string = ';'.join('Qt6::%s' % dependency for dependency in dependencies)
@@ -855,7 +855,7 @@ class QtConan(ConanFile):
                 )
             endif()""".format(module, self.version, dependencies_string))
 
-            tools.save(os.path.join(self.package_folder, self._cmake_qt6_private_file(module)), contents)
+            tools.files.save(self, os.path.join(self.package_folder, self._cmake_qt6_private_file(module)), contents)
 
         _create_private_module("Core", ["Core"])
 
@@ -881,7 +881,7 @@ class QtConan(ConanFile):
                     TARGET ${QT_CMAKE_EXPORT_NAMESPACE}::Core
                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES "$<${entrypoint_conditions}:${QT_CMAKE_EXPORT_NAMESPACE}::EntryPointPrivate>"
                 )""")
-            tools.save(os.path.join(self.package_folder, self._cmake_entry_point_file), contents)
+            tools.files.save(self, os.path.join(self.package_folder, self._cmake_entry_point_file), contents)
 
     def package_id(self):
         del self.info.options.cross_compile
@@ -911,7 +911,7 @@ class QtConan(ConanFile):
         if self.settings.build_type == "Debug":
             if self.settings.os == "Windows":
                 libsuffix = "d"
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 libsuffix = "_debug"
 
         def _get_corrected_reqs(requires):
@@ -966,21 +966,21 @@ class QtConan(ConanFile):
 
         _create_module("Core", core_reqs)
         if self.settings.os == "Windows":
-            if tools.Version(self.version) >= "6.3.0":
+            if tools.scm.Version(self.version) >= "6.3.0":
                 self.cpp_info.components["qtCore"].system_libs.append("authz")
         if self._is_msvc:
-            if tools.Version(self.version) >= "6.3.0":
+            if tools.scm.Version(self.version) >= "6.3.0":
                 self.cpp_info.components["qtCore"].cxxflags.append("-permissive-")
-            if tools.Version(self.version) >= "6.2.0":
+            if tools.scm.Version(self.version) >= "6.2.0":
                 self.cpp_info.components["qtCore"].cxxflags.append("-Zc:__cplusplus")
                 self.cpp_info.components["qtCore"].system_libs.append("synchronization")
-            if tools.Version(self.version) >= "6.2.1":
+            if tools.scm.Version(self.version) >= "6.2.1":
                 self.cpp_info.components["qtCore"].system_libs.append("runtimeobject")
         self.cpp_info.components["qtPlatform"].set_property("cmake_target_name", "Qt6::Platform")
         self.cpp_info.components["qtPlatform"].names["cmake_find_package"] = "Platform"
         self.cpp_info.components["qtPlatform"].names["cmake_find_package_multi"] = "Platform"
         self.cpp_info.components["qtPlatform"].includedirs = [os.path.join("res", "archdatadir", "mkspecs", self._xplatform())]
-        if tools.Version(self.version) < "6.1.0":
+        if tools.scm.Version(self.version) < "6.1.0":
             self.cpp_info.components["qtCore"].libs.append("Qt6Core_qobject%s" % libsuffix)
         if self.options.gui:
             gui_reqs = []
@@ -998,7 +998,7 @@ class QtConan(ConanFile):
                 gui_reqs.append("opengl::opengl")
             if self.options.get_safe("with_vulkan", False):
                 gui_reqs.append("vulkan-loader::vulkan-loader")
-                if tools.is_apple_os(self.settings.os):
+                if tools.apple.is_apple_os(self):
                     gui_reqs.append("moltenvk::moltenvk")
             if self.options.with_harfbuzz:
                 gui_reqs.append("harfbuzz::harfbuzz")
@@ -1083,7 +1083,7 @@ class QtConan(ConanFile):
             _create_module("Core5Compat")
 
         # since https://github.com/qt/qtdeclarative/commit/4fb84137f1c0a49d64b8bef66fef8a4384cc2a68
-        qt_quick_enabled = self.options.gui and (tools.Version(self.version) < "6.2.0" or self.options.qtshadertools)
+        qt_quick_enabled = self.options.gui and (tools.scm.Version(self.version) < "6.2.0" or self.options.qtshadertools)
 
         if self.options.qtdeclarative:
             _create_module("Qml", ["Network"])
@@ -1120,7 +1120,7 @@ class QtConan(ConanFile):
             _create_module("Quick3D", ["Gui", "Qml", "Quick", "Quick3DRuntimeRender"])
 
         if (self.options.get_safe("qtquickcontrols2") or \
-            (self.options.qtdeclarative and tools.Version(self.version) >= "6.2.0")) and qt_quick_enabled:
+            (self.options.qtdeclarative and tools.scm.Version(self.version) >= "6.2.0")) and qt_quick_enabled:
             _create_module("QuickControls2", ["Gui", "Quick"])
             _create_module("QuickTemplates2", ["Gui", "Quick"])
 
@@ -1228,8 +1228,8 @@ class QtConan(ConanFile):
                 _create_plugin("AVFServicePlugin", "qavfcamera", "mediaservice", [])
                 _create_plugin("CoreAudioPlugin", "qtaudio_coreaudio", "audio", [])
 
-        if (self.options.get_safe("qtlocation") and tools.Version(self.version) < "6.2.2") or \
-            (self.options.get_safe("qtpositioning") and tools.Version(self.version) >= "6.2.2"):
+        if (self.options.get_safe("qtlocation") and tools.scm.Version(self.version) < "6.2.2") or \
+            (self.options.get_safe("qtpositioning") and tools.scm.Version(self.version) >= "6.2.2"):
             _create_module("Positioning")
             _create_plugin("QGeoPositionInfoSourceFactoryGeoclue2", "qtposition_geoclue2", "position", [])
             _create_plugin("QGeoPositionInfoSourceFactoryPoll", "qtposition_positionpoll", "position", [])

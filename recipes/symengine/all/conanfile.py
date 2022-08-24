@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -43,7 +44,7 @@ class SymengineConan(ConanFile):
             self.requires("gmp/6.2.1")
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder,
@@ -69,7 +70,7 @@ class SymengineConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -78,13 +79,13 @@ class SymengineConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # [CMAKE-MODULES-CONFIG-FILES (KB-H016)]
-        tools.remove_files_by_mask(self.package_folder, "*.cmake")
+        tools.files.rm(self, "*.cmake", self.package_folder)
         # [DEFAULT PACKAGE LAYOUT (KB-H013)]
-        tools.rmdir(os.path.join(self.package_folder, "CMake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
 
     def package_info(self):
         self.cpp_info.libs = ["symengine"]
-        if any("teuchos" in v for v in tools.collect_libs(self)):
+        if any("teuchos" in v for v in tools.files.collect_libs(self, self)):
             self.cpp_info.libs.append("teuchos")
         self.cpp_info.names["cmake_find_package"] = "symengine"
         # FIXME: symengine exports a non-namespaced `symengine` target.

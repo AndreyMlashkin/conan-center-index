@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 
@@ -24,5 +24,5 @@ class CcclTestConan(ConanFile):
                 cxx=cxx, src=os.path.join(self.source_folder, "example.cpp")), win_bash=self.settings.os is "Windows")
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             self.run(os.path.join(self.build_folder, "example"))

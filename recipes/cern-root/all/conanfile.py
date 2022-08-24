@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
@@ -103,7 +104,7 @@ class CernRootConan(ConanFile):
 
     def _enforce_minimum_compiler_version(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -112,7 +113,7 @@ class CernRootConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -133,7 +134,7 @@ class CernRootConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_source_cmake(self):
@@ -146,7 +147,7 @@ class CernRootConan(ConanFile):
         # There is currently no way to change these names
         # see: https://github.com/conan-io/conan/issues/4430
         # Patch ROOT CMake to use Conan dependencies
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
             "project(ROOT)",
             textwrap.dedent("""\
@@ -164,7 +165,7 @@ class CernRootConan(ConanFile):
                     set(SQLITE_LIBRARIES SQLite::SQLite3)
             """).format(install_folder=self.install_folder.replace("\\", "/"))
         )
-        tools.replace_in_file(os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
                               "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
                               "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)")
 
@@ -185,7 +186,7 @@ class CernRootConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         self._patch_source_cmake()
         self._fix_source_permissions()
 
@@ -290,11 +291,11 @@ class CernRootConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib", "cmake"), "*Config*.cmake")
-        tools.rmdir(os.path.join(self.package_folder, "res", "README"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "man"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "tutorials"))
+        tools.files.rm(self, "*Config*.cmake", os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "res", "README"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "res", "share", "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "res", "tutorials"))
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files

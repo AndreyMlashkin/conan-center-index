@@ -1,4 +1,6 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
+from conan.tools.scm import Version
 import functools
 import os
 
@@ -58,7 +60,7 @@ class ZziplibConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -78,7 +80,7 @@ class ZziplibConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -86,7 +88,7 @@ class ZziplibConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="COPYING.LIB", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "zziplib-all-do-not-use")
@@ -114,5 +116,5 @@ class ZziplibConan(ConanFile):
     def _get_decorated_lib(self, name):
         suffix = ""
         if self.settings.build_type == "Release":
-            suffix += "-" + tools.Version(self.version).major
+            suffix += "-" + tools.scm.Version(self.version).major
         return name + suffix

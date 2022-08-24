@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 import os
 
@@ -37,11 +37,11 @@ class TCSBankUconfigConan(ConanFile):
 
     def validate(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            tools.build.check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn("%s recipe lacks information about the %s compiler"
                              " standard version support." % (self.name, compiler))
@@ -62,7 +62,7 @@ class TCSBankUconfigConan(ConanFile):
                 (self.name, min_req_cppstd, compiler, compiler_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

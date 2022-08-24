@@ -1,6 +1,6 @@
 from conans import ConanFile, Meson, tools
 from conan.tools.files import rename
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
@@ -30,10 +30,10 @@ class LibSigCppConanV2(ConanFile):
     short_paths = True
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     @property
     def _source_subfolder(self):
@@ -56,7 +56,7 @@ class LibSigCppConanV2(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder
@@ -64,7 +64,7 @@ class LibSigCppConanV2(ConanFile):
 
     def build(self):
         if not self.options.shared:
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "sigc++config.h.meson"),
                 "define SIGC_DLL 1", "undef SIGC_DLL")
         with tools.environment_append(tools.RunEnvironment(self).vars):
@@ -90,7 +90,7 @@ class LibSigCppConanV2(ConanFile):
         meson = self._configure_meson()
         meson.install()
         if self.settings.compiler == "Visual Studio":
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             if not self.options.shared:
                 rename(self,
                        os.path.join(self.package_folder, "lib", "libsigc-2.0.a"),
@@ -104,7 +104,7 @@ class LibSigCppConanV2(ConanFile):
             )
 
         for dir_to_remove in ["pkgconfig", "sigc++-2.0"]:
-            tools.rmdir(os.path.join(
+            tools.files.rmdir(self, os.path.join(
                 self.package_folder, "lib", dir_to_remove))
 
     def package_info(self):

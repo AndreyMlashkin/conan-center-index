@@ -67,17 +67,17 @@ class LibMP3LameConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _apply_patch(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "include", "libmp3lame.sym"), "lame_init_old\n", "")
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "include", "libmp3lame.sym"), "lame_init_old\n", "")
 
     @contextmanager
     def _msvc_build_environment(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.vcvars(self.settings):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     yield
@@ -86,26 +86,26 @@ class LibMP3LameConan(ConanFile):
         with self._msvc_build_environment():
             shutil.copy("configMS.h", "config.h")
             # Honor vc runtime
-            tools.replace_in_file("Makefile.MSVC", "CC_OPTS = $(CC_OPTS) /MT", "")
+            tools.files.replace_in_file(self, "Makefile.MSVC", "CC_OPTS = $(CC_OPTS) /MT", "")
             # Do not hardcode LTO
-            tools.replace_in_file("Makefile.MSVC", " /GL", "")
-            tools.replace_in_file("Makefile.MSVC", " /LTCG", "")
-            tools.replace_in_file("Makefile.MSVC", "ADDL_OBJ = bufferoverflowU.lib", "")
+            tools.files.replace_in_file(self, "Makefile.MSVC", " /GL", "")
+            tools.files.replace_in_file(self, "Makefile.MSVC", " /LTCG", "")
+            tools.files.replace_in_file(self, "Makefile.MSVC", "ADDL_OBJ = bufferoverflowU.lib", "")
             command = "nmake -f Makefile.MSVC comp=msvc"
             if self._is_clang_cl:
                 cl = os.environ.get('CC', "clang-cl")
                 link = os.environ.get("LD", 'lld-link')
-                tools.replace_in_file('Makefile.MSVC', 'CC = cl', 'CC = %s' % cl)
-                tools.replace_in_file('Makefile.MSVC', 'LN = link', 'LN = %s' % link)
+                tools.files.replace_in_file(self, 'Makefile.MSVC', 'CC = cl', 'CC = %s' % cl)
+                tools.files.replace_in_file(self, 'Makefile.MSVC', 'LN = link', 'LN = %s' % link)
                 # what is /GAy? MSDN doesn't know it
                 # clang-cl: error: no such file or directory: '/GAy'
                 # https://docs.microsoft.com/en-us/cpp/build/reference/ga-optimize-for-windows-application?view=msvc-170
-                tools.replace_in_file('Makefile.MSVC', '/GAy', '/GA')
+                tools.files.replace_in_file(self, 'Makefile.MSVC', '/GAy', '/GA')
             if self.settings.arch == "x86_64":
-                tools.replace_in_file("Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:X64")
+                tools.files.replace_in_file(self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:X64")
                 command += " MSVCVER=Win64 asm=yes"
             elif self.settings.arch == "armv8":
-                tools.replace_in_file("Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:ARM64")
+                tools.files.replace_in_file(self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:ARM64")
                 command += " MSVCVER=Win64"
             else:
                 command += " asm=yes"
@@ -134,7 +134,7 @@ class LibMP3LameConan(ConanFile):
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
                     os.path.join(self._source_subfolder, "config.guess"))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               "-install_name \\$rpath/",
                               "-install_name @rpath/")
         autotools = self._configure_autotools()
@@ -160,8 +160,8 @@ class LibMP3LameConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["mp3lame"]

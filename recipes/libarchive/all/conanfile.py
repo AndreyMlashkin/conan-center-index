@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -76,7 +77,7 @@ class LibarchiveConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "3.4.2":
+        if tools.scm.Version(self.version) < "3.4.2":
             del self.options.with_mbedtls
 
     def configure(self):
@@ -123,7 +124,7 @@ class LibarchiveConan(ConanFile):
             raise ConanInvalidConfiguration("libxml2 and expat options are exclusive. They cannot be used together as XML engine")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -158,7 +159,7 @@ class LibarchiveConan(ConanFile):
         self._cmake.definitions["ENABLE_TEST"] = False
         # too strict check
         self._cmake.definitions["ENABLE_WERROR"] = False
-        if tools.Version(self.version) >= "3.4.2":
+        if tools.scm.Version(self.version) >= "3.4.2":
             self._cmake.definitions["ENABLE_MBEDTLS"] = self.options.with_mbedtls
         self._cmake.definitions["ENABLE_XATTR"] = self.options.with_xattr
 
@@ -167,45 +168,45 @@ class LibarchiveConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmakelists_path = os.path.join(self._source_subfolder, "CMakeLists.txt")
 
         # it can possibly override CMAKE_MODULE_PATH provided by generator
-        tools.replace_in_file(cmakelists_path,
+        tools.files.replace_in_file(self, cmakelists_path,
                               "SET(CMAKE_MODULE_PATH",
                               "LIST(APPEND CMAKE_MODULE_PATH")
         # allow openssl on macOS
         if self.options.with_openssl:
-            tools.replace_in_file(cmakelists_path,
+            tools.files.replace_in_file(self, cmakelists_path,
                                   "IF(ENABLE_OPENSSL AND NOT CMAKE_SYSTEM_NAME MATCHES \"Darwin\")",
                                   "IF(ENABLE_OPENSSL)")
         # wrong lzma cmake var name
         if self.options.with_lzma:
-            tools.replace_in_file(cmakelists_path, "LIBLZMA_INCLUDE_DIR", "LIBLZMA_INCLUDE_DIRS")
+            tools.files.replace_in_file(self, cmakelists_path, "LIBLZMA_INCLUDE_DIR", "LIBLZMA_INCLUDE_DIRS")
         # add possible names for lz4 library
         if not self.options.shared:
-            tools.replace_in_file(cmakelists_path,
+            tools.files.replace_in_file(self, cmakelists_path,
                                   "FIND_LIBRARY(LZ4_LIBRARY NAMES lz4 liblz4)",
                                   "FIND_LIBRARY(LZ4_LIBRARY NAMES lz4 liblz4 lz4_static liblz4_static)")
 
         # Exclude static/shared targets from build
         if self.options.shared:
-            tools.save(os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
+            tools.files.save(self, os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
                        "set_target_properties(archive_static PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)",
                        append=True)
         else:
-            tools.save(os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
+            tools.files.save(self, os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
                        "set_target_properties(archive PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)",
                        append=True)
 
         # Exclude static/shared targets from install
         if self.options.shared:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
                                   "INSTALL(TARGETS archive archive_static",
                                   "INSTALL(TARGETS archive")
         else:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "libarchive", "CMakeLists.txt"),
                                   "INSTALL(TARGETS archive archive_static",
                                   "INSTALL(TARGETS archive_static")
 
@@ -218,8 +219,8 @@ class LibarchiveConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -230,7 +231,7 @@ class LibarchiveConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "LibArchive"
         self.cpp_info.names["cmake_find_package_multi"] = "LibArchive"
 
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows" and self.options.with_cng:
             self.cpp_info.system_libs.append("bcrypt")
         if str(self.settings.compiler) in ["Visual Studio", "msvc"] and not self.options.shared:

@@ -1,7 +1,8 @@
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -37,16 +38,16 @@ class PlatformInterfacesConan(ConanFile):
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if tools.Version(self.settings.compiler.version) < minimum_version:
+        if tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("platform.interfaces/{} "
                                             "requires C++20 with {}, "
                                             "which is not supported "
                                             "by {} {}.".format(self.version, self.settings.compiler, self.settings.compiler, self.settings.compiler.version))
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 20)
+            tools.build.check_min_cppstd(self, 20)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("*.h", dst="include", src=self._subfolder_sources)

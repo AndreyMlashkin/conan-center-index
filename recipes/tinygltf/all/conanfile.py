@@ -1,6 +1,6 @@
 import os
 
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 class TinygltfConan(ConanFile):
     name = "tinygltf"
@@ -28,7 +28,7 @@ class TinygltfConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def requirements(self):
         self.requires("nlohmann_json/3.9.1")
@@ -41,9 +41,9 @@ class TinygltfConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "tiny_gltf.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "tiny_gltf.h"),
                               "#include \"json.hpp\"",
                               "#include <nlohmann/json.hpp>")
 

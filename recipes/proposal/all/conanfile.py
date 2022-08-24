@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -62,7 +63,7 @@ class PROPOSALConan(ConanFile):
                 "Can not build shared library on Visual Studio."
             )
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
 
         minimum_version = self._minimum_compilers_version.get(
             str(self.settings.compiler), False
@@ -71,13 +72,13 @@ class PROPOSALConan(ConanFile):
             self.output.warn(
                 "PROPOSAL requires C++14. Your compiler is unknown. Assuming it supports C++14."
             )
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "PROPOSAL requires gcc >= 5, clang >= 5 or Visual Studio >= 15 as a compiler!"
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -98,7 +99,7 @@ class PROPOSALConan(ConanFile):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PROPOSAL")

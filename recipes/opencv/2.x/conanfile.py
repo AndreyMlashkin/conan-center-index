@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -97,25 +98,25 @@ class OpenCVConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio with static runtime is not supported for shared library.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_opencv(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.rmdir(os.path.join(self._source_subfolder, "3rdparty"))
+            tools.files.patch(self, **patch)
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "3rdparty"))
 
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
 
         # allow to find conan-supplied OpenEXR
         if self.options.with_openexr:
             find_openexr = os.path.join(self._source_subfolder, "cmake", "OpenCVFindOpenEXR.cmake")
-            tools.replace_in_file(find_openexr,
+            tools.files.replace_in_file(self, find_openexr,
                                   r'SET(OPENEXR_ROOT "C:/Deploy" CACHE STRING "Path to the OpenEXR \"Deploy\" folder")',
                                   "")
-            tools.replace_in_file(find_openexr, r'set(OPENEXR_ROOT "")', "")
-            tools.replace_in_file(find_openexr, "SET(OPENEXR_LIBSEARCH_SUFFIXES x64/Release x64 x64/Debug)", "")
-            tools.replace_in_file(find_openexr, "SET(OPENEXR_LIBSEARCH_SUFFIXES Win32/Release Win32 Win32/Debug)", "")
+            tools.files.replace_in_file(self, find_openexr, r'set(OPENEXR_ROOT "")', "")
+            tools.files.replace_in_file(self, find_openexr, "SET(OPENEXR_LIBSEARCH_SUFFIXES x64/Release x64 x64/Debug)", "")
+            tools.files.replace_in_file(self, find_openexr, "SET(OPENEXR_LIBSEARCH_SUFFIXES Win32/Release Win32 Win32/Debug)", "")
 
             def openexr_library_names(name):
                 # OpenEXR library may have different names, depends on namespace versioning, static, debug, etc.
@@ -136,30 +137,30 @@ class OpenCVConan(ConanFile):
                 return " ".join(names)
 
             for lib in ["Half", "Iex", "Imath", "IlmImf", "IlmThread"]:
-                tools.replace_in_file(find_openexr, "NAMES %s" % lib, "NAMES %s" % openexr_library_names(lib))
+                tools.files.replace_in_file(self, find_openexr, "NAMES %s" % lib, "NAMES %s" % openexr_library_names(lib))
 
-            tools.replace_in_file(cmakelists,
+            tools.files.replace_in_file(self, cmakelists,
                                 "project(OpenCV CXX C)", "project(OpenCV CXX C)\nset(CMAKE_CXX_STANDARD 11)")
 
         for cascade in ["lbpcascades", "haarcascades"]:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "data", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "data", "CMakeLists.txt"),
                                   "share/OpenCV/%s" % cascade, "res/%s" % cascade)
 
-        tools.replace_in_file(cmakelists, "staticlib", "lib")
-        tools.replace_in_file(cmakelists, "ANDROID OR NOT UNIX", "FALSE")
-        tools.replace_in_file(cmakelists, "${OpenCV_ARCH}/${OpenCV_RUNTIME}/", "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "modules", "highgui", "CMakeLists.txt"), "JASPER_", "Jasper_")
+        tools.files.replace_in_file(self, cmakelists, "staticlib", "lib")
+        tools.files.replace_in_file(self, cmakelists, "ANDROID OR NOT UNIX", "FALSE")
+        tools.files.replace_in_file(self, cmakelists, "${OpenCV_ARCH}/${OpenCV_RUNTIME}/", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "modules", "highgui", "CMakeLists.txt"), "JASPER_", "Jasper_")
 
         # relocatable shared lib on macOS
-        tools.replace_in_file(cmakelists, "cmake_policy(SET CMP0042 OLD)", "cmake_policy(SET CMP0042 NEW)")
+        tools.files.replace_in_file(self, cmakelists, "cmake_policy(SET CMP0042 OLD)", "cmake_policy(SET CMP0042 NEW)")
         # Cleanup RPATH
-        tools.replace_in_file(cmakelists,
+        tools.files.replace_in_file(self, cmakelists,
                               "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}\")",
                               "")
-        tools.replace_in_file(cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        tools.files.replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
         # Do not try to detect Python
-        tools.replace_in_file(cmakelists, "include(cmake/OpenCVDetectPython.cmake)", "")
+        tools.files.replace_in_file(self, cmakelists, "include(cmake/OpenCVDetectPython.cmake)", "")
 
     def _configure_cmake(self):
         if self._cmake:
@@ -215,10 +216,10 @@ class OpenCVConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "staticlib"))
-        tools.remove_files_by_mask(self.package_folder, "*.cmake")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "staticlib"))
+        tools.files.rm(self, "*.cmake", self.package_folder)
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -236,7 +237,7 @@ class OpenCVConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

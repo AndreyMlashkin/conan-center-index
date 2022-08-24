@@ -90,7 +90,7 @@ class GLibConan(ConanFile):
             # for Linux, gettext is provided by libc
             self.requires("libgettext/0.21")
 
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.requires("libiconv/1.17")
 
     def validate(self):
@@ -117,7 +117,7 @@ class GLibConan(ConanFile):
     def _configure_meson(self):
         meson = Meson(self)
         defs = {}
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             defs["iconv"] = "external"  # https://gitlab.gnome.org/GNOME/glib/issues/1557
         defs["selinux"] = "enabled" if self.options.get_safe("with_selinux") else "disabled"
         defs["libmount"] = "enabled" if self.options.get_safe("with_mount") else "disabled"
@@ -143,14 +143,14 @@ class GLibConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if scm.Version(self.version) < "2.67.2":
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "build_tests = not meson.is_cross_build() or (meson.is_cross_build() and meson.has_exe_wrapper())",
                 "build_tests = false",
             )
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "meson.build"),
             "subdir('fuzzing')",
             "#subdir('fuzzing')",
@@ -162,17 +162,17 @@ class GLibConan(ConanFile):
                 os.path.join(self._source_subfolder, "gobject", "meson.build"),
                 os.path.join(self._source_subfolder, "gio", "meson.build"),
             ]:
-                tools.replace_in_file(filename, "subdir('tests')", "#subdir('tests')")
+                tools.files.replace_in_file(self, filename, "subdir('tests')", "#subdir('tests')")
         if self.settings.os != "Linux":
             # allow to find gettext
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "libintl = cc.find_library('intl', required : false)" if scm.Version(self.version) < "2.73.1" \
                 else "libintl = dependency('intl', required: false)",
                 "libintl = dependency('libgettext', method : 'pkg-config', required : false)",
             )
 
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(
                 self._source_subfolder,
                 "gio",
@@ -184,7 +184,7 @@ class GLibConan(ConanFile):
             "'res'",
         )
         if self.settings.os != "Linux":
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "if cc.has_function('ngettext'",
                 "if false #cc.has_function('ngettext'",
@@ -200,7 +200,7 @@ class GLibConan(ConanFile):
 
     def _fix_library_names(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self.package_folder, "lib")):
+            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info(f"rename {filename_old} into {filename_new}")
@@ -281,7 +281,7 @@ class GLibConan(ConanFile):
             self.cpp_info.components["glib-2.0"].frameworks += ["Foundation", "CoreServices", "CoreFoundation"]
             self.cpp_info.components["gio-2.0"].frameworks.append("AppKit")
 
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 self.cpp_info.components["glib-2.0"].requires.append("libiconv::libiconv")
 
         if self.options.with_pcre:

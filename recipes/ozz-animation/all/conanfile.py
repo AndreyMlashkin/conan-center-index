@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class OzzAnimationConan(ConanFile):
     name = "ozz-animation"
@@ -27,7 +28,7 @@ class OzzAnimationConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -44,9 +45,9 @@ class OzzAnimationConan(ConanFile):
 
     def build(self):
         for before, after in [('string(REGEX REPLACE "/MT" "/MD" ${flag} "${${flag}}")', ""), ('string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")', "")]:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"), before, after)
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"), before, after)
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"), 
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"), 
                               "if(NOT EMSCRIPTEN)",
                               "if(NOT CMAKE_CROSSCOMPILING)")
 
@@ -63,4 +64,4 @@ class OzzAnimationConan(ConanFile):
         self.copy(pattern="LICENSE.md", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

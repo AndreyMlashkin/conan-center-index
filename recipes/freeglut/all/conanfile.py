@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -69,13 +70,13 @@ class freeglutConan(ConanFile):
             # and https://sourceforge.net/p/freeglut/bugs/218/
             # also, it seems to require `brew cask install xquartz`
             raise ConanInvalidConfiguration("%s does not support macos" % self.name)
-        if (self.settings.compiler == "gcc" and self.settings.compiler.version >= tools.Version("10.0")) or \
-            (self.settings.compiler == "clang" and self.settings.compiler.version >= tools.Version("11.0")):
+        if (self.settings.compiler == "gcc" and self.settings.compiler.version >= tools.scm.Version("10.0")) or \
+            (self.settings.compiler == "clang" and self.settings.compiler.version >= tools.scm.Version("11.0")):
             # see https://github.com/dcnieho/FreeGLUT/issues/86
             raise ConanInvalidConfiguration("%s does not support gcc >= 10 and clang >= 11" % self.name)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -107,8 +108,8 @@ class freeglutConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         config_target = "freeglut" if self.options.shared else "freeglut_static"
@@ -122,7 +123,7 @@ class freeglutConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", pkg_config)
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["freeglut_"].libs = tools.collect_libs(self)
+        self.cpp_info.components["freeglut_"].libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.components["freeglut_"].system_libs.extend(["pthread", "m", "dl", "rt"])
         elif self.settings.os == "Windows":

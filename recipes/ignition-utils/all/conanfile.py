@@ -1,6 +1,7 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import conan.tools.files
 import textwrap
 
@@ -56,7 +57,7 @@ class IgnitionUitlsConan(ConanFile):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -65,7 +66,7 @@ class IgnitionUitlsConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -83,7 +84,7 @@ class IgnitionUitlsConan(ConanFile):
         self.build_requires("ignition-cmake/2.10.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake is not None:
@@ -97,14 +98,14 @@ class IgnitionUitlsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cli_header_src = os.path.join(self._source_subfolder, "cli", "include")
-        if int(tools.Version(self.version).minor) == 0:
+        if int(tools.scm.Version(self.version).minor) == 0:
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")
         else:
             cli_header_src = os.path.join(cli_header_src, "external-cli", "ignition", "utils", "cli")
@@ -112,17 +113,17 @@ class IgnitionUitlsConan(ConanFile):
                      dst="include/ignition/utils1/ignition/utils/cli")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            tools.files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
         
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.Version(self.version)
+            tools.scm.Version(self.version)
         )
 
     @staticmethod
@@ -133,10 +134,10 @@ class IgnitionUitlsConan(ConanFile):
             set(ignition-utils{major}_VERSION_PATCH {patch})
             set(ignition-utils{major}_VERSION_STRING "{major}.{minor}.{patch}")
         """.format(major=version.major, minor=version.minor, patch=version.patch))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     def package_info(self):
-        version_major = tools.Version(self.version).major
+        version_major = tools.scm.Version(self.version).major
         lib_name = f"ignition-utils{version_major}"
         build_dirs = os.path.join(self.package_folder, "lib", "cmake")
         include_dir = os.path.join("include", "ignition", "utils"+version_major)

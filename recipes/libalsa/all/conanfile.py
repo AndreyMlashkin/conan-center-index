@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -50,7 +50,7 @@ class LibalsaConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -63,15 +63,15 @@ class LibalsaConan(ConanFile):
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
             "--enable-python={}".format(yes_no(not self.options.disable_python)),
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
         ]
         self._autotools.configure(args=args)
         return self._autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+            tools.files.patch(self, **patch)
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
 
             autotools = self._configure_autotools()
@@ -79,12 +79,12 @@ class LibalsaConan(ConanFile):
 
     def package(self):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

@@ -1,7 +1,7 @@
 from conans import ConanFile, Meson, tools
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import glob
 import shutil
@@ -23,7 +23,7 @@ class GlibmmConan(ConanFile):
     short_paths = True
 
     def _abi_version(self):
-        return "2.68" if tools.Version(self.version) >= "2.68.0" else "2.4"
+        return "2.68" if tools.scm.Version(self.version) >= "2.68.0" else "2.4"
 
     def _glibmm_lib(self):
         return f"glibmm-{self._abi_version()}"
@@ -32,14 +32,14 @@ class GlibmmConan(ConanFile):
         return f"giomm-{self._abi_version()}"
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
         if self.settings.compiler.get_safe("cppstd"):
             if self._abi_version() == "2.68":
-                tools.check_min_cppstd(self, 17)
+                tools.build.check_min_cppstd(self, 17)
             else:
-                tools.check_min_cppstd(self, 11)
+                tools.build.check_min_cppstd(self, 11)
         if self.options.shared and not self.options["glib"].shared:
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
@@ -71,7 +71,7 @@ class GlibmmConan(ConanFile):
             self.requires("libsigcpp/2.10.8")
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder,
@@ -79,7 +79,7 @@ class GlibmmConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if is_msvc(self):
             # GLiBMM_GEN_EXTRA_DEFS_STATIC is not defined anywhere and is not
@@ -87,7 +87,7 @@ class GlibmmConan(ConanFile):
             # when building a static build !defined(GLiBMM_GEN_EXTRA_DEFS_STATIC)
             # evaluates to 0
             if not self.options.shared:
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     os.path.join(self._source_subfolder, "tools",
                                  "extra_defs_gen", "generate_extra_defs.h"),
                     "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
@@ -99,7 +99,7 @@ class GlibmmConan(ConanFile):
             # the problem is that older versions of Windows SDK is not standard
             # conformant! see:
             # https://developercommunity.visualstudio.com/t/error-c2760-in-combaseapih-with-windows-sdk-81-and/185399
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "cpp_std=c++", "cpp_std=vc++")
 
@@ -139,7 +139,7 @@ class GlibmmConan(ConanFile):
         meson.install()
 
         if is_msvc(self):
-            tools.remove_files_by_mask(
+            tools.files.rm(self, 
                 os.path.join(self.package_folder, "bin"), "*.pdb")
             if not self.options.shared:
                 rename(
@@ -189,7 +189,7 @@ class GlibmmConan(ConanFile):
                 self._glibmm_lib(),
                 self._giomm_lib()
         ]:
-            tools.rmdir(os.path.join(self.package_folder, "lib",
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib",
                                      dir_to_remove))
 
     def package_info(self):

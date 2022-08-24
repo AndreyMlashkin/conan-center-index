@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -24,7 +24,7 @@ class TaskflowConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        if tools.Version(self.version) >= "3.0.0":
+        if tools.scm.Version(self.version) >= "3.0.0":
             return "17"
         return "14"
 
@@ -51,10 +51,10 @@ class TaskflowConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            tools.build.check_min_cppstd(self, self._min_cppstd)
 
         min_version = self._minimum_compiler_version.get(str(self.settings.compiler))
-        if min_version and tools.Version(self.settings.compiler.version) < min_version:
+        if min_version and tools.scm.Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
                 "{} requires a compiler that supports at least C++{}".format(
                     self.name, self._min_cppstd,
@@ -65,12 +65,12 @@ class TaskflowConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

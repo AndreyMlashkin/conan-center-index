@@ -1,5 +1,6 @@
 from conan.tools.files import rename
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -52,7 +53,7 @@ class QxmppConan(ConanFile):
             self.requires("glib/2.70.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -67,7 +68,7 @@ class QxmppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -75,11 +76,11 @@ class QxmppConan(ConanFile):
         self.copy("LICENSE.LGPL", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared and self.settings.os == "Windows":
-            tools.mkdir(os.path.join(self.package_folder, "bin"))
+            tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
             rename(self, os.path.join(self.package_folder, "lib", "qxmpp.dll"),
                          os.path.join(self.package_folder, "bin", "qxmpp.dll"))
 

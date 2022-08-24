@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
@@ -42,7 +43,7 @@ class LibGphoto2(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def validate(self):
         if not self.options.shared:
@@ -84,7 +85,7 @@ class LibGphoto2(ConanFile):
             self.requires("libjpeg/9d")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -100,9 +101,9 @@ class LibGphoto2(ConanFile):
             "--with-libexif={}".format(auto_no(self.options.with_libexif)),
             "--with-libxml-2.0={}".format(auto_no(self.options.with_libxml2)),
             "--disable-nls",
-            "--datadir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
-            "udevscriptdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
-            "utilsdir={}".format(tools.unix_path(os.path.join(self.package_folder, "bin"))),
+            "--datadir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
+            "udevscriptdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
+            "utilsdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin"))),
         ]
         if not self.options.with_libjpeg:
             args.append("--without-jpeg")
@@ -120,9 +121,9 @@ class LibGphoto2(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.remove_files_by_mask(self.package_folder, "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", self.package_folder)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["gphoto2", "gphoto2_port"]

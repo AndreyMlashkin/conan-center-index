@@ -1,5 +1,6 @@
 from conan.tools.files import apply_conandata_patches
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 import textwrap
@@ -52,7 +53,7 @@ class OpenjpegConan(ConanFile):
         del self.info.options.build_codec # not used for the moment
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -63,7 +64,7 @@ class OpenjpegConan(ConanFile):
         cmake.definitions["BUILD_STATIC_LIBS"] = not self.options.shared
         cmake.definitions["BUILD_LUTS_GENERATOR"] = False
         cmake.definitions["BUILD_CODEC"] = False
-        if tools.Version(self.version) < "2.5.0":
+        if tools.scm.Version(self.version) < "2.5.0":
             cmake.definitions["BUILD_MJ2"] = False
             cmake.definitions["BUILD_JPWL"] = False
             cmake.definitions["BUILD_JP3D"] = False
@@ -86,7 +87,7 @@ class OpenjpegConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "lib", self._openjpeg_subdir))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", self._openjpeg_subdir))
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(
@@ -104,7 +105,7 @@ class OpenjpegConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -112,7 +113,7 @@ class OpenjpegConan(ConanFile):
 
     @property
     def _openjpeg_subdir(self):
-        openjpeg_version = tools.Version(self.version)
+        openjpeg_version = tools.scm.Version(self.version)
         return "openjpeg-{}.{}".format(openjpeg_version.major, openjpeg_version.minor)
 
     def package_info(self):

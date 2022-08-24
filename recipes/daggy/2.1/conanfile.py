@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools, errors
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake, errors
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -45,7 +46,7 @@ class DaggyConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build_requirements(self):
@@ -72,13 +73,13 @@ class DaggyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
                     self.name, 
                     self._minimum_cpp_standard, 
@@ -120,7 +121,7 @@ class DaggyConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         
         cmake = self._configure()
         cmake.build()

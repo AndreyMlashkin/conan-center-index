@@ -40,7 +40,7 @@ class Re2CConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build_requirements(self):
@@ -52,10 +52,10 @@ class Re2CConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXX": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "LD": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXXLD": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
+                    "CC": "{} -nologo".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
+                    "CXX": "{} -nologo".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
+                    "LD": "{} -nologo".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
+                    "CXXLD": "{} -nologo".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
                     "AR": "lib",
                 }
                 with tools.environment_append(env):
@@ -75,7 +75,7 @@ class Re2CConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make(args=["V=1"])
@@ -87,7 +87,7 @@ class Re2CConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

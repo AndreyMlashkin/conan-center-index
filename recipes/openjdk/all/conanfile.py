@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -26,7 +26,7 @@ class OpenJDK(ConanFile):
             raise ConanInvalidConfiguration("Unsupported os. This package currently only support Linux/Macos/Windows")
 
     def build(self):
-        tools.get(**self.conan_data["sources"][self.version][str(self.settings.os)],
+        tools.files.get(self, **self.conan_data["sources"][self.version][str(self.settings.os)],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -42,7 +43,7 @@ class RestinioConan(ConanFile):
     def requirements(self):
         self.requires("http_parser/2.9.4")
 
-        if tools.Version(self.version) >= "0.6.16":
+        if tools.scm.Version(self.version) >= "0.6.16":
             self.requires("fmt/9.0.0")
         else:
             self.requires("fmt/8.1.1")
@@ -53,12 +54,12 @@ class RestinioConan(ConanFile):
         self.requires("variant-lite/2.0.0")
 
         if self.options.asio == "standalone":
-            if tools.Version(self.version) >= "0.6.9":
+            if tools.scm.Version(self.version) >= "0.6.9":
                 self.requires("asio/1.22.1")
             else:
                 self.requires("asio/1.16.1")
         else:
-            if tools.Version(self.version) >= "0.6.9":
+            if tools.scm.Version(self.version) >= "0.6.9":
                 self.requires("boost/1.78.0")
             else:
                 self.requires("boost/1.73.0")
@@ -80,7 +81,7 @@ class RestinioConan(ConanFile):
     def validate(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "5",
             "clang": "3.4",
@@ -94,12 +95,12 @@ class RestinioConan(ConanFile):
             self.output.warn(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -117,7 +118,7 @@ class RestinioConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "restinio")

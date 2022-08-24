@@ -1,5 +1,6 @@
 from conan.tools.files import rename
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 from conan.tools.microsoft import is_msvc
 from contextlib import contextmanager
 import os
@@ -31,7 +32,7 @@ class LibiconvConan(ConanFile):
 
     @property
     def _use_winbash(self):
-        return tools.os_info.is_windows and (self.settings.compiler == "gcc" or tools.cross_building(self))
+        return tools.os_info.is_windows and (self.settings.compiler == "gcc" or tools.build.cross_building(self, self))
 
     @property
     def _is_clang_cl(self):
@@ -60,7 +61,7 @@ class LibiconvConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
     def _build_context(self):
@@ -70,8 +71,8 @@ class LibiconvConan(ConanFile):
             cxx = "cl" if is_msvc(self) else os.environ.get("CXX", "clang-cl")
             lib = "lib" if is_msvc(self) else os.environ.get("AR", "llvm-lib")
             build_aux_path = os.path.join(self.build_folder, self._source_subfolder, "build-aux")
-            lt_compile = tools.unix_path(os.path.join(build_aux_path, "compile"))
-            lt_ar = tools.unix_path(os.path.join(build_aux_path, "ar-lib"))
+            lt_compile = tools.microsoft.unix_path(self, os.path.join(build_aux_path, "compile"))
+            lt_ar = tools.microsoft.unix_path(self, os.path.join(build_aux_path, "ar-lib"))
             env_vars.update({
                 "CC": "{} {} -nologo".format(lt_compile, cc),
                 "CXX": "{} {} -nologo".format(lt_compile, cxx),
@@ -83,7 +84,7 @@ class LibiconvConan(ConanFile):
             })
             env_vars["win32_target"] = "_WIN32_WINNT_VISTA"
 
-        if not tools.cross_building(self) or is_msvc(self) or self._is_clang_cl:
+        if not tools.build.cross_building(self, self) or is_msvc(self) or self._is_clang_cl:
             rc = None
             if self.settings.arch == "x86":
                 rc = "windres --target=pe-i386"
@@ -96,7 +97,7 @@ class LibiconvConan(ConanFile):
             env_vars["RANLIB"] = ":"
 
         with tools.vcvars(self.settings) if (is_msvc(self) or self._is_clang_cl) else tools.no_op():
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 with tools.environment_append(env_vars):
                     yield
 
@@ -119,7 +120,7 @@ class LibiconvConan(ConanFile):
         else:
             configure_args.extend(["--enable-static", "--disable-shared"])
 
-        if (self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) >= "12") or \
+        if (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12") or \
            self.settings.compiler == "msvc":
             autotools.flags.append("-FS")
 
@@ -128,10 +129,10 @@ class LibiconvConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # relocatable shared libs on macOS
         for configure in ["configure", os.path.join("libcharset", "configure")]:
-            tools.replace_in_file(os.path.join(self._source_subfolder, configure),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, configure),
                                   "-install_name \\$rpath/", "-install_name @rpath/")
 
     def build(self):
@@ -146,8 +147,8 @@ class LibiconvConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         if (is_msvc(self) or self._is_clang_cl) and self.options.shared:
             for import_lib in ["iconv", "charset"]:

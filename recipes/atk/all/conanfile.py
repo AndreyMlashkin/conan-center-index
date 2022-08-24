@@ -1,5 +1,5 @@
 from conans import ConanFile, Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import glob
 
@@ -55,7 +55,7 @@ class AtkConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -72,11 +72,11 @@ class AtkConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        tools.replace_in_file(os.path.join(self._source_subfolder, 'meson.build'),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, 'meson.build'),
             "subdir('tests')",
             "#subdir('tests')")
         meson = self._configure_meson()
@@ -86,8 +86,8 @@ class AtkConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.settings.compiler == "Visual Studio":
             for pdb in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
                 os.unlink(pdb)
@@ -95,7 +95,7 @@ class AtkConan(ConanFile):
                 os.rename(os.path.join(self.package_folder, 'lib', 'libatk-1.0.a'), os.path.join(self.package_folder, 'lib', 'atk-1.0.lib'))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.includedirs = ['include/atk-1.0']
 
     def package_id(self):

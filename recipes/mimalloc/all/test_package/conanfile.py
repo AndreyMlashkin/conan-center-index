@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, RunEnvironment, tools
+from conan import ConanFile
+from conans import CMake, RunEnvironment, tools
 import os
 
 
@@ -75,7 +76,7 @@ class MimallocTestConan(ConanFile):
         return environment
 
     def test(self):
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             return
 
         self.output.info("Environment append: {}".format(self._environment))

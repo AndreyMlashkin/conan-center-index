@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from io import StringIO
 import os
 
@@ -13,7 +14,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             bin_path = os.path.join("bin", "test_package")
             config_path = os.path.join(self.source_folder, "hello.conf")
             output = StringIO()

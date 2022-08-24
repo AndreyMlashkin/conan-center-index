@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 class EnhexStrongTypeConan(ConanFile):
@@ -18,7 +18,7 @@ class EnhexStrongTypeConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         minimal_version = {
             "Visual Studio": "15",
@@ -27,7 +27,7 @@ class EnhexStrongTypeConan(ConanFile):
             "apple-clang": "9.1"
         }
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         if compiler not in minimal_version:
             self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
@@ -36,10 +36,10 @@ class EnhexStrongTypeConan(ConanFile):
         # Exclude compilers not supported
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("{} requires a compiler that supports at least C++17. {} {} is not".format(
-                self.name, compiler, tools.Version(self.settings.compiler.version.value)))
+                self.name, compiler, tools.scm.Version(self.settings.compiler.version.value)))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

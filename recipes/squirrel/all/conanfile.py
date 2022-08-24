@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -47,18 +48,18 @@ class SquirrelConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if tools.Version(self.version) <= "3.1":
+        if tools.scm.Version(self.version) <= "3.1":
             if self.settings.os == "Macos":
                 raise ConanInvalidConfiguration("squirrel 3.1 and earlier does not support Macos")
             if self.settings.compiler == "clang":
-                compiler_version = tools.Version(self.settings.compiler.version)
+                compiler_version = tools.scm.Version(self.settings.compiler.version)
                 if compiler_version < "9" or compiler_version >= "11":
                     raise ConanInvalidConfiguration(
                         f"squirrel 3.1 and earlier does not support Clang {compiler_version}"
                     )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -71,7 +72,7 @@ class SquirrelConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

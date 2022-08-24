@@ -1,6 +1,7 @@
 import functools
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 
 
@@ -53,7 +54,7 @@ class SoxrConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -69,23 +70,23 @@ class SoxrConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def _extract_pffft_license(self):
-        pffft_c = tools.load(os.path.join(self._source_subfolder, "src", "pffft.c"))
+        pffft_c = tools.files.load(self, os.path.join(self._source_subfolder, "src", "pffft.c"))
         license_contents = pffft_c[pffft_c.find("/* Copyright")+3:pffft_c.find("modern CPUs.")+13]
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
         self.copy("LICENCE", dst="licenses", src=self._source_subfolder)
         self._extract_pffft_license()
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         # core component

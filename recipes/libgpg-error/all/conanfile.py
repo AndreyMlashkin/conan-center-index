@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -39,7 +39,7 @@ class GPGErrorConan(ConanFile):
             raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure(self):
@@ -66,7 +66,7 @@ class GPGErrorConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         env_build = self._configure()
         env_build.make()
 
@@ -74,9 +74,9 @@ class GPGErrorConan(ConanFile):
         env_build = self._configure()
         env_build.install()
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["gpg-error"]

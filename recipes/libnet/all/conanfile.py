@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -44,7 +44,7 @@ class LibnetConan(ConanFile):
             raise ConanInvalidConfiguration("libnet can't be built as shared on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -74,7 +74,7 @@ class LibnetConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         os.unlink(os.path.join(self.package_folder, "lib", "libnet.la"))
         os.unlink(os.path.join(self.package_folder, "lib", "pkgconfig", "libnet.pc"))
 

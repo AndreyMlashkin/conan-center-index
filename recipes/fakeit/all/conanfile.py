@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -42,10 +42,10 @@ class FakeItConan(ConanFile):
     def validate(self):
         minimal_cpp_standard = "11"
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy(pattern="fakeit.hpp", dst="include", src=os.path.join(self._source_subfolder, "single_header", str(self.options.integration)))

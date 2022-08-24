@@ -1,7 +1,8 @@
 import os
 import subprocess
 from six import StringIO
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class NmosCppTestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
@@ -14,7 +15,7 @@ class NmosCppTestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             with open("registry-config.json", "w") as config:
                 config.write('{"http_port": 10000, "domain": "local.", "pri": 51967}')
             with open("node-config.json", "w") as config:

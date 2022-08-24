@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.36.0"
@@ -28,7 +29,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         # Check the package provides working binaries
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             self.run("emcc -v", run_environment=True)
             self.run("em++ -v", run_environment=True)
 

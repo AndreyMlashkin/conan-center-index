@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class MingwConan(ConanFile):
@@ -60,7 +60,7 @@ class MingwConan(ConanFile):
         # Source should be downloaded in the build step since it depends on specific options
         url = self.conan_data["sources"][self.version][str(self.options.threads)][str(self.options.exception)]
         self.output.info("Downloading: %s" % url["url"])
-        tools.download(url["url"], "file.7z", sha256=url["sha256"])
+        tools.files.download(self, url["url"], "file.7z", sha256=url["sha256"])
         self.run("7z x file.7z")
         os.remove('file.7z')
 
@@ -68,9 +68,9 @@ class MingwConan(ConanFile):
     def package(self):
         target = "mingw64" if self.settings.arch == "x86_64" else "mingw32"
         self.copy("*", dst="", src=target)
-        tools.rmdir(target)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "opt", "lib", "cmake"))
+        tools.files.rmdir(self, target)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "opt", "lib", "cmake"))
 
     def package_info(self):
         if getattr(self, "settings_target", None):

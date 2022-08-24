@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class FuseppConan(ConanFile):
@@ -30,9 +31,9 @@ class FuseppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
         if self.settings.compiler == "gcc":
-            if tools.Version(self.settings.compiler.version) < "6":
+            if tools.scm.Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")
 
     def config_options(self):
@@ -46,7 +47,7 @@ class FuseppConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 import textwrap
@@ -53,11 +54,11 @@ class TmxConan(ConanFile):
             self.requires("zstd/1.5.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "${CMAKE_BINARY_DIR}", "${CMAKE_CURRENT_BINARY_DIR}")
 
     @functools.lru_cache(1)
@@ -79,7 +80,7 @@ class TmxConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(
@@ -97,7 +98,7 @@ class TmxConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

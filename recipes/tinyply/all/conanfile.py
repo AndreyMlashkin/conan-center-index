@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class TinyplyConan(ConanFile):
     name = "tinyply"
@@ -29,10 +30,10 @@ class TinyplyConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -49,14 +50,14 @@ class TinyplyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def _extract_license(self):
-        readme = tools.load(os.path.join(self.source_folder, self._source_subfolder, "readme.md"))
+        readme = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "readme.md"))
         begin = readme.find("## License")
         return readme[begin:]
 
@@ -64,4 +65,4 @@ class TinyplyConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "tinyply"
         self.cpp_info.names["cmake_find_package_multi"] = "tinyply"
         self.cpp_info.names["pkg_config"] = "tinyply"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

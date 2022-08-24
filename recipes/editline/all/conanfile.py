@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -54,7 +55,7 @@ class EditlineConan(ConanFile):
             raise ConanInvalidConfiguration("tinfo is not (yet) available on CCI")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -75,7 +76,7 @@ class EditlineConan(ConanFile):
 
     def _patch_sources(self):
         for patchdata in self.conan_data.get("patches",{}).get(self.version, []):
-            tools.patch(**patchdata)
+            tools.files.patch(self, **patchdata)
 
     def build(self):
         self._patch_sources()
@@ -87,8 +88,8 @@ class EditlineConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         os.unlink(os.path.join(self.package_folder, "lib", "libedit.la"))
 
     def package_info(self):

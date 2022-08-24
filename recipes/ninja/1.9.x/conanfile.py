@@ -1,7 +1,8 @@
 import os
 import sys
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 
 
 class NinjaConan(ConanFile):
@@ -19,16 +20,16 @@ class NinjaConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if hasattr(self, 'settings_build') and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, 'settings_build') and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     def _build_vs(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.vcvars(self.settings, filter_known_paths=False):
                 self.run("%s configure.py --bootstrap" % sys.executable)
 
     def _build_configure(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             cxx = os.environ.get("CXX", "g++")
             if self.settings.os == "Linux":
                 if self.settings.arch == "x86":
@@ -42,7 +43,7 @@ class NinjaConan(ConanFile):
                 self.run("%s configure.py --bootstrap" % sys.executable)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("ninja-%s" % self.version, self._source_subfolder)
 
     def build(self):

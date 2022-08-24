@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -90,27 +91,27 @@ class OpenVDBConan(ConanFile):
 
     def _check_compilier_version(self):
         compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         minimum_version = self._compilers_min_version.get(compiler, False)
         if minimum_version and version < minimum_version:
             raise ConanInvalidConfiguration(f"{self.name} requires a {compiler} version greater than {minimum_version}")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
         if self.settings.arch not in ("x86", "x86_64"):
             if self.options.simd:
                 raise ConanInvalidConfiguration("Only intel architectures support SSE4 or AVX.")
         self._check_compilier_version()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Remove FindXXX files from OpenVDB. Let Conan do the job
-        tools.remove_files_by_mask(os.path.join(self._source_subfolder, "cmake"), "Find*")
+        tools.files.rm(self, "Find*", os.path.join(self._source_subfolder, "cmake"))
         with open("FindBlosc.cmake", "w") as f:
             f.write(
                 """find_package(c-blosc)

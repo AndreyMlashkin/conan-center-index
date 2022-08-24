@@ -14,7 +14,7 @@ from conan.tools.files import apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 from conans import tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
@@ -54,7 +54,7 @@ class RubyConan(ConanFile):
 
     @property
     def _msvc_optflag(self):
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "14":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "14":
             return "-O2b2xg-"
         else:
             return "-O2sy-"
@@ -81,7 +81,7 @@ class RubyConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def generate(self):
         td = AutotoolsDeps(self)
@@ -107,7 +107,7 @@ class RubyConan(ConanFile):
             if "--enable-shared" not in tc.configure_args:
                 tc.configure_args.append("--enable-shared")
 
-        if cross_building(self) and is_apple_os(self.settings.os):
+        if cross_building(self) and is_apple_os(self):
             apple_arch = to_apple_arch(self.settings.arch)
             if apple_arch:
                 tc.configure_args.append(f"--with-arch={apple_arch}")
@@ -151,23 +151,23 @@ class RubyConan(ConanFile):
             else:
                 at.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         binpath = os.path.join(self.package_folder, "bin")
         self.output.info(f"Adding to PATH: {binpath}")
         self.env_info.PATH.append(binpath)
 
-        version = tools.Version(self.version)
+        version = tools.scm.Version(self.version)
         rubylib = self.cpp_info.components["rubylib"]
         config_file = glob.glob(os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True)[0]
         rubylib.includedirs = [
             os.path.join(self.package_folder, "include", f"ruby-{version}"),
             os.path.dirname(os.path.dirname(config_file))
         ]
-        rubylib.libs = tools.collect_libs(self)
+        rubylib.libs = tools.files.collect_libs(self, self)
         if is_msvc(self):
             if self.options.shared:
                 rubylib.libs = list(filter(lambda l: not l.endswith("-static"), rubylib.libs))
@@ -183,7 +183,7 @@ class RubyConan(ConanFile):
         if str(self.settings.compiler) in ("clang", "apple-clang"):
             rubylib.cflags = ["-fdeclspec"]
             rubylib.cxxflags = ["-fdeclspec"]
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             rubylib.frameworks = ["CoreFoundation"]
 
         self.cpp_info.filenames["cmake_find_package"] = "Ruby"

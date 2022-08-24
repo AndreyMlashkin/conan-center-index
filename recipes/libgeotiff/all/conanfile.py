@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
@@ -55,12 +56,12 @@ class LibgeotiffConan(ConanFile):
         self.requires("proj/9.0.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -77,9 +78,9 @@ class LibgeotiffConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=os.path.join(self._source_subfolder, "libgeotiff"))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_vars_file)
         )
@@ -101,7 +102,7 @@ class LibgeotiffConan(ConanFile):
                 set(GEOTIFF_LIBRARIES ${GeoTIFF_LIBRARIES})
             endif()
         """)
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file, targets):
@@ -113,7 +114,7 @@ class LibgeotiffConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -139,6 +140,6 @@ class LibgeotiffConan(ConanFile):
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_vars_file]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_target_file]
 
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import textwrap
@@ -90,7 +91,7 @@ class TensorflowLiteConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -112,11 +113,11 @@ class TensorflowLiteConan(ConanFile):
         self.build_requires("ninja/1.10.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -147,7 +148,7 @@ class TensorflowLiteConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """)
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file(self):
@@ -159,7 +160,7 @@ class TensorflowLiteConan(ConanFile):
         self.copy("*", dst="lib", src=os.path.join(self._build_subfolder, "lib"))
         if self.options.shared:
             self.copy("*", dst="bin", src=os.path.join(self._build_subfolder, "bin"))
-            tools.remove_files_by_mask(self.package_folder, "*.pdb")
+            tools.files.rm(self, "*.pdb", self.package_folder)
         self._create_cmake_module_alias_target(os.path.join(self.package_folder, self._module_file))
 
     def package_info(self):
@@ -178,6 +179,6 @@ class TensorflowLiteConan(ConanFile):
             defines.append("TFLITE_WITH_RUY")
 
         self.cpp_info.defines = defines
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("dl")

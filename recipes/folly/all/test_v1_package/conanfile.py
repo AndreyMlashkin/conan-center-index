@@ -1,5 +1,6 @@
 # pylint: skip-file
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -14,6 +15,6 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             bin_path = os.path.join("bin", "test_package")
             self.run(command=bin_path, run_environment=True)

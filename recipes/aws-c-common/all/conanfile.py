@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -40,7 +41,7 @@ class AwsCCommon(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "0.6.11":
+        if tools.scm.Version(self.version) < "0.6.11":
             del self.options.cpu_extensions
 
     def configure(self):
@@ -54,7 +55,7 @@ class AwsCCommon(ConanFile):
             raise ConanInvalidConfiguration("Static runtime + shared is not working for more recent releases")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -70,7 +71,7 @@ class AwsCCommon(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -78,7 +79,7 @@ class AwsCCommon(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "aws-c-common"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-common"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-common")
@@ -97,9 +98,9 @@ class AwsCCommon(ConanFile):
             self.cpp_info.components["aws-c-common-lib"].system_libs = ["dl", "m", "pthread", "rt"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["aws-c-common-lib"].system_libs = ["bcrypt", "ws2_32"]
-            if tools.Version(self.version) >= "0.6.13":
+            if tools.scm.Version(self.version) >= "0.6.13":
                 self.cpp_info.components["aws-c-common-lib"].system_libs.append("shlwapi")
         if not self.options.shared:
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 self.cpp_info.components["aws-c-common-lib"].frameworks = ["CoreFoundation"]
         self.cpp_info.components["aws-c-common-lib"].builddirs.append(os.path.join("lib", "cmake"))

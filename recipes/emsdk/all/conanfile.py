@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 import json
 
@@ -26,7 +26,7 @@ class EmSDKConan(ConanFile):
         # self.requires("wasm")  # FIXME: Not available as Conan package
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @staticmethod
@@ -52,7 +52,7 @@ class EmSDKConan(ConanFile):
         return ret
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             emsdk = "emsdk.bat" if tools.os_info.is_windows else "./emsdk"
             self._chmod_plus_x("emsdk")
 
@@ -78,16 +78,16 @@ class EmSDKConan(ConanFile):
         toolchain = os.path.join(emscripten, "cmake", "Modules", "Platform", "Emscripten.cmake")
         # FIXME: conan should add the root of conan package requirements to CMAKE_PREFIX_PATH (LIBRARY/INCLUDE -> ONLY; PROGRAM -> NEVER)
         # allow to find conan libraries
-        tools.replace_in_file(toolchain,
+        tools.files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)")
-        tools.replace_in_file(toolchain,
+        tools.files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)")
-        tools.replace_in_file(toolchain,
+        tools.files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)")
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             with tools.environment_append(self._emscripten_env):
                 self.run("embuilder build MINIMAL", run_environment=True) # force cache population
                 # the line below forces emscripten to accept the cache as-is, even after re-location

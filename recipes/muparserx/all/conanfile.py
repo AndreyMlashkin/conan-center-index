@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 class MuparserxConan(ConanFile):
     name = "muparserx"
@@ -31,7 +32,7 @@ class MuparserxConan(ConanFile):
             raise ConanInvalidConfiguration("Muparserx does not support windows dll library!")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -44,7 +45,7 @@ class MuparserxConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "set_property(TARGET muparserx PROPERTY POSITION_INDEPENDENT_CODE TRUE)", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "set_property(TARGET muparserx PROPERTY POSITION_INDEPENDENT_CODE TRUE)", "")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -52,11 +53,11 @@ class MuparserxConan(ConanFile):
         self.copy(pattern="License.txt", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

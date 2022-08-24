@@ -1,5 +1,6 @@
 from conan.tools.files import rename
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -77,7 +78,7 @@ class SAILConan(ConanFile):
             self.requires("libwebp/1.2.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
@@ -113,7 +114,7 @@ class SAILConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -125,8 +126,8 @@ class SAILConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # Remove CMake and pkg-config rules
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # Move icons
         rename(self, os.path.join(self.package_folder, "share"),
                      os.path.join(self.package_folder, "res"))

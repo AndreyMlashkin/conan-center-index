@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import contextlib
 import os
 import shutil
@@ -22,7 +23,7 @@ class TestPackageConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "AR": "{} lib".format(tools.unix_path(os.path.join(self.build_folder, "build-aux", "ar-lib"))),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "build-aux", "ar-lib"))),
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link -nologo",
@@ -39,9 +40,9 @@ class TestPackageConan(ConanFile):
     def build(self):
         for src in self.exports_sources:
             shutil.copy(os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src))
-        with tools.chdir(self.build_folder):
+        with tools.files.chdir(self, self.build_folder):
             for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
-                tools.save(fn, "\n")
+                tools.files.save(self, fn, "\n")
             with tools.run_environment(self):
                 self.run("gnulib-tool --list", win_bash=tools.os_info.is_windows, run_environment=True)
                 self.run("gnulib-tool --import getopt-posix", win_bash=tools.os_info.is_windows, run_environment=True)
@@ -55,6 +56,6 @@ class TestPackageConan(ConanFile):
                 autotools.make()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             bin_path = os.path.join(".", "test_package")
             self.run(bin_path, run_environment=True)

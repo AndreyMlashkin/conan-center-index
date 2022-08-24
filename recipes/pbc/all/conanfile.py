@@ -40,7 +40,7 @@ class PbcConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -59,7 +59,7 @@ class PbcConan(ConanFile):
         # No idea why this is necessary, but if you don't set CC this way, then
         # configure complains that it can't find gmp.
         if (
-            tools.cross_building(self.settings)
+            tools.build.cross_building(self, self.settings)
             and self.settings.compiler == "apple-clang"
         ):
 
@@ -81,7 +81,7 @@ class PbcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -89,8 +89,8 @@ class PbcConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["pbc"]

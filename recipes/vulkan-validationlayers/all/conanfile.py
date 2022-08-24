@@ -1,5 +1,7 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conans.errors import ConanException, ConanInvalidConfiguration
+from conan.tools.scm import Version
 import functools
 import glob
 import os
@@ -93,16 +95,16 @@ class VulkanValidationLayersConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
         if self.options["spirv-tools"].shared:
             raise ConanInvalidConfiguration("vulkan-validationlayers can't depend on shared spirv-tools")
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         self._patch_sources()
@@ -111,8 +113,8 @@ class VulkanValidationLayersConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/res/vulkan/registry")
         # FIXME: two CMake module/config files should be generated (SPIRV-ToolsConfig.cmake and SPIRV-Tools-optConfig.cmake),
@@ -144,18 +146,18 @@ class VulkanValidationLayersConan(ConanFile):
         if self.settings.os == "Windows":
             # import lib is useless, validation layers are loaded at runtime
             lib_dir = os.path.join(self.package_folder, "lib")
-            tools.remove_files_by_mask(lib_dir, "VkLayer_khronos_validation.lib")
-            tools.remove_files_by_mask(lib_dir, "libVkLayer_khronos_validation.dll.a")
+            tools.files.rm(self, "VkLayer_khronos_validation.lib", lib_dir)
+            tools.files.rm(self, "libVkLayer_khronos_validation.dll.a", lib_dir)
             # move dll and json manifest files in bin folder
             bin_dir = os.path.join(self.package_folder, "bin")
-            tools.mkdir(bin_dir)
+            tools.files.mkdir(self, bin_dir)
             for ext in ("*.dll", "*.json"):
                 for bin_file in glob.glob(os.path.join(lib_dir, ext)):
                     shutil.move(bin_file, os.path.join(bin_dir, os.path.basename(bin_file)))
         else:
             # Move json files to res, but keep in mind to preserve relative
             # path between module library and manifest json file
-            tools.rename(os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
+            tools.files.rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.libs = ["VkLayer_utils"]

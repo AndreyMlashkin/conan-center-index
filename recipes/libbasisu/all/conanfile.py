@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -64,17 +65,17 @@ class LibBasisUniversalConan(ConanFile):
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
-        elif tools.Version(self.settings.compiler.version) < min_version:
+        elif tools.scm.Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration("{} {} does not support compiler with version {} {}, minimum supported compiler version is {} ".format(self.name, self.version, self.settings.compiler, self.settings.compiler.version, min_version))
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -89,7 +90,7 @@ class LibBasisUniversalConan(ConanFile):
  
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -105,7 +106,7 @@ class LibBasisUniversalConan(ConanFile):
         self.copy(pattern="*.dll", dst="bin", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.names["cmake_find_package"] = self.name
         self.cpp_info.names["cmake_find_package_multi"] = self.name
         self.cpp_info.includedirs = ["include", os.path.join("include", self.name)]

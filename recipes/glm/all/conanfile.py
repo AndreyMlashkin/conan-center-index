@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.43.0"
@@ -22,13 +22,13 @@ class GlmConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
-        glm_version = self.version if self.version.startswith("cci") else tools.Version(self._get_semver())
+        glm_version = self.version if self.version.startswith("cci") else tools.scm.Version(self._get_semver())
         if glm_version == "0.9.8" or (glm_version == "0.9.9" and self._get_tweak_number() < 6):
-            tools.save(os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
+            tools.files.save(self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
         else:
             self.copy("copying.txt", dst="licenses", src=self._source_subfolder)
         headers_src_dir = os.path.join(self.source_folder, self._source_subfolder, "glm")
@@ -43,7 +43,7 @@ class GlmConan(ConanFile):
         return int(self.version.rsplit(".", 1)[-1])
 
     def _get_license(self):
-        manual = tools.load(os.path.join(self.source_folder, self._source_subfolder, "manual.md"))
+        manual = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "manual.md"))
         begin = manual.find("### The Happy Bunny License (Modified MIT License)")
         end = manual.find("\n![](./doc/manual/frontpage2.png)", begin)
         return manual[begin:end]

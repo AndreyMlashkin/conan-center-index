@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -61,30 +62,30 @@ class TrantorConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("trantor requires C++14, which your compiler does not support.")
         else:
             self.output.warn("trantor requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
         # TODO: Compilation succeeds, but execution of test_package fails on Visual Studio 16 MDd
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) == "16" and \
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) == "16" and \
            self.options.shared == True and self.settings.compiler.runtime == "MDd":
             raise ConanInvalidConfiguration("trantor does not support the MDd runtime on Visual Studio 16.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # fix c-ares imported target
-        tools.replace_in_file(cmakelists, "c-ares_lib", "c-ares::cares")
+        tools.files.replace_in_file(self, cmakelists, "c-ares_lib", "c-ares::cares")
         # Cleanup rpath in shared lib
-        tools.replace_in_file(cmakelists, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}\")", "")
+        tools.files.replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}\")", "")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -104,7 +105,7 @@ class TrantorConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Trantor")

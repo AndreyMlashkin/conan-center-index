@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 from conans.tools import ConanInvalidConfiguration
 import os
 import re
@@ -40,7 +40,7 @@ class CProcessingConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 20)
+            tools.build.check_min_cppstd(self, 20)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -57,11 +57,11 @@ class CProcessingConan(ConanFile):
             raise ConanInvalidConfiguration("{} requires some C++20 features,".format(self.name))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "lib", "PImage.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "PImage.h"),
             "stb/stb_image.h",
             "stb_image.h")
 
@@ -69,9 +69,9 @@ class CProcessingConan(ConanFile):
         self.copy("*.h", "include", os.path.join(self._source_subfolder, "lib"))
 
         # Extract the License/s from README.md to a file
-        tmp = tools.load(os.path.join(self._source_subfolder, "README.md"))
+        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "README.md"))
         license_contents = re.search("(## Author.*)", tmp, re.DOTALL)[1]
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE.md"), license_contents)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE.md"), license_contents)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CProcessing")

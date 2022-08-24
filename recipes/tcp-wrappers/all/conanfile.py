@@ -1,6 +1,6 @@
 import os
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 class TcpWrappersConan(ConanFile):
@@ -43,19 +43,19 @@ class TcpWrappersConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = AutoToolsBuildEnvironment(self)
             make_args = [
-                "REAL_DAEMON_DIR={}".format(tools.unix_path(os.path.join(self.package_folder, "bin"))),
+                "REAL_DAEMON_DIR={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin"))),
                 "-j1",
                 "SHEXT={}".format(self._shext),
             ]
@@ -72,7 +72,7 @@ class TcpWrappersConan(ConanFile):
 
     @property
     def _shext(self):
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             return ".dylib"
         return ".so"
 

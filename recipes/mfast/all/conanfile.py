@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import shutil
 import textwrap
@@ -72,9 +73,9 @@ class mFASTConan(ConanFile):
             self.requires("sqlite3/3.37.2")
 
     def validate(self):
-        if tools.Version(self.version) >= "1.2.2":
+        if tools.scm.Version(self.version) >= "1.2.2":
             if self.settings.compiler.get_safe("cppstd"):
-                tools.check_min_cppstd(self, 14)
+                tools.build.check_min_cppstd(self, 14)
 
             def lazy_lt_semver(v1, v2):
                 lv1 = [int(v) for v in v1.split(".")]
@@ -89,7 +90,7 @@ class mFASTConan(ConanFile):
                 )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -99,14 +100,14 @@ class mFASTConan(ConanFile):
             self._cmake.definitions["BUILD_EXAMPLES"] = False
             self._cmake.definitions["BUILD_PACKAGES"] = False
             self._cmake.definitions["BUILD_SQLITE3"] = self.options.with_sqlite3
-            if tools.Version(self.version) >= "1.2.2" and not tools.valid_min_cppstd(self, 14):
+            if tools.scm.Version(self.version) >= "1.2.2" and not tools.valid_min_cppstd(self, 14):
                 self._cmake.definitions["CMAKE_CXX_STANDARD"] = 14
             self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -115,13 +116,13 @@ class mFASTConan(ConanFile):
         cmake.install()
         self.copy("licence.txt", dst="licenses", src=self._source_subfolder)
 
-        tools.mkdir(os.path.join(self.package_folder, self._new_mfast_config_dir))
+        tools.files.mkdir(self, os.path.join(self.package_folder, self._new_mfast_config_dir))
         self._extract_fasttypegentarget_macro()
 
-        tools.rmdir(os.path.join(self.package_folder, self._old_mfast_config_dir))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, self._old_mfast_config_dir))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.options.shared:
-            tools.remove_files_by_mask(
+            tools.files.rm(self, 
                 os.path.join(self.package_folder, "lib"),
                 "*_static*" if self.settings.os == "Windows" else "*.a"
             )
@@ -154,12 +155,12 @@ class mFASTConan(ConanFile):
         return os.path.join(self._new_mfast_config_dir, "FastTypeGenTarget.cmake")
 
     def _extract_fasttypegentarget_macro(self):
-        if tools.Version(self.version) < "1.2.2":
-            config_file_content = tools.load(os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake"))
+        if tools.scm.Version(self.version) < "1.2.2":
+            config_file_content = tools.files.load(self, os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake"))
             begin = config_file_content.find("macro(FASTTYPEGEN_TARGET Name)")
             end = config_file_content.find("endmacro()", begin) + len("endmacro()")
             macro_str = config_file_content[begin:end]
-            tools.save(os.path.join(self.package_folder, self._fast_type_gen_target_file), macro_str)
+            tools.files.save(self, os.path.join(self.package_folder, self._fast_type_gen_target_file), macro_str)
         else:
             shutil.move(
                 os.path.join(self.package_folder, self._old_mfast_config_dir, "FastTypeGenTarget.cmake"),
@@ -184,9 +185,9 @@ class mFASTConan(ConanFile):
             endif()
         """.format(fast_type_rel_path=fast_type_rel_path))
         module_abs_path = os.path.join(self.package_folder, self._fast_type_gen_target_file)
-        old_content = tools.load(module_abs_path)
+        old_content = tools.files.load(self, module_abs_path)
         new_content = exec_target_content + old_content
-        tools.save(module_abs_path, new_content)
+        tools.files.save(self, module_abs_path, new_content)
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file, targets):
@@ -198,7 +199,7 @@ class mFASTConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _lib_targets_module_file(self):

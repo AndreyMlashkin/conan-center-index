@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 import textwrap
 
@@ -23,14 +23,14 @@ class MesonInstallerConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
         # create wrapper scripts
-        tools.save(os.path.join(self._source_subfolder, "meson.cmd"), textwrap.dedent("""\
+        tools.files.save(self, os.path.join(self._source_subfolder, "meson.cmd"), textwrap.dedent("""\
             @echo off
             CALL python %~dp0/meson.py %*
         """))
-        tools.save(os.path.join(self._source_subfolder, "meson"), textwrap.dedent("""\
+        tools.files.save(self, os.path.join(self._source_subfolder, "meson"), textwrap.dedent("""\
             #!/usr/bin/env bash
             meson_dir=$(dirname "$0")
             exec "$meson_dir/meson.py" "$@"
@@ -61,7 +61,7 @@ class MesonInstallerConan(ConanFile):
             _fix_symlinks(root, files)
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*", dst="bin", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "bin", "test cases"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "bin", "test cases"))
 
     def package_info(self):
         meson_root = os.path.join(self.package_folder, "bin")

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conans.tools import os_info
 import os
 
@@ -33,7 +34,7 @@ class libuiConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):
         self.requires("gtk/3.24.24")
@@ -58,7 +59,7 @@ class libuiConan(ConanFile):
         self.copy(pattern="*.dylib", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(
                 [

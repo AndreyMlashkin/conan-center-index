@@ -1,6 +1,7 @@
 import os
 import glob
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class RgEtc1Conan(ConanFile):
@@ -33,7 +34,7 @@ class RgEtc1Conan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('rg-etc1-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -62,7 +63,7 @@ class RgEtc1Conan(ConanFile):
         license_content = []
         for i in range(52, 75):
             license_content.append(content_lines[i][2:-1])
-        tools.save("LICENSE", "\n".join(license_content))
+        tools.files.save(self, "LICENSE", "\n".join(license_content))
 
     def package(self):
         cmake = self._configure_cmake()
@@ -71,4 +72,4 @@ class RgEtc1Conan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

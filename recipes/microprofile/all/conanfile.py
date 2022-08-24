@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -103,7 +104,7 @@ class MicroprofileConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.os != "Windows" and self.options.enable_timer in ["d3d11", "d3d12"]:
             raise ConanInvalidConfiguration("DirectX timers can only be used in Windows.")
         if self.options.enable_timer and self.options.enable_gpu_timer_callbacks:
@@ -129,13 +130,13 @@ class MicroprofileConan(ConanFile):
             self.requires("vulkan-loader/1.2.182")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder)
-        tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        tools.files.get(self, **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder)
+        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
         self._create_defines_file(os.path.join(self._source_subfolder, "microprofile.config.h"))
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -190,10 +191,10 @@ class MicroprofileConan(ConanFile):
                 defines_list.append("#define {} {}\n".format(define[0], define[1]))
             else:
                 defines_list.append("#define {}\n".format(define))
-        tools.save(filename, "".join(defines_list))
+        tools.files.save(self, filename, "".join(defines_list))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.names["cmake_find_package"] = self.name
         self.cpp_info.names["cmake_find_package_multi"] = self.name
         if self.settings.os == "Windows":

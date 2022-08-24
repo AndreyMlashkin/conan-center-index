@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import shutil
 
@@ -48,7 +48,7 @@ class ConanXqilla(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The xqilla recipe currently only supports Linux.")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.build_requires("gnu-config/cci.20210814")
@@ -58,7 +58,7 @@ class ConanXqilla(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -66,7 +66,7 @@ class ConanXqilla(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self)
         conf_args = [
-            "--with-xerces={}".format(tools.unix_path(self.deps_cpp_info["xerces-c"].rootpath)),
+            "--with-xerces={}".format(tools.microsoft.unix_path(self, self.deps_cpp_info["xerces-c"].rootpath)),
         ]
         
         if not self.settings.compiler.cppstd:
@@ -89,7 +89,7 @@ class ConanXqilla(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "autotools","config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -103,18 +103,18 @@ class ConanXqilla(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("README", dst="licenses/LICENSE.mapm", src=os.path.join(self._source_subfolder, "src", "mapm"))
 
-        tmp = tools.load(os.path.join(self._source_subfolder, "src", "yajl", "yajl_buf.h"))
+        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "src", "yajl", "yajl_buf.h"))
         license_contents = tmp[2:tmp.find("*/", 1)] 
-        tools.save("LICENSE", license_contents)
+        tools.files.save(self, "LICENSE", license_contents)
         self.copy("LICENSE", dst="licenses/LICENSE.yajl",  ignore_case=True, keep_path=False)
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libxqilla"
-        self.cpp_info.libs =  tools.collect_libs(self)
+        self.cpp_info.libs =  tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")
         bin_path = os.path.join(self.package_folder, "bin")

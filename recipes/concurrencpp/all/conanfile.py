@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -53,7 +54,7 @@ class ConcurrencppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "20")
+            tools.build.check_min_cppstd(self, "20")
         if self.options.shared and is_msvc(self):
             # see https://github.com/David-Haim/concurrencpp/issues/75
             raise ConanInvalidConfiguration("concurrencpp does not support shared builds with Visual Studio")
@@ -67,7 +68,7 @@ class ConcurrencppConan(ConanFile):
             self.output.warn(
                 "concurrencpp requires C++20. Your compiler is unknown. Assuming it supports C++20."
             )
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "concurrencpp requires clang >= 11 or Visual Studio >= 16.8.2 as a compiler!"
             )
@@ -75,7 +76,7 @@ class ConcurrencppConan(ConanFile):
             raise ConanInvalidConfiguration("libc++ required")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -86,14 +87,14 @@ class ConcurrencppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):        
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):

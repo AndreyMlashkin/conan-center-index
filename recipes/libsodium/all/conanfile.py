@@ -1,6 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag
 from conans import ConanFile, AutoToolsBuildEnvironment, tools, MSBuild
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -74,7 +74,7 @@ class LibsodiumConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -138,15 +138,15 @@ class LibsodiumConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
             if self._is_mingw:
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), cwd=self._source_subfolder, win_bash=tools.os_info.is_windows)
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 # Relocatable shared lib for Apple platforms
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     os.path.join(self._source_subfolder, "configure"),
                     "-install_name \\$rpath/",
                     "-install_name @rpath/"
@@ -164,8 +164,8 @@ class LibsodiumConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsodium")

@@ -50,7 +50,7 @@ class LibmodbusConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -60,13 +60,13 @@ class LibmodbusConan(ConanFile):
         conf_args = [
             "--disable-tests",
             "--without-documentation",
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
+            "--prefix={}".format(tools.microsoft.unix_path(self, self.package_folder)),
         ]
         if self.options.shared:
             conf_args.extend(["--enable-shared", "--disable-static"])
         else:
             conf_args.extend(["--enable-static", "--disable-shared"])
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
             if self.settings.build_type in ("Debug", "RelWithDebInfo"):
                 self._autotools.flags.append("-FS")
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
@@ -80,7 +80,7 @@ class LibmodbusConan(ConanFile):
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link -nologo",
-                    "AR": "{} \"lib -nologo -verbose\"".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} \"lib -nologo -verbose\"".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
                     "RANLIB": ":",
                     "STRING": ":",
                     "NM": "dumpbin -symbols"}
@@ -91,10 +91,10 @@ class LibmodbusConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if not self.options.shared:
             for decl in ("__declspec(dllexport)", "__declspec(dllimport)"):
-                tools.replace_in_file(os.path.join(self._source_subfolder, "src", "modbus.h"), decl, "")
+                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "modbus.h"), decl, "")
 
     def build(self):
         self._patch_sources()
@@ -109,10 +109,10 @@ class LibmodbusConan(ConanFile):
             autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libmodbus.la"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "modbus.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "modbus.dll.lib"),
                          os.path.join(self.package_folder, "lib", "modbus.lib"))
 
     def package_info(self):

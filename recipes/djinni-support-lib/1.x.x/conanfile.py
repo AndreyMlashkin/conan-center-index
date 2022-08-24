@@ -1,7 +1,8 @@
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class DjinniSuppotLib(ConanFile):
@@ -38,7 +39,7 @@ class DjinniSuppotLib(ConanFile):
     @property
     def _objc_support(self):
         if self.options.with_objc == "auto" or self.options.target == "auto":
-            return tools.is_apple_os(self.settings.os)
+            return tools.apple.is_apple_os(self)
         else:
             return self.options.with_objc == True or self.options.target == "objc"
 
@@ -106,16 +107,16 @@ class DjinniSuppotLib(ConanFile):
             if self.settings.os == "Windows":
                 raise ConanInvalidConfiguration("Python on Windows is not fully yet supported, please see https://github.com/cross-language-cpp/djinni-support-lib/issues.")
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         try:
             minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
-            if tools.Version(self.settings.compiler.version) < minimum_required_compiler_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration("This package requires c++17 support. The current compiler does not support it.")
         except KeyError:
             self.output.warn("This recipe has no support for the current compiler. Please consider adding it.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -142,4 +143,4 @@ class DjinniSuppotLib(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

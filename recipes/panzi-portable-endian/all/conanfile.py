@@ -1,5 +1,5 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class PanziPortableEndian(ConanFile):
@@ -15,14 +15,14 @@ class PanziPortableEndian(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _extract_license(self):
-        header = tools.load(os.path.join(
+        header = tools.files.load(self, os.path.join(
             self._source_subfolder, "portable_endian.h"))
         license_contents = header[0:(header.find("#ifndef", 1))]
-        tools.save("LICENSE", license_contents)
+        tools.files.save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()

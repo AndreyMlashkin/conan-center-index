@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import shutil
 import glob
@@ -40,12 +41,12 @@ class LibjxlConan(ConanFile):
         self.requires("lcms/2.11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -60,7 +61,7 @@ class LibjxlConan(ConanFile):
         self._cmake.definitions["JPEGXL_ENABLE_OPENEXR"] = False
         self._cmake.definitions["JPEGXL_ENABLE_SKCMS"] = False
         self._cmake.definitions["JPEGXL_ENABLE_TCMALLOC"] = False
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             self._cmake.definitions["CMAKE_SYSTEM_PROCESSOR"] = \
                 str(self.settings.arch)
         self._cmake.configure()
@@ -76,12 +77,12 @@ class LibjxlConan(ConanFile):
         cmake.install()
 
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
             libs_dir = os.path.join(self.package_folder, "lib")
-            tools.remove_files_by_mask(libs_dir, "*.a")
-            tools.remove_files_by_mask(libs_dir, "*-static.lib")
+            tools.files.rm(self, "*.a", libs_dir)
+            tools.files.rm(self, "*-static.lib", libs_dir)
 
             if self.settings.os == "Windows":
                 self.copy("jxl_dec.dll", src="bin", dst="bin")

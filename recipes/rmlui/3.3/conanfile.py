@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -56,14 +57,14 @@ class RmluiConan(ConanFile):
             del self.options.fPIC
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(
             str(self.settings.compiler))
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
                     self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
 
@@ -79,7 +80,7 @@ class RmluiConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -119,7 +120,7 @@ class RmluiConan(ConanFile):
             self._source_subfolder, "CMakeLists.txt")
 
         for key, value in replace_mapping.items():
-            tools.replace_in_file(cmakelists_path, key, value)
+            tools.files.replace_in_file(self, cmakelists_path, key, value)
 
     def build(self):
         self._patch_sources()

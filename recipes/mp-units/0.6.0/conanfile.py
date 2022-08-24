@@ -1,6 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version, check_min_cppstd
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version, check_min_cppstd
 import os
 
 
@@ -45,7 +45,7 @@ class MPUnitsConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "units-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.microsoft import is_msvc
 import functools
 
@@ -52,7 +53,7 @@ class LexborConan(ConanFile):
             raise tools.ConanInvalidConfiguration("{}/{} doesn't support build_separately option(yet).".format(self.name, self.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)

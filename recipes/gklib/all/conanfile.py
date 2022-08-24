@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches
 
 required_conan_version = ">=1.43.0"
@@ -62,7 +63,7 @@ class GKlibConan(ConanFile):
                 f"{self.name} {self.version} shared not supported with Visual Studio")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):

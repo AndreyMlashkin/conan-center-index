@@ -1,7 +1,8 @@
 import os
 import glob
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 class libb2Conan(ConanFile):
     name = "libb2"
@@ -39,7 +40,7 @@ class libb2Conan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("BLAKE2-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -61,5 +62,5 @@ class libb2Conan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.includedirs = ["include", os.path.join("include","libb2")]

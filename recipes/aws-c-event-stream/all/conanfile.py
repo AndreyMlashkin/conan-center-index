@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -42,11 +43,11 @@ class AwsCEventStream(ConanFile):
     def requirements(self):
         self.requires("aws-checksums/0.1.12")
         self.requires("aws-c-common/0.6.19")
-        if tools.Version(self.version) >= "0.2":
+        if tools.scm.Version(self.version) >= "0.2":
             self.requires("aws-c-io/0.11.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -60,7 +61,7 @@ class AwsCEventStream(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -69,7 +70,7 @@ class AwsCEventStream(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "aws-c-event-stream"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-event-stream"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-event-stream")
@@ -82,5 +83,5 @@ class AwsCEventStream(ConanFile):
         self.cpp_info.components["aws-c-event-stream-lib"].names["cmake_find_package_multi"] = "aws-c-event-stream"
         self.cpp_info.components["aws-c-event-stream-lib"].libs = ["aws-c-event-stream"]
         self.cpp_info.components["aws-c-event-stream-lib"].requires = ["aws-c-common::aws-c-common-lib", "aws-checksums::aws-checksums"]
-        if tools.Version(self.version) >= "0.2":
+        if tools.scm.Version(self.version) >= "0.2":
             self.cpp_info.components["aws-c-event-stream-lib"].requires.append("aws-c-io::aws-c-io-lib")

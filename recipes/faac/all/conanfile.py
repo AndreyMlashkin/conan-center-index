@@ -1,6 +1,7 @@
 from conan.tools.files import apply_conandata_patches
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -47,7 +48,7 @@ class FaacConan(ConanFile):
 
     @property
     def _has_mp4_option(self):
-        return tools.Version(self.version) < "1.29.1"
+        return tools.scm.Version(self.version) < "1.29.1"
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -83,7 +84,7 @@ class FaacConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -102,11 +103,11 @@ class FaacConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             if self._is_mingw and self.options.shared:
-                tools.replace_in_file(os.path.join("libfaac", "Makefile"),
+                tools.files.replace_in_file(self, os.path.join("libfaac", "Makefile"),
                                       "\nlibfaac_la_LIBADD = ",
                                       "\nlibfaac_la_LIBADD = -no-undefined ")
         autotools = self._configure_autotools()
@@ -116,8 +117,8 @@ class FaacConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["faac"]

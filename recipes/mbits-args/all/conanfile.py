@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -46,18 +47,18 @@ class MBitsArgsConan(ConanFile):
                     "library (MT/MTd) is not supported.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
 
         minimum_version = self._compilers_minimum_version.get(
             str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn(
                 "mbits-args requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("mbits-args: Unsupported compiler: {} {}; "
                                             "minimal version known to work is {}."
                                             .format(self.settings.compiler, self.settings.compiler.version, minimum_version))
-        elif str(self.settings.compiler) == "clang" and tools.Version(self.settings.compiler.version) < "8":
+        elif str(self.settings.compiler) == "clang" and tools.scm.Version(self.settings.compiler.version) < "8":
             libcxx = self.settings.compiler.get_safe("libcxx")
             if libcxx and str(libcxx) == "libc++":
                 raise ConanInvalidConfiguration("mbits-args: Unsupported compiler: clang {} with libc++;\n"
@@ -66,7 +67,7 @@ class MBitsArgsConan(ConanFile):
                                                 .format(self.settings.compiler.version, minimum_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("args-{}".format(self.version),
                   self._source_subfolder)
 
@@ -97,7 +98,7 @@ class MBitsArgsConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["libargs"].names["cmake_find_package"] = "args"
         self.cpp_info.components["libargs"].names["cmake_find_package_multi"] = "args"
-        self.cpp_info.components["libargs"].libs = tools.collect_libs(self)
+        self.cpp_info.components["libargs"].libs = tools.files.collect_libs(self, self)
 
         # FIXME: CMake imported target shouldn't be namespaced (requires https://github.com/conan-io/conan/issues/7615)
         # https://github.com/mbits-libs/args/blob/72f5f2b87ae39f26638a585fa4ad0b96b4152ae6/CMakeLists.txt#L152

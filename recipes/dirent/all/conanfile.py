@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class DirEntConan(ConanFile):
@@ -23,7 +23,7 @@ class DirEntConan(ConanFile):
             raise ConanInvalidConfiguration("mingw has a dirent.h implementation")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("dirent-{}".format(self.version), self._source_subfolder)
 
     def package(self):

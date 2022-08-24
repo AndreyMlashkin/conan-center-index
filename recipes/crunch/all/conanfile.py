@@ -1,7 +1,8 @@
 import os
 import glob
-from conans import ConanFile, tools, CMake, MSBuild
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake, MSBuild
+from conan.errors import ConanInvalidConfiguration
 
 
 class CrunchConan(ConanFile):
@@ -36,7 +37,7 @@ class CrunchConan(ConanFile):
             raise ConanInvalidConfiguration("Crunch is not supported on {}.".format(self.settings.os))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('crunch-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -49,7 +50,7 @@ class CrunchConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -62,7 +63,7 @@ class CrunchConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread"]

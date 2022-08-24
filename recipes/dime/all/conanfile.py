@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.microsoft import is_msvc
 import os
 import functools
@@ -44,10 +45,10 @@ class DimeConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -60,7 +61,7 @@ class DimeConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)",
             "configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)")
         cmake = self._configure_cmake()
@@ -70,17 +71,17 @@ class DimeConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows" and is_msvc(self):
-            tools.remove_files_by_mask(self.package_folder, "*.pdb")
+            tools.files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         libname = "dime"
         if self.settings.os == "Windows" and is_msvc(self):
             libname = "{}{}{}{}".format(
                 libname,
-                tools.Version(self.version).major,
+                tools.scm.Version(self.version).major,
                 "" if self.options.shared else "s",
                 "d" if self.settings.build_type == "Debug" else "",
                 )

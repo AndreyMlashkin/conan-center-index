@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conans import tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.43.0"
@@ -26,7 +26,7 @@ class TllistConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio compiler is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

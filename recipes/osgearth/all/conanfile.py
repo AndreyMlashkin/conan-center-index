@@ -1,6 +1,7 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.files import rename
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conans.tools import os_info
 import os
 import functools
@@ -77,7 +78,7 @@ class OsgearthConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         elif self.settings.compiler == "apple-clang":
             raise ConanInvalidConfiguration("With apple-clang cppstd needs to be set, since default is not at least c++11.")
 
@@ -140,14 +141,14 @@ class OsgearthConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
             # Prefer conan's find package scripts over osgEarth's
             os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
         self._patch_sources()
@@ -198,7 +199,7 @@ class OsgearthConan(ConanFile):
         if os_info.is_linux:
             rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         if self.settings.build_type == "Debug":

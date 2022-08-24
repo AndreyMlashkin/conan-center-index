@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import contextlib
 import os
 
@@ -64,17 +65,17 @@ class LibexifConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=self._settings_build.os == "Windows")
         self._autotools.libs = []
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-FS")
         yes_no = lambda v: "yes" if v else "no"
         args = [
@@ -99,11 +100,11 @@ class LibexifConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "exif.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "exif.dll.lib"),
                          os.path.join(self.package_folder, "lib", "exif.lib"))
-        tools.remove_files_by_mask(self.package_folder, "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", self.package_folder)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["exif"]

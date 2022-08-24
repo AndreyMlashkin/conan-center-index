@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment, MSBuild
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment, MSBuild
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import re
@@ -26,7 +27,7 @@ class PremakeConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -35,7 +36,7 @@ class PremakeConan(ConanFile):
             del self.options.lto
 
     def validate(self):
-        if hasattr(self, 'settings_build') and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, 'settings_build') and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     @property
@@ -98,19 +99,19 @@ class PremakeConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.options.get_safe("lto", None) == False:
             for fn in glob.glob(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname, "*.make")):
-                tools.replace_in_file(fn, "-flto", "", strict=False)
+                tools.files.replace_in_file(self, fn, "-flto", "", strict=False)
 
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
                 msbuild = MSBuild(self)
                 msbuild.build("Premake5.sln", platforms={"x86": "Win32", "x86_64": "x64"})
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(target="Premake5", args=["verbose=1", "config={}".format(self._gmake_config)])
 

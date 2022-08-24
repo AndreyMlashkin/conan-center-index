@@ -1,7 +1,8 @@
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc
 from conans import ConanFile, AutoToolsBuildEnvironment, MSBuild, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import functools
 import os
 
@@ -49,7 +50,7 @@ class ZimgConan(ConanFile):
     def validate(self):
         if self.settings.build_type not in ("Release", "Debug"):
             raise ConanInvalidConfiguration("zimg does not support the build type '{}'.".format(self.settings.build_type))
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "15":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "15":
             raise ConanInvalidConfiguration("zimg requires at least Visual Studio 15 2017")
 
     def build_requirements(self):
@@ -59,7 +60,7 @@ class ZimgConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -74,10 +75,10 @@ class ZimgConan(ConanFile):
         return autotools
 
     def _build_autotools(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared lib on macOS
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
         autotools = self._configure_autools()
         autotools.make()
 
@@ -102,7 +103,7 @@ class ZimgConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if is_msvc(self):
             self._build_msvc()
@@ -112,9 +113,9 @@ class ZimgConan(ConanFile):
     def _package_autotools(self):
         autotools = self._configure_autools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def _package_msvc(self):
         self.copy("zimg.h", src=os.path.join(self._source_subfolder, "src", "zimg", "api"), dst="include")

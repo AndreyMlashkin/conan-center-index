@@ -1,5 +1,5 @@
 from conans import ConanFile, Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -61,14 +61,14 @@ class PkgConfConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross-building is not implemented in the recipe")
 
     def build_requirements(self):
         self.build_requires("meson/0.62.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @property
     def _sharedstatedir(self):
@@ -86,12 +86,12 @@ class PkgConfConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if not self.options.get_safe("shared", False):
-            tools.replace_in_file(os.path.join(self._source_subfolder, "meson.build"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                                   "'-DLIBPKGCONF_EXPORT'",
                                   "'-DPKGCONFIG_IS_STATIC'")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "meson.build"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
             "project('pkgconf', 'c',",
             "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
 
@@ -108,20 +108,20 @@ class PkgConfConan(ConanFile):
             meson.install()
 
         if self._is_msvc:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             if self.options.enable_lib and not self.options.shared:
                 os.rename(os.path.join(self.package_folder, "lib", "libpkgconf.a"),
                           os.path.join(self.package_folder, "lib", "pkgconf.lib"),)
         
         if not self.options.enable_lib:
-            tools.rmdir(os.path.join(self.package_folder, "lib"))
-            tools.rmdir(os.path.join(self.package_folder, "include"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "include"))
 
-        tools.rmdir(os.path.join(self.package_folder, "share", "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
         os.rename(os.path.join(self.package_folder, "share", "aclocal"),
                   os.path.join(self.package_folder, "bin", "aclocal"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_id(self):
         if not self.options.enable_lib:
@@ -130,7 +130,7 @@ class PkgConfConan(ConanFile):
     def package_info(self):
         if self.options.enable_lib:
             self.cpp_info.set_property("pkg_config_name", "libpkgconf")
-            if tools.Version(self.version) >= "1.7.4":
+            if tools.scm.Version(self.version) >= "1.7.4":
                 self.cpp_info.includedirs.append(os.path.join("include", "pkgconf"))
             self.cpp_info.libs = ["pkgconf"]
             if not self.options.shared:
@@ -149,7 +149,7 @@ class PkgConfConan(ConanFile):
         self.buildenv_info.define_path("PKG_CONFIG", pkg_config)
         self.env_info.PKG_CONFIG = pkg_config # remove in conan v2?
 
-        automake_extra_includes = tools.unix_path(os.path.join(self.package_folder , "bin", "aclocal").replace("\\", "/"))
+        automake_extra_includes = tools.microsoft.unix_path(self, os.path.join(self.package_folder , "bin", "aclocal").replace("\\", "/"))
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES env var: {}".format(automake_extra_includes))
         self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", automake_extra_includes)
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(automake_extra_includes) # remove in conan v2?

@@ -1,5 +1,5 @@
 from conans import ConanFile, MSBuild, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -69,12 +69,12 @@ class OpusFileConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_vs(self):
         includedir = os.path.abspath(os.path.join(self._source_subfolder, "include"))
-        with tools.chdir(os.path.join(self._source_subfolder, "win32", "VS2015")):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder, "win32", "VS2015")):
             msbuild = MSBuild(self)
             build_type = str(self.settings.build_type)
             if not self.options.http:
@@ -100,11 +100,11 @@ class OpusFileConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_vs()
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows, run_environment=True)
             autotools = self._configure_autotools()
             autotools.make()
@@ -119,9 +119,9 @@ class OpusFileConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.components["libopusfile"].names["pkg_config"] = "opusfile"

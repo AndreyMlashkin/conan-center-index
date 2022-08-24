@@ -1,5 +1,7 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import functools
 import os
 
@@ -27,7 +29,7 @@ class WinflexbisonConan(ConanFile):
             raise ConanInvalidConfiguration("winflexbison is only supported on Windows.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -38,7 +40,7 @@ class WinflexbisonConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -48,10 +50,10 @@ class WinflexbisonConan(ConanFile):
         license_content = []
         for i in range(2, 16):
             license_content.append(content_lines[i][2:-1])
-        tools.save("COPYING.GPL3", "\n".join(license_content))
+        tools.files.save(self, "COPYING.GPL3", "\n".join(license_content))
 
     def package(self):
-        if self.settings.build_type in ("Release", "Debug") and tools.Version(self.version) < "2.5.23":
+        if self.settings.build_type in ("Release", "Debug") and tools.scm.Version(self.version) < "2.5.23":
             actual_build_path = "{0}/bin/{1}".format(self._source_subfolder, self.settings.build_type)
             self.copy("*.exe", src=actual_build_path, dst="bin", keep_path=False)
         else:
@@ -63,9 +65,9 @@ class WinflexbisonConan(ConanFile):
         self._extract_license()
         self.copy("COPYING.GPL3", dst="licenses")
         self.copy("COPYING", src=os.path.join(self._source_subfolder, "flex", "src"), dst="licenses", keep_path=False)
-        tools.rename(os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "bison-license"))
+        tools.files.rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "bison-license"))
         self.copy("COPYING", src=os.path.join(self._source_subfolder, "bison", "src"), dst="licenses", keep_path=False)
-        tools.rename(os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "flex-license"))
+        tools.files.rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "flex-license"))
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

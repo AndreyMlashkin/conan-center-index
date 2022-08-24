@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.40.0"
@@ -47,27 +48,27 @@ class ConanXqilla(ConanFile):
         if self.settings.compiler == "gcc":
             flags.append('-std=c++11')
         make_ccpflags = "CPPFLAGS='{}'".format(" ".join(flags))
-        make_cmd = f'{make_ldflags} {make_ccpflags} {self._make_program} -j{tools.cpu_count()}'
+        make_cmd = f'{make_ldflags} {make_ccpflags} {self._make_program} -j{tools.cpu_count(self, )}'
         return make_cmd
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The xsd recipe currently only supports Linux.")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
        
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
                 self.run(self._make_cmd)
 
     def package(self):
@@ -75,10 +76,10 @@ class ConanXqilla(ConanFile):
         self.copy("GPLv2", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
         self.copy("FLOSSE", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run(self._make_install_cmd)
         
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

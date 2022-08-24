@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -49,11 +50,11 @@ class FlintConan(ConanFile):
             self.requires("pthreads4w/3.0.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -69,7 +70,7 @@ class FlintConan(ConanFile):
         # No BLAS yet
         self._cmake.definitions["CMAKE_DISABLE_FIND_PACKAGE_CBLAS"] = True
         # handle run in a cross-build
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             self._cmake.definitions["FLINT_USES_POPCNT_EXITCODE"] = "1"
             self._cmake.definitions["FLINT_USES_POPCNT_EXITCODE__TRYRUN_OUTPUT"] = ""
         self._cmake.configure(build_folder=self._build_subfolder)
@@ -88,4 +89,4 @@ class FlintConan(ConanFile):
             self.cpp_info.system_libs = ["pthread", "m"]
 
         self.cpp_info.includedirs.append(os.path.join("include", "flint"))
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

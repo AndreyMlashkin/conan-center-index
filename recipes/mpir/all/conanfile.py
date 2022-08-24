@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, tools, AutoToolsBuildEnvironment, MSBuild
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment, MSBuild
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
@@ -62,7 +63,7 @@ class MpirConan(ConanFile):
             self.provides.append("gmp")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building doesn't work (yet)")
 
     def build_requirements(self):
@@ -73,7 +74,7 @@ class MpirConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(keep_permissions=True, **self.conan_data["sources"][self.version],
+        tools.files.get(self, keep_permissions=True, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @property
@@ -86,7 +87,7 @@ class MpirConan(ConanFile):
 
     @property
     def _vcxproj_paths(self):
-        compiler_version = self.settings.compiler.version if tools.Version(self.settings.compiler.version) < "16" else "15"
+        compiler_version = self.settings.compiler.version if tools.scm.Version(self.settings.compiler.version) < "16" else "15"
         build_subdir = "build.vc{}".format(compiler_version)
         vcxproj_paths = [
             os.path.join(self._source_subfolder, build_subdir,
@@ -110,7 +111,7 @@ class MpirConan(ConanFile):
                 "Debug" if "d" in msvc_runtime_flag(self) else "",
                 "DLL" if "MD" in msvc_runtime_flag(self) else "",
             )
-            tools.replace_in_file(props_path, old_runtime, new_runtime)
+            tools.files.replace_in_file(self, props_path, old_runtime, new_runtime)
         msbuild = MSBuild(self)
         for vcxproj_path in self._vcxproj_paths:
             msbuild.build(vcxproj_path, platforms=self._platforms, upgrade_project=False)
@@ -154,9 +155,9 @@ class MpirConan(ConanFile):
         if self._is_msvc:
             self._build_visual_studio()
         else:
-            with tools.chdir(self._source_subfolder), self._build_context():
+            with tools.files.chdir(self, self._source_subfolder), self._build_context():
                 # relocatable shared lib on macOS
-                tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+                tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
                 autotools = self._configure_autotools()
                 autotools.make()
 
@@ -176,11 +177,11 @@ class MpirConan(ConanFile):
             self.copy(pattern="*.dll*", dst="bin", src=lib_folder, keep_path=False)
             self.copy(pattern="*.lib", dst="lib", src=lib_folder, keep_path=False)
         else:
-            with tools.chdir(self._source_subfolder), self._build_context():
+            with tools.files.chdir(self, self._source_subfolder), self._build_context():
                 autotools = self._configure_autotools()
                 autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         if self.options.get_safe("enable_cxx"):

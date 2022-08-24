@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -57,7 +58,7 @@ class FltkConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -74,7 +75,7 @@ class FltkConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -83,10 +84,10 @@ class FltkConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "FLTK.framework"))
-        tools.rmdir(os.path.join(self.package_folder, "CMake"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "fltk-config*")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "FLTK.framework"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
+        tools.files.rm(self, "fltk-config*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fltk")
@@ -97,7 +98,7 @@ class FltkConan(ConanFile):
 
         if self.options.shared and self.settings.os == "Windows":
             self.cpp_info.defines.append("FL_DLL")
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os in ("Linux", "FreeBSD"):
             if self.options.with_threads:
                 self.cpp_info.system_libs.extend(['pthread', 'dl'])

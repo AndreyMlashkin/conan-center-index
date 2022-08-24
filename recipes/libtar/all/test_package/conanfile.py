@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conans.errors import ConanException
 import os
 import tarfile
@@ -25,14 +26,14 @@ class TestPackageConan(ConanFile):
             bio.seek(0)
             f.addfile(tarinfo, bio)
 
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self, self):
             if os.path.exists("hello_world"):
                 raise ConanException("file extracted by tar archive should not exist yet")
             bin_path = os.path.join("bin", "test_package")
             self.run("{} {}".format(bin_path, "test.tar"), run_environment=True)
             if not os.path.exists("hello_world"):
                 raise ConanException("file not extracted")
-            extracted_text = tools.load("hello_world")
+            extracted_text = tools.files.load(self, "hello_world")
             if extracted_text != "secret text\n":
                 raise ConanException("File not loaded correctly. Got \"{}\"".format(repr(extracted_text)))
 

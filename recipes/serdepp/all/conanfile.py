@@ -1,7 +1,7 @@
 import os
 
-from conans.errors import ConanInvalidConfiguration
-from conans import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
 
 required_conan_version = ">=1.43.0"
 
@@ -36,7 +36,7 @@ class SerdeppConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder,
                   strip_root=True)
 
@@ -55,12 +55,12 @@ class SerdeppConan(ConanFile):
     def validate(self):
         compiler = self.settings.compiler
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
 
         if not minimum_version:
             self.output.warn(f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++17")
 
     def package(self):

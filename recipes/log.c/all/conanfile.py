@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import glob
 
 
@@ -31,8 +32,8 @@ class logcConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        tools.rename(glob.glob(self.name + "-*/")[0], self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version])
+        tools.files.rename(self, glob.glob(self.name + "-*/")[0], self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -51,7 +52,7 @@ class logcConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
     def config_options(self):
         if self.settings.os == "Windows":

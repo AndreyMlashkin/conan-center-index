@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 class LibRawConan(ConanFile):
@@ -43,7 +44,7 @@ class LibRawConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def requirements(self):
         # TODO: RawSpeed dependency (-DUSE_RAWSPEED)
@@ -58,7 +59,7 @@ class LibRawConan(ConanFile):
             self.requires("jasper/2.0.33")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("LibRaw-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -80,7 +81,7 @@ class LibRawConan(ConanFile):
         self.copy("LICENSE.*", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         if self.settings.os == "Windows":
             self.cpp_info.defines.append("WIN32")
