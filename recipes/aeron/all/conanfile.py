@@ -1,8 +1,9 @@
 import os
 import shutil
 import glob
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.33.0"
@@ -54,10 +55,10 @@ class AeronConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         minimal_version = {
             "Visual Studio": "16",
@@ -72,7 +73,7 @@ class AeronConan(ConanFile):
             raise ConanInvalidConfiguration("This platform (os=Macos arch=armv8) is not yet supported by this recipe")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -91,8 +92,8 @@ class AeronConan(ConanFile):
         return self._cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "/MTd", "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "/MT", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "/MTd", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "/MT", "")
 
     def build(self):
         self._patch_sources()
@@ -104,7 +105,7 @@ class AeronConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        with tools.chdir(self.package_folder):
+        with tools.files.chdir(self, self.package_folder):
             for dll in glob.glob(os.path.join("lib", "*.dll")):
                 shutil.move(dll, "bin")
 
@@ -116,21 +117,21 @@ class AeronConan(ConanFile):
 
         libs_folder = os.path.join(self.package_folder, "lib")
         if self.options.shared:
-            tools.remove_files_by_mask(libs_folder, "*.a")
-            tools.remove_files_by_mask(libs_folder, "*static.lib")
-            tools.remove_files_by_mask(libs_folder, "aeron_client.lib")
+            tools.files.rm(self, libs_folder, "*.a")
+            tools.files.rm(self, libs_folder, "*static.lib")
+            tools.files.rm(self, libs_folder, "aeron_client.lib")
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.dll")
-            tools.remove_files_by_mask(libs_folder, "*.so")
-            tools.remove_files_by_mask(libs_folder, "*.dylib")
-            tools.remove_files_by_mask(libs_folder, "*shared.lib")
-            tools.remove_files_by_mask(libs_folder, "aeron.lib")
+            tools.files.rm(self, os.path.join(self.package_folder, "bin"), "*.dll")
+            tools.files.rm(self, libs_folder, "*.so")
+            tools.files.rm(self, libs_folder, "*.dylib")
+            tools.files.rm(self, libs_folder, "*shared.lib")
+            tools.files.rm(self, libs_folder, "aeron.lib")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))
         self.env_info.PATH.append(bin_path)
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.compiler == "Visual Studio":
             self.cpp_info.defines.append("_ENABLE_EXTENDED_ALIGNED_STORAGE")
 
