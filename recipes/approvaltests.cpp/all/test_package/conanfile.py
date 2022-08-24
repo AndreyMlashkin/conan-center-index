@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conans.tools import Version
 
 
@@ -26,7 +27,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             self.output.warn("Skipping run cross built package")
             return
 
