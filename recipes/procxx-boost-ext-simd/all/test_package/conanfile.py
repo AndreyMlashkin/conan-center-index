@@ -13,5 +13,5 @@ class ProCxxBoostExSimdConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             self.run(os.path.join("bin", "test_package"), run_environment=True)

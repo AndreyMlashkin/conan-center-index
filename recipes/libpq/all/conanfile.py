@@ -88,7 +88,7 @@ class LibpqConan(ConanFile):
             args = ['--without-readline']
             args.append('--without-zlib')
             args.append('--with-openssl' if self.options.with_openssl else '--without-openssl')
-            if tools.build.cross_building(self, self) and not self.options.with_openssl:
+            if tools.build.cross_building(self) and not self.options.with_openssl:
                 args.append("--disable-strong-random")
             if tools.build.cross_building(self, self, skip_x64_x86=True):
                 args.append("USE_DEV_URANDOM=1")

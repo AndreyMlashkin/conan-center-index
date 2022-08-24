@@ -12,6 +12,6 @@ class TestOpenE57Conan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "opene57_example")
             self.run(bin_path, run_environment=True)

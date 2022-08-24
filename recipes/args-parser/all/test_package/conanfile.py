@@ -11,6 +11,6 @@ class ArgsParserTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "args-parser.test")
             self.run(bin_path, run_environment=True)

@@ -75,7 +75,7 @@ class LiquidDspConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def source(self):

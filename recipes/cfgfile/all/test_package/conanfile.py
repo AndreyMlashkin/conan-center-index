@@ -16,7 +16,7 @@ class CfgfileTestConan(ConanFile):
             self.build_requires(str(self.requires["cfgfile"]))
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "cfgfile.test")
             cfg_path = os.path.join(self.source_folder, "test.cfg");
             self.run("{} \"{}\"".format(bin_path, cfg_path), run_environment=True)

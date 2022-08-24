@@ -69,7 +69,7 @@ class TBBConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos":
-            if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
+            if hasattr(self, "settings_build") and tools.build.cross_building(self):
                 # See logs from https://github.com/conan-io/conan-center-index/pull/8454
                 raise ConanInvalidConfiguration("Cross building on Macos is not yet supported. Contributions are welcome")
             if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "8.0":

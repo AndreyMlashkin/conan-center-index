@@ -13,7 +13,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
 
             for impl in self.deps_user_info["libverto"].backends.split(","):

@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
         return os.path.join(self.build_folder, "atlas_desc.json")
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             ttf_path = os.path.join(
                 self.source_folder, "Sacramento-Regular.ttf")
             charset_path = os.path.join(

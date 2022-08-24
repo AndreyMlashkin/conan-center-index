@@ -143,7 +143,7 @@ class NSSConan(ConanFile):
         args.append("SQLITE_INCLUDE_DIR=%s" % self.deps_cpp_info["sqlite3"].include_paths[0])
         args.append("SQLITE_LIB_DIR=%s" % self.deps_cpp_info["sqlite3"].lib_paths[0])
         args.append("NSDISTMODE=copy")
-        if tools.build.cross_building(self, self):
+        if tools.build.cross_building(self):
             args.append("CROSS_COMPILE=1")
         return args
 

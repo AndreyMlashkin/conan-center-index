@@ -5,5 +5,5 @@ class TestPackage(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             self.run("perf version")

@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             with open("test.ini", "w") as fn:
                 fn.write(textwrap.dedent("""\
                     [protocol]

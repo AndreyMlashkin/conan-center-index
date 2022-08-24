@@ -13,7 +13,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             output = StringIO()
             bin_path = os.path.join("bin", "test_package")
             option_string = "-f 41 --bar baria --baz";

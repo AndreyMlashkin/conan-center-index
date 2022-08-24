@@ -13,5 +13,5 @@ class OatppLibresslTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             self.run(os.path.join("bin", "oatpp-libressl-test"), run_environment=True)

@@ -21,7 +21,7 @@ class DetoolsTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if tools.build.cross_building(self, self):
+        if tools.build.cross_building(self):
             return
 
         bin_path = os.path.join("bin", "test_package")

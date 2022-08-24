@@ -16,9 +16,9 @@ class TestPackageConan(ConanFile):
         return cmake
 
     def build(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             self._configure_cmake().build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             self._configure_cmake().test()

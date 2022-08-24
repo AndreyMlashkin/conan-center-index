@@ -42,7 +42,7 @@ class AvahiConan(ConanFile):
         self.requires("libevent/2.1.12")
 
     def validate(self):
-        if self.settings.os != "Linux" or tools.build.cross_building(self, self):
+        if self.settings.os != "Linux" or tools.build.cross_building(self):
             raise ConanInvalidConfiguration("Only Linux is supported for this package.")
 
     def configure(self):

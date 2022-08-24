@@ -76,7 +76,7 @@ class MimallocTestConan(ConanFile):
         return environment
 
     def test(self):
-        if tools.build.cross_building(self, self):
+        if tools.build.cross_building(self):
             return
 
         self.output.info("Environment append: {}".format(self._environment))

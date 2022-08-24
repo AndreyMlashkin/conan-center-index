@@ -8,7 +8,7 @@ class TestPackageConan(ConanFile):
     generators = "cmake", "cmake_find_package_multi"
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self):
             self.build_requires(str(self.requires["mfast"]))
 
     def build(self):
@@ -17,6 +17,6 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.build.cross_building(self, self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
             self.run(bin_path, run_environment=True)
