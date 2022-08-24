@@ -1,0 +1,68 @@
+Exporting package recipe
+alac/cci.20121212@andrei/test exports: File 'conandata.yml' found. Exporting it...
+alac/cci.20121212@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+alac/cci.20121212@andrei/test exports_sources: Copied 1 '.txt' file: CMakeLists.txt
+alac/cci.20121212@andrei/test: The stored package has not changed
+alac/cci.20121212@andrei/test: Using the exported files summary hash as the recipe revision: 4cd32049fe08dc8e7f8ea923967f9044 
+alac/cci.20121212@andrei/test: Exported revision: 4cd32049fe08dc8e7f8ea923967f9044
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+alac/cci.20121212@andrei/test (test package): Installing package
+Requirements
+    alac/cci.20121212@andrei/test from local cache - Cache
+Packages
+    alac/cci.20121212@andrei/test:31ba46b140d0affcee8f9481146712ffd1783183 - Cache
+
+Installing (downloading, building) binaries...
+alac/cci.20121212@andrei/test: Already installed!
+alac/cci.20121212@andrei/test: Appending PATH environment variable: /home/andrei/.conan/data/alac/cci.20121212/andrei/test/package/31ba46b140d0affcee8f9481146712ffd1783183/bin
+alac/cci.20121212@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+alac/cci.20121212@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+alac/cci.20121212@andrei/test (test package): Generator txt created conanbuildinfo.txt
+alac/cci.20121212@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+alac/cci.20121212@andrei/test (test package): Aggregating env generators
+alac/cci.20121212@andrei/test (test package): Generated conaninfo.txt
+alac/cci.20121212@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/conan.lock'
+Using cached profile from lockfile
+alac/cci.20121212@andrei/test (test package): Calling build()
+alac/cci.20121212@andrei/test (test package): CMake command: cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/."
+
+----Running------
+> cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/."
+-----------------
+-- Using Conan toolchain: /home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/generators/conan_toolchain.cmake
+-- Conan toolchain: C++ Standard 17 with extensions OFF
+-- Conan: Target declared 'alac::alac'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/Release
+alac/cci.20121212@andrei/test (test package): CMake command: cmake --build "/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/Release" '--' '-j12'
+
+----Running------
+> cmake --build "/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/Release" '--' '-j12'
+-----------------
+Consolidate compiler generated dependencies of target test_package
+[100%] Built target test_package
+alac/cci.20121212@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/generators/conanrun.sh" && ./test_package
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/alac/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
