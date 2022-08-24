@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.29.1"
 
@@ -34,7 +35,7 @@ class BaicalP7Conan(ConanFile):
             raise ConanInvalidConfiguration("P7 only supports Windows and Linux at this time")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination= self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination= self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -55,7 +56,7 @@ class BaicalP7Conan(ConanFile):
         self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "Headers"))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "include"), "*.cmake")
+        tools.files.rm(self, os.path.join(self.package_folder, "include"), "*.cmake")
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "p7"
