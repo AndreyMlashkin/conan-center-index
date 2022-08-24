@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class TestPackageConan(ConanFile):
@@ -16,6 +17,6 @@ class TestPackageConan(ConanFile):
         if self.settings.compiler != "Visual Studio":
             self.run("apu-1-config --ldflags", win_bash=tools.os_info.is_windows)
 
-        if not tools.cross_building(self.settings):
+        if not tools.build.cross_building(self, self.settings):
             bin_path = os.path.join("bin", "test_package")
             self.run(bin_path, run_environment=True)
