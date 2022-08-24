@@ -1,0 +1,81 @@
+Exporting package recipe
+cjson/1.7.15@andrei/test exports: File 'conandata.yml' found. Exporting it...
+cjson/1.7.15@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+cjson/1.7.15@andrei/test: Calling export_sources()
+cjson/1.7.15@andrei/test: The stored package has not changed
+cjson/1.7.15@andrei/test: Using the exported files summary hash as the recipe revision: 1904e7700c8738c2c634c93e53548cde 
+cjson/1.7.15@andrei/test: Exported revision: 1904e7700c8738c2c634c93e53548cde
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+cjson/1.7.15@andrei/test (test package): Installing package
+Requirements
+    cjson/1.7.15@andrei/test from local cache - Cache
+Packages
+    cjson/1.7.15@andrei/test:66db415352b72a24b3b09ada71ac1408301ea8c8 - Cache
+
+Installing (downloading, building) binaries...
+cjson/1.7.15@andrei/test: Already installed!
+cjson/1.7.15@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+cjson/1.7.15@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+cjson/1.7.15@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+cjson/1.7.15@andrei/test (test package): Generator txt created conanbuildinfo.txt
+cjson/1.7.15@andrei/test (test package): Aggregating env generators
+cjson/1.7.15@andrei/test (test package): Generated conaninfo.txt
+cjson/1.7.15@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/conan.lock'
+Using cached profile from lockfile
+cjson/1.7.15@andrei/test (test package): Calling build()
+cjson/1.7.15@andrei/test (test package): CMake command: cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/."
+
+----Running------
+> cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/."
+-----------------
+-- Using Conan toolchain: /home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/generators/conan_toolchain.cmake
+-- Conan toolchain: C++ Standard 17 with extensions OFF
+-- Conan: Component target declared 'cjson'
+-- Conan: Target declared 'cjson::cjson'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/Release
+cjson/1.7.15@andrei/test (test package): CMake command: cmake --build "/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/Release" '--' '-j12'
+
+----Running------
+> cmake --build "/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/Release" '--' '-j12'
+-----------------
+Consolidate compiler generated dependencies of target test_package
+[100%] Built target test_package
+cjson/1.7.15@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/generators/conanrun.sh" && ./test_package
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/cjson/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
+{
+	"name":	"Awesome 4K",
+	"resolutions":	[{
+			"width":	1280,
+			"height":	720
+		}, {
+			"width":	1920,
+			"height":	1080
+		}, {
+			"width":	3840,
+			"height":	2160
+		}]
+}
