@@ -1,0 +1,130 @@
+Exporting package recipe
+catch2/3.1.0@andrei/test exports: File 'conandata.yml' found. Exporting it...
+catch2/3.1.0@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+catch2/3.1.0@andrei/test: Calling export_sources()
+catch2/3.1.0@andrei/test export_sources() method: Copied 1 '.txt' file: CMakeLists.txt
+catch2/3.1.0@andrei/test export_sources() method: Copied 1 '.patch' file: 3.0.1-0001-force-not_usbproject-off.patch
+catch2/3.1.0@andrei/test: The stored package has not changed
+catch2/3.1.0@andrei/test: Using the exported files summary hash as the recipe revision: 7b7d785a1998688f7c43b18372190807 
+catch2/3.1.0@andrei/test: Exported revision: 7b7d785a1998688f7c43b18372190807
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+catch2/3.1.0@andrei/test (test package): Installing package
+Requirements
+    catch2/3.1.0@andrei/test from local cache - Cache
+Packages
+    catch2/3.1.0@andrei/test:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+
+Installing (downloading, building) binaries...
+catch2/3.1.0@andrei/test: Already installed!
+catch2/3.1.0@andrei/test (test package): Generator txt created conanbuildinfo.txt
+catch2/3.1.0@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+catch2/3.1.0@andrei/test (test package): Generator cmake_find_package_multi created Catch2ConfigVersion.cmake
+catch2/3.1.0@andrei/test (test package): Generator cmake_find_package_multi created Catch2Target-release.cmake
+catch2/3.1.0@andrei/test (test package): Generator cmake_find_package_multi created Catch2Targets.cmake
+catch2/3.1.0@andrei/test (test package): Generator cmake_find_package_multi created Catch2Config.cmake
+catch2/3.1.0@andrei/test (test package): Aggregating env generators
+catch2/3.1.0@andrei/test (test package): Generated conaninfo.txt
+catch2/3.1.0@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+catch2/3.1.0@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_PREFIX_PATH="/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -DWITH_PREFIX="False" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Library Catch2Main found /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2Main.a
+-- Found: /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2Main.a
+-- Library Catch2 found /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2.a
+-- Found: /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2.a
+-- Library Catch2 found /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2.a
+-- Found: /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2.a
+-- Library Catch2Main found /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2Main.a
+-- Found: /home/andrei/.conan/data/catch2/3.1.0/andrei/test/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libCatch2Main.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/standalone.dir/100-standalone.cpp.o
+[ 50%] Building CXX object CMakeFiles/benchmark.dir/200-benchmark.cpp.o
+[ 75%] Linking CXX executable bin/standalone
+[ 75%] Built target standalone
+[100%] Linking CXX executable bin/benchmark
+[100%] Built target benchmark
+catch2/3.1.0@andrei/test (test package): Running test()
+
+----Running------
+> bin/standalone
+-----------------
+Randomness seeded to: 1601064228
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+
+----Running------
+> bin/benchmark
+-----------------
+Randomness seeded to: 1909521942
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+benchmark is a Catch2 v3.1.0 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+compiles and runs
+-------------------------------------------------------------------------------
+/home/andrei/sources/conan-center-index/recipes/catch2/3.x.x/test_package/200-benchmark.cpp:8
+...............................................................................
+
+benchmark name                       samples       iterations    estimated
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+factorial 25                                   100          2276     1.8208 ms 
+                                        8.32423 ns    8.30348 ns    8.35831 ns 
+                                        0.13295 ns  0.0912452 ns   0.243212 ns 
+                                                                               
+
+===============================================================================
+test cases: 1 | 1 passed
+assertions: - none -
+
