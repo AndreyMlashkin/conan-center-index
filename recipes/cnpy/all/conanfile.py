@@ -1,7 +1,8 @@
 import os
 import glob
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class CnpyConan(ConanFile):
     name = "cnpy"
@@ -44,13 +45,13 @@ class CnpyConan(ConanFile):
         self.requires("zlib/1.2.11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob(self.name + "-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
