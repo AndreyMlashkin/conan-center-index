@@ -1,0 +1,69 @@
+Exporting package recipe
+dataframe/1.21.0@andrei/test exports: File 'conandata.yml' found. Exporting it...
+dataframe/1.21.0@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+dataframe/1.21.0@andrei/test: Calling export_sources()
+dataframe/1.21.0@andrei/test: The stored package has not changed
+dataframe/1.21.0@andrei/test: Using the exported files summary hash as the recipe revision: f008d333834f495f310ed46566fad1d7 
+dataframe/1.21.0@andrei/test: Exported revision: f008d333834f495f310ed46566fad1d7
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+dataframe/1.21.0@andrei/test (test package): Installing package
+Requirements
+    dataframe/1.21.0@andrei/test from local cache - Cache
+Packages
+    dataframe/1.21.0@andrei/test:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+
+Installing (downloading, building) binaries...
+dataframe/1.21.0@andrei/test: Already installed!
+dataframe/1.21.0@andrei/test (test package): Generator txt created conanbuildinfo.txt
+dataframe/1.21.0@andrei/test (test package): Generator 'CMakeDeps' calling 'generate()'
+dataframe/1.21.0@andrei/test (test package): Generator 'CMakeToolchain' calling 'generate()'
+dataframe/1.21.0@andrei/test (test package): Generator 'VirtualRunEnv' calling 'generate()'
+dataframe/1.21.0@andrei/test (test package): Aggregating env generators
+dataframe/1.21.0@andrei/test (test package): Generated conaninfo.txt
+dataframe/1.21.0@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/conan.lock'
+Using cached profile from lockfile
+dataframe/1.21.0@andrei/test (test package): Calling build()
+dataframe/1.21.0@andrei/test (test package): CMake command: cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/."
+
+----Running------
+> cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/generators/conan_toolchain.cmake" -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -DCMAKE_BUILD_TYPE="Release" "/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/."
+-----------------
+-- Using Conan toolchain: /home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/generators/conan_toolchain.cmake
+-- Conan toolchain: C++ Standard 17 with extensions OFF
+-- Conan: Target declared 'DataFrame::DataFrame'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/Release
+dataframe/1.21.0@andrei/test (test package): CMake command: cmake --build "/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/Release" '--' '-j12'
+
+----Running------
+> cmake --build "/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/Release" '--' '-j12'
+-----------------
+Consolidate compiler generated dependencies of target test_package
+[100%] Built target test_package
+dataframe/1.21.0@andrei/test (test package): Running test()
+
+----Running------
+> . "/home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/generators/conanrun.sh" && ./test_package
+-----------------
+Capturing current environment in /home/andrei/sources/conan-center-index/recipes/dataframe/all/test_package/build/generators/deactivate_conanrunenv-release-x86_64.sh
+Configuring environment variables
+
+Testing load_data ...
