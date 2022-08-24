@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.35.0"
@@ -65,14 +65,14 @@ class LibfabricConan(ConanFile):
             raise ConanInvalidConfiguration("The libfabric package cannot be built on Windows.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
 
         yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
@@ -86,7 +86,7 @@ class LibfabricConan(ConanFile):
         for p in self._providers:
             args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            args.append("--with-libnl={}".format(tools.unix_path(self.deps_cpp_info["libnl"].rootpath))),
+            args.append("--with-libnl={}".format(tools.microsoft.unix_path(self, self.deps_cpp_info["libnl"].rootpath))),
         else:
             args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":
@@ -103,9 +103,9 @@ class LibfabricConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, os.path.join(self.package_folder, "lib"), "*.la")
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libfabric"
