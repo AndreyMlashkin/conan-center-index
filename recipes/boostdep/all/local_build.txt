@@ -1,0 +1,54 @@
+Exporting package recipe
+boostdep/1.75.0@andrei/test exports: File 'conandata.yml' found. Exporting it...
+boostdep/1.75.0@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+boostdep/1.75.0@andrei/test exports_sources: Copied 1 '.txt' file: CMakeLists.txt
+boostdep/1.75.0@andrei/test: The stored package has not changed
+boostdep/1.75.0@andrei/test: Using the exported files summary hash as the recipe revision: 71a920d1b96d922deb57fb4c203f9f75 
+boostdep/1.75.0@andrei/test: Exported revision: 71a920d1b96d922deb57fb4c203f9f75
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+boostdep/1.75.0@andrei/test (test package): Installing package
+Requirements
+    boost/1.75.0 from 'conancenter' - Cache
+    boostdep/1.75.0@andrei/test from local cache - Cache
+    bzip2/1.0.8 from 'conancenter' - Cache
+    libbacktrace/cci.20210118 from 'conancenter' - Cache
+    zlib/1.2.12 from 'conancenter' - Cache
+Packages
+    boost/1.75.0:50fd0a8203a1144113823b2cc49dc540cc27be83 - Cache
+    boostdep/1.75.0@andrei/test:b1df87f8be764eb39102327da326a3e82152ff10 - Cache
+    bzip2/1.0.8:e18203d1df1519e4a855a273390f0f15fef1850c - Cache
+    libbacktrace/cci.20210118:b6f45f661d53342860982dee02186c649186beee - Cache
+    zlib/1.2.12:b6f45f661d53342860982dee02186c649186beee - Cache
+
+Installing (downloading, building) binaries...
+bzip2/1.0.8: Already installed!
+bzip2/1.0.8: Appending PATH environment variable: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/bin
+libbacktrace/cci.20210118: Already installed!
+zlib/1.2.12: Already installed!
+boost/1.75.0: Already installed!
+boostdep/1.75.0@andrei/test: Already installed!
+boostdep/1.75.0@andrei/test: Appending PATH environment variable: /home/andrei/.conan/data/boostdep/1.75.0/andrei/test/package/b1df87f8be764eb39102327da326a3e82152ff10/bin
+boostdep/1.75.0@andrei/test (test package): Generator txt created conanbuildinfo.txt
+boostdep/1.75.0@andrei/test (test package): Aggregating env generators
+boostdep/1.75.0@andrei/test (test package): Generated conaninfo.txt
+boostdep/1.75.0@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/boostdep/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+boostdep/1.75.0@andrei/test (test package): Calling build()
+boostdep/1.75.0@andrei/test (test package): Running test()
