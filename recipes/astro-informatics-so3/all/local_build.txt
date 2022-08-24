@@ -1,0 +1,102 @@
+Exporting package recipe
+astro-informatics-so3/1.3.4@andrei/test exports: File 'conandata.yml' found. Exporting it...
+astro-informatics-so3/1.3.4@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+astro-informatics-so3/1.3.4@andrei/test exports_sources: Copied 1 '.txt' file: CMakeLists.txt
+astro-informatics-so3/1.3.4@andrei/test: The stored package has not changed
+astro-informatics-so3/1.3.4@andrei/test: Using the exported files summary hash as the recipe revision: 9e032dcb0ef9877486f4be960fe11c2e 
+astro-informatics-so3/1.3.4@andrei/test: Exported revision: 9e032dcb0ef9877486f4be960fe11c2e
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+astro-informatics-so3/1.3.4@andrei/test (test package): Installing package
+Requirements
+    astro-informatics-so3/1.3.4@andrei/test from local cache - Cache
+    fftw/3.3.9 from 'conancenter' - Cache
+    ssht/1.3.7 from 'conancenter' - Cache
+Packages
+    astro-informatics-so3/1.3.4@andrei/test:abc9f6c3542b53558d6a17de2fb844d71c29fa66 - Cache
+    fftw/3.3.9:98881f7665bbd68dd9dcefad4b2bf25fdd84a0ef - Cache
+    ssht/1.3.7:cb2575f9c16daaf105f7b5d0122f909c8898586b - Cache
+
+Installing (downloading, building) binaries...
+fftw/3.3.9: Already installed!
+ssht/1.3.7: Already installed!
+astro-informatics-so3/1.3.4@andrei/test: Already installed!
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator txt created conanbuildinfo.txt
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created astro-informatics-so3-config-version.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created astro-informatics-so3-config.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created astro-informatics-so3Targets.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created astro-informatics-so3Target-release.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created ssht-config-version.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created ssht-config.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created sshtTargets.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created sshtTarget-release.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created FFTW3ConfigVersion.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created FFTW3Target-release.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created FFTW3Targets.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake_find_package_multi created FFTW3Config.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+astro-informatics-so3/1.3.4@andrei/test (test package): Aggregating env generators
+astro-informatics-so3/1.3.4@andrei/test (test package): Generated conaninfo.txt
+astro-informatics-so3/1.3.4@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+astro-informatics-so3/1.3.4@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_PREFIX_PATH="/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- This project seems to be plain C, using 'GNU' compiler
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Library astro-informatics-so3 found /home/andrei/.conan/data/astro-informatics-so3/1.3.4/andrei/test/package/abc9f6c3542b53558d6a17de2fb844d71c29fa66/lib/libastro-informatics-so3.a
+-- Found: /home/andrei/.conan/data/astro-informatics-so3/1.3.4/andrei/test/package/abc9f6c3542b53558d6a17de2fb844d71c29fa66/lib/libastro-informatics-so3.a
+-- Library fftw3 found /home/andrei/.conan/data/fftw/3.3.9/_/_/package/98881f7665bbd68dd9dcefad4b2bf25fdd84a0ef/lib/libfftw3.a
+-- Found: /home/andrei/.conan/data/fftw/3.3.9/_/_/package/98881f7665bbd68dd9dcefad4b2bf25fdd84a0ef/lib/libfftw3.a
+-- Library fftw3 found /home/andrei/.conan/data/fftw/3.3.9/_/_/package/98881f7665bbd68dd9dcefad4b2bf25fdd84a0ef/lib/libfftw3.a
+-- Found: /home/andrei/.conan/data/fftw/3.3.9/_/_/package/98881f7665bbd68dd9dcefad4b2bf25fdd84a0ef/lib/libfftw3.a
+-- Library ssht found /home/andrei/.conan/data/ssht/1.3.7/_/_/package/cb2575f9c16daaf105f7b5d0122f909c8898586b/lib/libssht.a
+-- Found: /home/andrei/.conan/data/ssht/1.3.7/_/_/package/cb2575f9c16daaf105f7b5d0122f909c8898586b/lib/libssht.a
+-- Dependency FFTW3 already found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/astro-informatics-so3/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building C object CMakeFiles/test_package.dir/example.c.o
+[100%] Linking C executable bin/test_package
+[100%] Built target test_package
+astro-informatics-so3/1.3.4@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
