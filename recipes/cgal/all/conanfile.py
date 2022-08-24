@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class CgalConan(ConanFile):
@@ -50,11 +51,11 @@ class CgalConan(ConanFile):
         return self._cmake
 
     def _patch_sources(self):
-        if tools.Version(self.version) < "5.3":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        if tools.scm.Version(self.version) < "5.3":
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                 "CMAKE_SOURCE_DIR", "CMAKE_CURRENT_SOURCE_DIR")
         else:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                 "if(NOT PROJECT_NAME)", "if(TRUE)")
 
     def configure(self):
@@ -73,7 +74,7 @@ class CgalConan(ConanFile):
             self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "CGAL-{}".format(self.version)
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -86,22 +87,22 @@ class CgalConan(ConanFile):
         self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.get_safe("shared"):
             for root, _, filenames in os.walk(os.path.join(self.package_folder, "bin")):
                 for filename in filenames:
                     if not filename.endswith(".dll"):
                         os.unlink(os.path.join(root, filename))
         else:
-            tools.rmdir(os.path.join(self.package_folder, "bin"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         # TODO: add components
         self.cpp_info.names["cmake_find_package"] = "CGAL"
         self.cpp_info.names["cmake_find_package_multi"] = "CGAL"
         if not self.options.header_only:
-            self.cpp_info.libs = tools.collect_libs(self)
+            self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux" and (self.options.with_cgal_core or self.options.with_cgal_imageio):
             self.cpp_info.system_libs.append("m")
         if not self.options.header_only:
