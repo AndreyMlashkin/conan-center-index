@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -78,7 +79,7 @@ class CspiceConan(ConanFile):
     def build(self):
         self._get_sources()
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -90,13 +91,13 @@ class CspiceConan(ConanFile):
         url = data["url"]
         if url.endswith(".tar.Z"): # Python doesn't have any module to uncompress .Z files
             filename = os.path.basename(url)
-            tools.download(url, filename, sha256=data["sha256"])
+            tools.files.download(self, url, filename, sha256=data["sha256"])
             command = "zcat {} | tar -xf -".format(filename)
             self.run(command=command)
             os.remove(filename)
         else:
-            tools.get(**data)
-        tools.rename(self.name, self._source_subfolder)
+            tools.files.get(self, **data)
+        tools.files.rename(self, self.name, self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -107,12 +108,12 @@ class CspiceConan(ConanFile):
         return self._cmake
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = self._configure_cmake()
         cmake.install()
 
     def _extract_license(self):
-        spiceusr_header = tools.load(os.path.join(self._source_subfolder, "include", "SpiceUsr.h"))
+        spiceusr_header = tools.files.load(self, os.path.join(self._source_subfolder, "include", "SpiceUsr.h"))
         begin = spiceusr_header.find("-Disclaimer")
         end = spiceusr_header.find("-Required_Reading", begin)
         return spiceusr_header[begin:end]
