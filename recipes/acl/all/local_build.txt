@@ -1,0 +1,79 @@
+Exporting package recipe
+acl/2.3.1@andrei/test exports: File 'conandata.yml' found. Exporting it...
+acl/2.3.1@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+acl/2.3.1@andrei/test: The stored package has not changed
+acl/2.3.1@andrei/test: Using the exported files summary hash as the recipe revision: 0d13c6037173a69922dbb3093e7baaca 
+acl/2.3.1@andrei/test: Exported revision: 0d13c6037173a69922dbb3093e7baaca
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+acl/2.3.1@andrei/test (test package): Installing package
+Requirements
+    acl/2.3.1@andrei/test from local cache - Cache
+    libattr/2.5.1 from 'conancenter' - Cache
+Packages
+    acl/2.3.1@andrei/test:60138c666a7f712bce38903564c0e5fcc174d86f - Cache
+    libattr/2.5.1:b6f45f661d53342860982dee02186c649186beee - Cache
+
+Installing (downloading, building) binaries...
+libattr/2.5.1: Already installed!
+acl/2.3.1@andrei/test: Already installed!
+acl/2.3.1@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+acl/2.3.1@andrei/test (test package): Generator txt created conanbuildinfo.txt
+acl/2.3.1@andrei/test (test package): Aggregating env generators
+acl/2.3.1@andrei/test (test package): Generated conaninfo.txt
+acl/2.3.1@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/acl/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+acl/2.3.1@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/acl/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/acl/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/acl/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- This project seems to be plain C, using 'GNU' compiler
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/acl/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/acl/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building C object CMakeFiles/example.dir/test_package.c.o
+[100%] Linking C executable bin/example
+[100%] Built target example
+acl/2.3.1@andrei/test (test package): Running test()
+
+----Running------
+> bin/example
+-----------------
+example -- get access control lists of files
+Usage: example file ...
