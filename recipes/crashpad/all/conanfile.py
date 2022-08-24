@@ -1,5 +1,6 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 from contextlib import contextmanager
 import os
 import textwrap

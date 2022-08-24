@@ -2,6 +2,7 @@ from conans import tools, AutoToolsBuildEnvironment
 from conan.errors import ConanInvalidConfiguration
 from conan import ConanFile
 from conan.tools.build import cross_building
+from conan.tools.scm import Version
 import os
 import shutil
 

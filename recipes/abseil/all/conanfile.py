@@ -5,6 +5,7 @@ from conan.tools.microsoft import is_msvc
 from conan.errors import ConanInvalidConfiguration
 from conans import CMake
 from conan.tools.apple import is_apple_os
+from conan.tools.scm import Version
 import json
 import os
 import re

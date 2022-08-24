@@ -1,5 +1,6 @@
 from conan import ConanFile, tools
 from conans import CMake
+from conan.tools.scm import Version
 import os
 import shutil
 import textwrap

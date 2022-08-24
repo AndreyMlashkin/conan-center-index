@@ -3,7 +3,7 @@ import os
 from conan import ConanFile, tools
 from conans import MSBuild, AutoToolsBuildEnvironment
 from conan.errors import ConanInvalidConfiguration
-
+from conan.tools.scm import Version
 
 class UsocketsConan(ConanFile):
     name = "usockets"

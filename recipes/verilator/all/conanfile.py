@@ -4,6 +4,7 @@ from conan.tools.files import rmdir
 from conan.tools.build import cross_building
 from conans import AutoToolsBuildEnvironment, tools
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 from contextlib import contextmanager
 import os
 import shutil

@@ -1,6 +1,7 @@
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc
 from conan.tools.microsoft.visual import msvc_version_to_vs_ide_version
+from conan.tools.scm import Version
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
 from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager

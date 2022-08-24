@@ -2,7 +2,7 @@ import os
 from conan import ConanFile, tools
 from conan.tools.microsoft import is_msvc
 from conan.errors import ConanInvalidConfiguration
-
+from conan.tools.scm import Version
 
 class ZugConan(ConanFile):
     name = "zug"

@@ -1,5 +1,6 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, CMake, tools, RunEnvironment
 from conans.errors import ConanException
+from conan.tools.scm import Version
 from io import StringIO
 import os
 import re

@@ -1,6 +1,7 @@
 from conan import ConanFile, tools
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
 from conan.tools.build import cross_building
 import os

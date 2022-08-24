@@ -1,4 +1,5 @@
 from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.scm import Version
 from conan import ConanFile, tools
 from conans import AutoToolsBuildEnvironment, VisualStudioBuildEnvironment
 from conan.errors import ConanInvalidConfiguration
