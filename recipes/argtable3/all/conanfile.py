@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
@@ -42,7 +43,7 @@ class Argtable3Conan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -54,9 +55,9 @@ class Argtable3Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # The initial space is important (the cmake script does OFFSET 0)
-        tools.save(os.path.join(self._source_subfolder, "version.tag"), " {}.0\n".format(self.version))
+        tools.files.save(self, os.path.join(self._source_subfolder, "version.tag"), " {}.0\n".format(self.version))
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -79,15 +80,15 @@ class Argtable3Conan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # These targets were for versions <= 3.2.0 (newer create argtable3::argtable3)
         target_name = "argtable3" if self.options.shared else "argtable3_static"
@@ -100,7 +101,7 @@ class Argtable3Conan(ConanFile):
         suffix = ""
         if not self.options.shared:
             suffix += "_static"
-        if tools.Version(self.version) >= "3.2.1" and self.settings.build_type == "Debug":
+        if tools.scm.Version(self.version) >= "3.2.1" and self.settings.build_type == "Debug":
             suffix += "d"
         self.cpp_info.libs = ["argtable3{}".format(suffix)]
         if not self.options.shared:
