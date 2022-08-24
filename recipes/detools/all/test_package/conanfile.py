@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class DetoolsTestConan(ConanFile):
@@ -20,7 +21,7 @@ class DetoolsTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if tools.cross_building(self):
+        if tools.build.cross_building(self, self):
             return
 
         bin_path = os.path.join("bin", "test_package")
