@@ -1,0 +1,1133 @@
+Exporting package recipe
+cctag/1.0.1@andrei/test exports: File 'conandata.yml' found. Exporting it...
+cctag/1.0.1@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+cctag/1.0.1@andrei/test: Calling export_sources()
+cctag/1.0.1@andrei/test export_sources() method: Copied 1 '.txt' file: CMakeLists.txt
+cctag/1.0.1@andrei/test export_sources() method: Copied 1 '.patch' file: 0001-honor-vc-runtime.patch
+cctag/1.0.1@andrei/test: The stored package has not changed
+cctag/1.0.1@andrei/test: Using the exported files summary hash as the recipe revision: 8e8ca85f4d578e92d5081bb568ff63ab 
+cctag/1.0.1@andrei/test: Exported revision: 8e8ca85f4d578e92d5081bb568ff63ab
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+cctag/1.0.1@andrei/test (test package): Installing package
+Requirements
+    ade/0.1.1f from 'conancenter' - Cache
+    autoconf/2.71 from 'conancenter' - Cache
+    automake/1.16.5 from 'conancenter' - Cache
+    boost/1.78.0 from 'conancenter' - Cache
+    brotli/1.0.9 from 'conancenter' - Cache
+    bzip2/1.0.8 from 'conancenter' - Cache
+    cctag/1.0.1@andrei/test from local cache - Cache
+    eigen/3.4.0 from 'conancenter' - Cache
+    expat/2.4.8 from 'conancenter' - Cache
+    ffmpeg/4.4 from 'conancenter' - Cache
+    flac/1.3.3 from 'conancenter' - Cache
+    freetype/2.12.1 from 'conancenter' - Cache
+    gtk/system from 'conancenter' - Cache
+    jasper/2.0.33 from 'conancenter' - Cache
+    jbig/20160605 from 'conancenter' - Cache
+    libalsa/1.2.7.2 from 'conancenter' - Cache
+    libbacktrace/cci.20210118 from 'conancenter' - Cache
+    libcap/2.62 from 'conancenter' - Cache
+    libdeflate/1.12 from 'conancenter' - Cache
+    libfdk_aac/2.0.2 from 'conancenter' - Cache
+    libffi/3.4.2 from 'conancenter' - Cache
+    libiconv/1.17 from 'conancenter' - Cache
+    libjpeg/9d from 'conancenter' - Cache
+    libmp3lame/3.100 from 'conancenter' - Cache
+    libpng/1.6.37 from 'conancenter' - Cache
+    libsndfile/1.0.31 from 'conancenter' - Cache
+    libtiff/4.3.0 from 'conancenter' - Cache
+    libtool/2.4.6 from 'conancenter' - Cache
+    libvpx/1.11.0 from 'conancenter' - Cache
+    libwebp/1.2.2 from 'conancenter' - Cache
+    libx264/20191217 from 'conancenter' - Cache
+    libx265/3.4 from 'conancenter' - Cache
+    libxml2/2.9.14 from 'conancenter' - Cache
+    m4/1.4.19 from 'conancenter' - Cache
+    ogg/1.3.5 from 'conancenter' - Cache
+    onetbb/2020.3 from 'conancenter' - Cache
+    opencv/4.5.5 from 'conancenter' - Cache
+    openexr/2.5.7 from 'conancenter' - Cache
+    openh264/2.1.1 from 'conancenter' - Cache
+    openjpeg/2.5.0 from 'conancenter' - Cache
+    openssl/1.1.1q from 'conancenter' - Cache
+    opus/1.3.1 from 'conancenter' - Cache
+    protobuf/3.17.1 from 'conancenter' - Cache
+    pulseaudio/14.2 from 'conancenter' - Cache
+    quirc/1.1 from 'conancenter' - Cache
+    vaapi/system from 'conancenter' - Cache
+    vdpau/system from 'conancenter' - Cache
+    vorbis/1.3.7 from 'conancenter' - Cache
+    vulkan-headers/1.3.221 from 'conancenter' - Cache
+    vulkan-loader/1.3.221 from 'conancenter' - Cache
+    wayland/1.20.0 from 'conancenter' - Cache
+    xorg/system from 'conancenter' - Cache
+    xz_utils/5.2.5 from 'conancenter' - Cache
+    zlib/1.2.12 from 'conancenter' - Cache
+    zstd/1.5.2 from 'conancenter' - Cache
+Packages
+    ade/0.1.1f:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+    autoconf/2.71:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    automake/1.16.5:258f6f05ca54813b3d7180161753df7f9ccf7e1d - Cache
+    boost/1.78.0:50fd0a8203a1144113823b2cc49dc540cc27be83 - Cache
+    brotli/1.0.9:b6f45f661d53342860982dee02186c649186beee - Cache
+    bzip2/1.0.8:e18203d1df1519e4a855a273390f0f15fef1850c - Cache
+    cctag/1.0.1@andrei/test:87ca30dff74cadec2618c67fb12952b0429e8e69 - Cache
+    eigen/3.4.0:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    expat/2.4.8:9a9d842c0ceba718c8f1fd99f73ec28d0131f49e - Cache
+    ffmpeg/4.4:c06f2a89c0f5528e4c528fb8dbb6deafdca01a71 - Cache
+    flac/1.3.3:1444d577712d30b1c0bb4845f9c64db1925da046 - Cache
+    freetype/2.12.1:4194daae99e2dd83f01372a3983d1f48fdcb3080 - Cache
+    gtk/system:cc5e5ca8b619d2dffaaeae1e4924ae3ce085a8f1 - Cache
+    jasper/2.0.33:d0186ec0ee3b9ef7020e642e92c7525ee11f3dca - Cache
+    jbig/20160605:8a4d06876bc7cb527a3d11b7eca87364520c52f9 - Cache
+    libalsa/1.2.7.2:562090fc78258676ee5752d424117d048a9569e2 - Cache
+    libbacktrace/cci.20210118:b6f45f661d53342860982dee02186c649186beee - Cache
+    libcap/2.62:b6f45f661d53342860982dee02186c649186beee - Cache
+    libdeflate/1.12:b6f45f661d53342860982dee02186c649186beee - Cache
+    libfdk_aac/2.0.2:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+    libffi/3.4.2:b6f45f661d53342860982dee02186c649186beee - Cache
+    libiconv/1.17:b6f45f661d53342860982dee02186c649186beee - Cache
+    libjpeg/9d:b6f45f661d53342860982dee02186c649186beee - Cache
+    libmp3lame/3.100:b6f45f661d53342860982dee02186c649186beee - Cache
+    libpng/1.6.37:81eeea3a5c17b758b69f7990491f6ef9667496cf - Cache
+    libsndfile/1.0.31:aba7c92f4d91d4f7977c1f318417b1d2791ca8fa - Cache
+    libtiff/4.3.0:02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3 - Cache
+    libtool/2.4.6:d2fe9345ccee895f344ab4ea7fded64f9906b459 - Cache
+    libvpx/1.11.0:3181f3f332c707c6458b9896f44dc8a5fe9f2903 - Cache
+    libwebp/1.2.2:99bcb766743611083f315e9707f98916f47963be - Cache
+    libx264/20191217:78a4adf6e31b054eea4f0ff3eca5b73acda628bc - Cache
+    libx265/3.4:57f115e3d08b2cd26f2e805bbc087060aeaf090e - Cache
+    libxml2/2.9.14:cf8a34a142e6e5455869cb62ec7690474b7edcab - Cache
+    m4/1.4.19:24647d9fe8ec489125dfbae4b3ebefaf7581674c - Cache
+    ogg/1.3.5:b6f45f661d53342860982dee02186c649186beee - Cache
+    onetbb/2020.3:1909f5e5d5396f8ff3e053e5835259134999580c - Cache
+    opencv/4.5.5:63108c966a9fedc91433d6dbfe7062b033bc1367 - Cache
+    openexr/2.5.7:f07b9dccdac4e4e613f0c8886831954d94ae02bd - Cache
+    openh264/2.1.1:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+    openjpeg/2.5.0:b6f45f661d53342860982dee02186c649186beee - Cache
+    openssl/1.1.1q:b6f45f661d53342860982dee02186c649186beee - Cache
+    opus/1.3.1:b6f45f661d53342860982dee02186c649186beee - Cache
+    protobuf/3.17.1:e4e05a2ee978b4c57211ea7020b5123baf81221f - Cache
+    pulseaudio/14.2:b2a7b6760407389348e637979578d54b9b9713c2 - Cache
+    quirc/1.1:19d06aeb959419c05ceae129924a576930ef3c20 - Cache
+    vaapi/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    vdpau/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    vorbis/1.3.7:849776a340ead136e1fc9e5e272ed12b2a8c498d - Cache
+    vulkan-headers/1.3.221:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    vulkan-loader/1.3.221:6944c9e379a7d1bffd7359888391a94f35eb4d88 - Cache
+    wayland/1.20.0:6a056b02812d6b5fde4086ecb50d8898d185701c - Cache
+    xorg/system:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    xz_utils/5.2.5:b6f45f661d53342860982dee02186c649186beee - Cache
+    zlib/1.2.12:b6f45f661d53342860982dee02186c649186beee - Cache
+    zstd/1.5.2:3812593fe5197d9c607640d874f2115359295a2e - Cache
+
+Installing (downloading, building) binaries...
+ade/0.1.1f: Already installed!
+brotli/1.0.9: Already installed!
+bzip2/1.0.8: Already installed!
+bzip2/1.0.8: Appending PATH environment variable: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/bin
+eigen/3.4.0: Already installed!
+expat/2.4.8: Already installed!
+gtk/system: Already installed!
+jbig/20160605: Already installed!
+jbig/20160605: Appending PATH environment variable: /home/andrei/.conan/data/jbig/20160605/_/_/package/8a4d06876bc7cb527a3d11b7eca87364520c52f9/bin
+libalsa/1.2.7.2: Already installed!
+libbacktrace/cci.20210118: Already installed!
+libcap/2.62: Already installed!
+libdeflate/1.12: Already installed!
+libfdk_aac/2.0.2: Already installed!
+libffi/3.4.2: Already installed!
+libiconv/1.17: Already installed!
+libiconv/1.17: Appending PATH environment var: /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/bin
+libjpeg/9d: Already installed!
+libmp3lame/3.100: Already installed!
+libvpx/1.11.0: Already installed!
+libwebp/1.2.2: Already installed!
+libx264/20191217: Already installed!
+libx265/3.4: Already installed!
+m4/1.4.19: Already installed!
+m4/1.4.19: Appending PATH environment variable: /home/andrei/.conan/data/m4/1.4.19/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin
+m4/1.4.19: Setting M4 environment variable: /home/andrei/.conan/data/m4/1.4.19/_/_/package/24647d9fe8ec489125dfbae4b3ebefaf7581674c/bin/m4
+ogg/1.3.5: Already installed!
+onetbb/2020.3: Already installed!
+openh264/2.1.1: Already installed!
+openjpeg/2.5.0: Already installed!
+openssl/1.1.1q: Already installed!
+opus/1.3.1: Already installed!
+quirc/1.1: Already installed!
+vaapi/system: Already installed!
+vdpau/system: Already installed!
+vulkan-headers/1.3.221: Already installed!
+xorg/system: Already installed!
+xz_utils/5.2.5: Already installed!
+zlib/1.2.12: Already installed!
+zstd/1.5.2: Already installed!
+autoconf/2.71: Already installed!
+autoconf/2.71: Appending PATH env var with : /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin
+autoconf/2.71: Setting AC_MACRODIR to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/share/autoconf
+autoconf/2.71: Setting AUTOCONF to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoconf
+autoconf/2.71: Setting AUTORECONF to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoreconf
+autoconf/2.71: Setting AUTOHEADER to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autoheader
+autoconf/2.71: Setting AUTOM4TE to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/autom4te
+autoconf/2.71: Setting AUTOM4TE_PERLLIBDIR to /home/andrei/.conan/data/autoconf/2.71/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/bin/share/autoconf
+boost/1.78.0: Already installed!
+flac/1.3.3: Already installed!
+flac/1.3.3: Appending PATH environment variable: /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/bin
+jasper/2.0.33: Already installed!
+libpng/1.6.37: Already installed!
+libtiff/4.3.0: Already installed!
+libxml2/2.9.14: Already installed!
+libxml2/2.9.14: Appending PATH environment variable: /home/andrei/.conan/data/libxml2/2.9.14/_/_/package/cf8a34a142e6e5455869cb62ec7690474b7edcab/bin
+openexr/2.5.7: Already installed!
+protobuf/3.17.1: Already installed!
+protobuf/3.17.1: Appending PATH environment variable: /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/bin
+vorbis/1.3.7: Already installed!
+automake/1.16.5: Already installed!
+automake/1.16.5: Appending PATH environment variable:: /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin
+automake/1.16.5: Appending ACLOCAL environment variable with: /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin/aclocal
+automake/1.16.5: Setting AUTOMAKE_DATADIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res
+automake/1.16.5: Setting AUTOMAKE_LIBDIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res/automake-1.16
+automake/1.16.5: Setting AUTOMAKE_PERLLIBDIR to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/res/automake-1.16
+automake/1.16.5: Setting AUTOMAKE to /home/andrei/.conan/data/automake/1.16.5/_/_/package/258f6f05ca54813b3d7180161753df7f9ccf7e1d/bin/automake
+automake/1.16.5: Append M4 include directories to AUTOMAKE_CONAN_INCLUDES environment variable
+freetype/2.12.1: Already installed!
+libsndfile/1.0.31: Already installed!
+libsndfile/1.0.31: Appending PATH environment variable: /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/bin
+wayland/1.20.0: Already installed!
+wayland/1.20.0: Appending PATH environment variable: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/bin
+wayland/1.20.0: Appending PATH environment variable: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/bin
+libtool/2.4.6: Already installed!
+libtool/2.4.6: Appending PATH env: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/bin
+libtool/2.4.6: Setting LIBTOOLIZE env to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/bin/libtoolize
+libtool/2.4.6: Setting LIBTOOL_PREFIX environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459
+libtool/2.4.6: Setting LIBTOOL_DATADIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res
+libtool/2.4.6: Setting LIBTOOL_PKGAUXDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/libtool/build-aux
+libtool/2.4.6: Setting LIBTOOL_PKGLTDLDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/libtool
+libtool/2.4.6: Setting LIBTOOL_ACLOCALDIR environment variable to /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+libtool/2.4.6: Appending ACLOCAL_PATH env: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+libtool/2.4.6: Appending AUTOMAKE_CONAN_INCLUDES environment variable: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/res/aclocal
+vulkan-loader/1.3.221: Already installed!
+vulkan-loader/1.3.221: Create VULKAN_SDK environment variable: /home/andrei/.conan/data/vulkan-loader/1.3.221/_/_/package/6944c9e379a7d1bffd7359888391a94f35eb4d88
+pulseaudio/14.2: Already installed!
+ffmpeg/4.4: Already installed!
+opencv/4.5.5: Already installed!
+cctag/1.0.1@andrei/test: Already installed!
+cctag/1.0.1@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+cctag/1.0.1@andrei/test (test package): Generator txt created conanbuildinfo.txt
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created CCTagConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created CCTagConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created CCTagTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created CCTagTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BoostConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BoostTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BoostTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BoostConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TBBConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TBBTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TBBTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TBBConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenCVConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenCVTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenCVTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenCVConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libbacktrace-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libbacktrace-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libbacktraceTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libbacktraceTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created Eigen3ConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created Eigen3Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created Eigen3Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created Eigen3Config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JasperConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JasperConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JasperTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JasperTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenEXRConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenEXRTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenEXRTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenEXRConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TIFFConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TIFFConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TIFFTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created TIFFTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ffmpeg-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ffmpegTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ffmpegTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ffmpeg-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created quirc-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created quirc-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created quircTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created quircTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created gtk-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created gtkTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created gtkTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created gtk-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created protobuf-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created protobufTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created protobufTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created protobuf-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ade-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ade-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created adeTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created adeTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JPEGConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JPEGConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JPEGTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created JPEGTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libdeflate-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libdeflate-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libdeflateTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libdeflateTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created LibLZMAConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created LibLZMAConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created LibLZMATargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created LibLZMATarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created jbig-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created jbig-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created jbigTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created jbigTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created zstd-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created zstdTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created zstdTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created zstd-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created WebPConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created WebPTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created WebPTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created WebPConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created freetype-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created freetype-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created freetypeTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created freetypeTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenJPEGConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenJPEGConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenJPEGTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenJPEGTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created openh264-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created openh264-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created openh264Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created openh264Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx264-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx264-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx264Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx264Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx265-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx265-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx265Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libx265Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libvpx-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libvpx-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libvpxTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libvpxTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libmp3lame-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libmp3lame-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libmp3lameTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libmp3lameTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created fdk-aac-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created fdk-aacTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created fdk-aacTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created fdk-aac-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created pulseaudio-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created pulseaudioTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created pulseaudioTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created pulseaudio-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vaapi-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vaapi-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vaapiTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vaapiTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vdpau-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vdpau-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vdpauTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created vdpauTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BZip2ConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BZip2Config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BZip2Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BZip2Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created PNGConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created PNGConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created PNGTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created PNGTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BrotliConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BrotliTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BrotliTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created BrotliConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenSSLConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenSSLTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenSSLTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpenSSLConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ALSAConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ALSAConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ALSATargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ALSATarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created xorg-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created xorgTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created xorgTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created xorg-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created SndFileConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created SndFileTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created SndFileTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created SndFileConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libcap-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libcapTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libcapTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libcap-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libtool-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libtool-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libtoolTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libtoolTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanHeadersConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanHeadersTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanHeadersTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VulkanHeadersConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created wayland-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created waylandTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created waylandTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created wayland-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VorbisConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VorbisTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VorbisTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created VorbisConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpusConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpusTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpusTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OpusConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created flac-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created flacTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created flacTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created flac-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created automake-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created automake-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created automakeTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created automakeTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libffi-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libffi-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libffiTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libffiTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libxml2-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libxml2-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libxml2Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created libxml2Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created expat-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created expat-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created expatTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created expatTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created IconvConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created IconvConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created IconvTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created IconvTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OggConfigVersion.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OggTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OggTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created OggConfig.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created autoconf-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created autoconf-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created autoconfTargets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created autoconfTarget-release.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created m4-config-version.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created m4-config.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created m4Targets.cmake
+cctag/1.0.1@andrei/test (test package): Generator cmake_find_package_multi created m4Target-release.cmake
+cctag/1.0.1@andrei/test (test package): Aggregating env generators
+cctag/1.0.1@andrei/test (test package): Generated conaninfo.txt
+cctag/1.0.1@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+cctag/1.0.1@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_PREFIX_PATH="/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake targets configuration
+-- Library CCTag found /home/andrei/.conan/data/cctag/1.0.1/andrei/test/package/87ca30dff74cadec2618c67fb12952b0429e8e69/lib/libCCTag.a
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Library tbb found /home/andrei/.conan/data/onetbb/2020.3/_/_/package/1909f5e5d5396f8ff3e053e5835259134999580c/lib/libtbb.so
+-- Library opencv_ml found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_ml.a
+-- Library opencv_photo found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_photo.a
+-- Library opencv_highgui found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_highgui.a
+-- Library opencv_videoio found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_videoio.a
+-- Library opencv_imgcodecs found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgcodecs.a
+-- Library opencv_stitching found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_stitching.a
+-- Library opencv_dnn found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_dnn.a
+-- Library opencv_objdetect found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_objdetect.a
+-- Library opencv_gapi found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_gapi.a
+-- Library opencv_video found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_video.a
+-- Library opencv_calib3d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_calib3d.a
+-- Library opencv_features2d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_features2d.a
+-- Library opencv_flann found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_flann.a
+-- Library opencv_imgproc found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgproc.a
+-- Library opencv_core found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_core.a
+-- Library backtrace found /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Library jasper found /home/andrei/.conan/data/jasper/2.0.33/_/_/package/d0186ec0ee3b9ef7020e642e92c7525ee11f3dca/lib/libjasper.a
+-- Library IlmImfUtil-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImfUtil-2_5.a
+-- Library IlmImf-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImf-2_5.a
+-- Library Imath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libImath-2_5.a
+-- Library Half-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libHalf-2_5.a
+-- Library IexMath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIexMath-2_5.a
+-- Library IlmThread-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmThread-2_5.a
+-- Library Iex-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIex-2_5.a
+-- Library tiffxx found /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiffxx.a
+-- Library tiff found /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiff.a
+-- Library avdevice found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavdevice.a
+-- Library avfilter found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavfilter.a
+-- Library avformat found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavformat.a
+-- Library avcodec found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavcodec.a
+-- Library swscale found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswscale.a
+-- Library swresample found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswresample.a
+-- Library postproc found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libpostproc.a
+-- Library avutil found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavutil.a
+-- Library quirc found /home/andrei/.conan/data/quirc/1.1/_/_/package/19d06aeb959419c05ceae129924a576930ef3c20/lib/libquirc.a
+-- Library protoc found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotoc.a
+-- Library protobuf found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotobuf.a
+-- Library ade found /home/andrei/.conan/data/ade/0.1.1f/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libade.a
+-- Library jpeg found /home/andrei/.conan/data/libjpeg/9d/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libjpeg.a
+-- Library deflate found /home/andrei/.conan/data/libdeflate/1.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libdeflate.a
+-- Library lzma found /home/andrei/.conan/data/xz_utils/5.2.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblzma.a
+-- Library jbig found /home/andrei/.conan/data/jbig/20160605/_/_/package/8a4d06876bc7cb527a3d11b7eca87364520c52f9/lib/libjbig.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Library webpdecoder found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdecoder.a
+-- Library webpdemux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdemux.a
+-- Library webpmux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpmux.a
+-- Library webp found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebp.a
+-- Library freetype found /home/andrei/.conan/data/freetype/2.12.1/_/_/package/4194daae99e2dd83f01372a3983d1f48fdcb3080/lib/libfreetype.a
+-- Library openjp2 found /home/andrei/.conan/data/openjpeg/2.5.0/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopenjp2.a
+-- Library openh264 found /home/andrei/.conan/data/openh264/2.1.1/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libopenh264.a
+-- Library x264 found /home/andrei/.conan/data/libx264/20191217/_/_/package/78a4adf6e31b054eea4f0ff3eca5b73acda628bc/lib/libx264.a
+-- Library x265 found /home/andrei/.conan/data/libx265/3.4/_/_/package/57f115e3d08b2cd26f2e805bbc087060aeaf090e/lib/libx265.a
+-- Library vpx found /home/andrei/.conan/data/libvpx/1.11.0/_/_/package/3181f3f332c707c6458b9896f44dc8a5fe9f2903/lib/libvpx.a
+-- Library mp3lame found /home/andrei/.conan/data/libmp3lame/3.100/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libmp3lame.a
+-- Library fdk-aac found /home/andrei/.conan/data/libfdk_aac/2.0.2/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libfdk-aac.a
+-- Library pulse-simple found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse-simple.a
+-- Library pulse found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse.a
+-- Library pulsecommon-14.2 found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/pulseaudio/libpulsecommon-14.2.a
+-- Library vulkan found /home/andrei/.conan/data/vulkan-loader/1.3.221/_/_/package/6944c9e379a7d1bffd7359888391a94f35eb4d88/lib/libvulkan.so
+-- Library bz2 found /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Library png16 found /home/andrei/.conan/data/libpng/1.6.37/_/_/package/81eeea3a5c17b758b69f7990491f6ef9667496cf/lib/libpng16.a
+-- Library brotlidec-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlidec-static.a
+-- Library brotlienc-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlienc-static.a
+-- Library brotlicommon-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlicommon-static.a
+-- Library ssl found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libssl.a
+-- Library crypto found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcrypto.a
+-- Library asound found /home/andrei/.conan/data/libalsa/1.2.7.2/_/_/package/562090fc78258676ee5752d424117d048a9569e2/lib/libasound.a
+-- Library sndfile found /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/lib/libsndfile.a
+-- Library cap found /home/andrei/.conan/data/libcap/2.62/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcap.a
+-- Library ltdl found /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/lib/libltdl.a
+-- Library wayland-server found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-server.a
+-- Library wayland-cursor found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-cursor.a
+-- Library wayland-egl found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-egl.a
+-- Library wayland-client found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-client.a
+-- Library vorbisenc found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisenc.a
+-- Library vorbisfile found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisfile.a
+-- Library vorbis found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbis.a
+-- Library opus found /home/andrei/.conan/data/opus/1.3.1/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopus.a
+-- Library FLAC++ found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC++.a
+-- Library FLAC found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC.a
+-- Library ffi found /home/andrei/.conan/data/libffi/3.4.2/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libffi.a
+-- Library xml2 found /home/andrei/.conan/data/libxml2/2.9.14/_/_/package/cf8a34a142e6e5455869cb62ec7690474b7edcab/lib/libxml2.a
+-- Library expat found /home/andrei/.conan/data/expat/2.4.8/_/_/package/9a9d842c0ceba718c8f1fd99f73ec28d0131f49e/lib/libexpat.a
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Library iconv found /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libiconv.a
+-- Library charset found /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcharset.a
+-- Library ogg found /home/andrei/.conan/data/ogg/1.3.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libogg.a
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Library CCTag found /home/andrei/.conan/data/cctag/1.0.1/andrei/test/package/87ca30dff74cadec2618c67fb12952b0429e8e69/lib/libCCTag.a
+-- Found: /home/andrei/.conan/data/cctag/1.0.1/andrei/test/package/87ca30dff74cadec2618c67fb12952b0429e8e69/lib/libCCTag.a
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Library boost_serialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_serialization.a
+-- Library boost_wserialization found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wserialization.a
+-- Library boost_atomic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_atomic.a
+-- Library boost_filesystem found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_filesystem.a
+-- Library boost_wave found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_wave.a
+-- Library boost_exception found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_exception.a
+-- Library boost_test_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_test_exec_monitor.a
+-- Library boost_prg_exec_monitor found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_prg_exec_monitor.a
+-- Library boost_unit_test_framework found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_unit_test_framework.a
+-- Library boost_date_time found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_date_time.a
+-- Library boost_container found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_container.a
+-- Library boost_chrono found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_chrono.a
+-- Library boost_thread found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_thread.a
+-- Library boost_type_erasure found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_type_erasure.a
+-- Library boost_timer found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_timer.a
+-- Library boost_stacktrace_noop found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_noop.a
+-- Library boost_stacktrace_basic found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_basic.a
+-- Library boost_stacktrace_backtrace found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_backtrace.a
+-- Library boost_stacktrace_addr2line found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_stacktrace_addr2line.a
+-- Library boost_regex found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_regex.a
+-- Library boost_random found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_random.a
+-- Library boost_program_options found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_program_options.a
+-- Library boost_nowide found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_nowide.a
+-- Library boost_math_tr1l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1l.a
+-- Library boost_math_tr1f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1f.a
+-- Library boost_math_tr1 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_tr1.a
+-- Library boost_math_c99l found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99l.a
+-- Library boost_math_c99f found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99f.a
+-- Library boost_math_c99 found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_math_c99.a
+-- Library boost_log found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log.a
+-- Library boost_log_setup found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_log_setup.a
+-- Library boost_locale found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_locale.a
+-- Library boost_json found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_json.a
+-- Library boost_iostreams found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_iostreams.a
+-- Library boost_graph found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_graph.a
+-- Library boost_context found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_context.a
+-- Library boost_fiber found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber.a
+-- Library boost_fiber_numa found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_fiber_numa.a
+-- Library boost_coroutine found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_coroutine.a
+-- Library boost_contract found /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Found: /home/andrei/.conan/data/boost/1.78.0/_/_/package/50fd0a8203a1144113823b2cc49dc540cc27be83/lib/libboost_contract.a
+-- Library bz2 found /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Found: /home/andrei/.conan/data/bzip2/1.0.8/_/_/package/e18203d1df1519e4a855a273390f0f15fef1850c/lib/libbz2.a
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Found: /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Library backtrace found /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Found: /home/andrei/.conan/data/libbacktrace/cci.20210118/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbacktrace.a
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Dependency Boost already found
+-- Library tbb found /home/andrei/.conan/data/onetbb/2020.3/_/_/package/1909f5e5d5396f8ff3e053e5835259134999580c/lib/libtbb.so
+-- Found: /home/andrei/.conan/data/onetbb/2020.3/_/_/package/1909f5e5d5396f8ff3e053e5835259134999580c/lib/libtbb.so
+-- Library tbb found /home/andrei/.conan/data/onetbb/2020.3/_/_/package/1909f5e5d5396f8ff3e053e5835259134999580c/lib/libtbb.so
+-- Found: /home/andrei/.conan/data/onetbb/2020.3/_/_/package/1909f5e5d5396f8ff3e053e5835259134999580c/lib/libtbb.so
+-- Library opencv_ml found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_ml.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_ml.a
+-- Library opencv_photo found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_photo.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_photo.a
+-- Library opencv_highgui found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_highgui.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_highgui.a
+-- Library opencv_videoio found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_videoio.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_videoio.a
+-- Library opencv_imgcodecs found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgcodecs.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgcodecs.a
+-- Library opencv_stitching found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_stitching.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_stitching.a
+-- Library opencv_dnn found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_dnn.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_dnn.a
+-- Library opencv_objdetect found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_objdetect.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_objdetect.a
+-- Library opencv_gapi found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_gapi.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_gapi.a
+-- Library opencv_video found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_video.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_video.a
+-- Library opencv_calib3d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_calib3d.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_calib3d.a
+-- Library opencv_features2d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_features2d.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_features2d.a
+-- Library opencv_flann found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_flann.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_flann.a
+-- Library opencv_imgproc found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgproc.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgproc.a
+-- Library opencv_core found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_core.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_core.a
+-- Library opencv_core found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_core.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_core.a
+-- Library opencv_imgproc found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgproc.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgproc.a
+-- Library opencv_flann found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_flann.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_flann.a
+-- Library opencv_features2d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_features2d.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_features2d.a
+-- Library opencv_calib3d found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_calib3d.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_calib3d.a
+-- Library opencv_video found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_video.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_video.a
+-- Library opencv_gapi found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_gapi.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_gapi.a
+-- Library opencv_objdetect found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_objdetect.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_objdetect.a
+-- Library opencv_dnn found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_dnn.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_dnn.a
+-- Library opencv_stitching found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_stitching.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_stitching.a
+-- Library opencv_imgcodecs found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgcodecs.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_imgcodecs.a
+-- Library opencv_videoio found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_videoio.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_videoio.a
+-- Library opencv_highgui found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_highgui.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_highgui.a
+-- Library opencv_photo found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_photo.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_photo.a
+-- Library opencv_ml found /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_ml.a
+-- Found: /home/andrei/.conan/data/opencv/4.5.5/_/_/package/63108c966a9fedc91433d6dbfe7062b033bc1367/lib/libopencv_ml.a
+-- Dependency Eigen3 already found
+-- Library avdevice found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavdevice.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavdevice.a
+-- Library avfilter found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavfilter.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavfilter.a
+-- Library avformat found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavformat.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavformat.a
+-- Library avcodec found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavcodec.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavcodec.a
+-- Library swscale found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswscale.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswscale.a
+-- Library swresample found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswresample.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswresample.a
+-- Library postproc found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libpostproc.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libpostproc.a
+-- Library avutil found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavutil.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavutil.a
+-- Library avutil found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavutil.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavutil.a
+-- Library postproc found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libpostproc.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libpostproc.a
+-- Library swresample found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswresample.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswresample.a
+-- Library swscale found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswscale.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libswscale.a
+-- Library avcodec found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavcodec.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavcodec.a
+-- Library avformat found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavformat.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavformat.a
+-- Library avfilter found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavfilter.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavfilter.a
+-- Library avdevice found /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavdevice.a
+-- Found: /home/andrei/.conan/data/ffmpeg/4.4/_/_/package/c06f2a89c0f5528e4c528fb8dbb6deafdca01a71/lib/libavdevice.a
+-- Library asound found /home/andrei/.conan/data/libalsa/1.2.7.2/_/_/package/562090fc78258676ee5752d424117d048a9569e2/lib/libasound.a
+-- Found: /home/andrei/.conan/data/libalsa/1.2.7.2/_/_/package/562090fc78258676ee5752d424117d048a9569e2/lib/libasound.a
+-- Library pulse-simple found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse-simple.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse-simple.a
+-- Library pulse found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse.a
+-- Library pulsecommon-14.2 found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/pulseaudio/libpulsecommon-14.2.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/pulseaudio/libpulsecommon-14.2.a
+-- Library pulse found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse.a
+-- Library pulsecommon-14.2 found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/pulseaudio/libpulsecommon-14.2.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/pulseaudio/libpulsecommon-14.2.a
+-- Library pulse-simple found /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse-simple.a
+-- Found: /home/andrei/.conan/data/pulseaudio/14.2/_/_/package/b2a7b6760407389348e637979578d54b9b9713c2/lib/libpulse-simple.a
+-- Library iconv found /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libiconv.a
+-- Found: /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libiconv.a
+-- Library charset found /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcharset.a
+-- Found: /home/andrei/.conan/data/libiconv/1.17/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcharset.a
+-- Library sndfile found /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/lib/libsndfile.a
+-- Found: /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/lib/libsndfile.a
+-- Library sndfile found /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/lib/libsndfile.a
+-- Found: /home/andrei/.conan/data/libsndfile/1.0.31/_/_/package/aba7c92f4d91d4f7977c1f318417b1d2791ca8fa/lib/libsndfile.a
+-- Library ogg found /home/andrei/.conan/data/ogg/1.3.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libogg.a
+-- Found: /home/andrei/.conan/data/ogg/1.3.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libogg.a
+-- Library ogg found /home/andrei/.conan/data/ogg/1.3.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libogg.a
+-- Found: /home/andrei/.conan/data/ogg/1.3.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libogg.a
+-- Library vorbisenc found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisenc.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisenc.a
+-- Library vorbisfile found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisfile.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisfile.a
+-- Library vorbis found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbis.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbis.a
+-- Library vorbis found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbis.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbis.a
+-- Library vorbisfile found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisfile.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisfile.a
+-- Library vorbisenc found /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisenc.a
+-- Found: /home/andrei/.conan/data/vorbis/1.3.7/_/_/package/849776a340ead136e1fc9e5e272ed12b2a8c498d/lib/libvorbisenc.a
+-- Dependency Ogg already found
+-- Dependency Vorbis already found
+-- Library FLAC++ found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC++.a
+-- Found: /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC++.a
+-- Library FLAC found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC.a
+-- Found: /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC.a
+-- Library FLAC found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC.a
+-- Found: /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC.a
+-- Library FLAC++ found /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC++.a
+-- Found: /home/andrei/.conan/data/flac/1.3.3/_/_/package/1444d577712d30b1c0bb4845f9c64db1925da046/lib/libFLAC++.a
+-- Dependency Ogg already found
+-- Library opus found /home/andrei/.conan/data/opus/1.3.1/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopus.a
+-- Found: /home/andrei/.conan/data/opus/1.3.1/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopus.a
+-- Library opus found /home/andrei/.conan/data/opus/1.3.1/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopus.a
+-- Found: /home/andrei/.conan/data/opus/1.3.1/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopus.a
+-- Library cap found /home/andrei/.conan/data/libcap/2.62/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcap.a
+-- Found: /home/andrei/.conan/data/libcap/2.62/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcap.a
+-- Library cap found /home/andrei/.conan/data/libcap/2.62/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcap.a
+-- Found: /home/andrei/.conan/data/libcap/2.62/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcap.a
+-- Library ltdl found /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/lib/libltdl.a
+-- Found: /home/andrei/.conan/data/libtool/2.4.6/_/_/package/d2fe9345ccee895f344ab4ea7fded64f9906b459/lib/libltdl.a
+-- Dependency ALSA already found
+-- Dependency xorg already found
+-- Library ssl found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libssl.a
+-- Found: /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libssl.a
+-- Library crypto found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcrypto.a
+-- Found: /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcrypto.a
+-- Library crypto found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcrypto.a
+-- Found: /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libcrypto.a
+-- Library ssl found /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libssl.a
+-- Found: /home/andrei/.conan/data/openssl/1.1.1q/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libssl.a
+-- Library freetype found /home/andrei/.conan/data/freetype/2.12.1/_/_/package/4194daae99e2dd83f01372a3983d1f48fdcb3080/lib/libfreetype.a
+-- Found: /home/andrei/.conan/data/freetype/2.12.1/_/_/package/4194daae99e2dd83f01372a3983d1f48fdcb3080/lib/libfreetype.a
+-- Library png16 found /home/andrei/.conan/data/libpng/1.6.37/_/_/package/81eeea3a5c17b758b69f7990491f6ef9667496cf/lib/libpng16.a
+-- Found: /home/andrei/.conan/data/libpng/1.6.37/_/_/package/81eeea3a5c17b758b69f7990491f6ef9667496cf/lib/libpng16.a
+-- Dependency ZLIB already found
+-- Dependency ZLIB already found
+-- Dependency BZip2 already found
+-- Library brotlidec-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlidec-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlidec-static.a
+-- Library brotlienc-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlienc-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlienc-static.a
+-- Library brotlicommon-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlicommon-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlicommon-static.a
+-- Library brotlicommon-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlicommon-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlicommon-static.a
+-- Library brotlienc-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlienc-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlienc-static.a
+-- Library brotlidec-static found /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlidec-static.a
+-- Found: /home/andrei/.conan/data/brotli/1.0.9/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libbrotlidec-static.a
+-- Dependency BZip2 already found
+-- Dependency OpenSSL already found
+-- Dependency ZLIB already found
+-- Library lzma found /home/andrei/.conan/data/xz_utils/5.2.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblzma.a
+-- Found: /home/andrei/.conan/data/xz_utils/5.2.5/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblzma.a
+-- Dependency Iconv already found
+-- Library openjp2 found /home/andrei/.conan/data/openjpeg/2.5.0/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopenjp2.a
+-- Found: /home/andrei/.conan/data/openjpeg/2.5.0/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libopenjp2.a
+-- Library openh264 found /home/andrei/.conan/data/openh264/2.1.1/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libopenh264.a
+-- Found: /home/andrei/.conan/data/openh264/2.1.1/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libopenh264.a
+-- Dependency Vorbis already found
+-- Dependency Opus already found
+-- Library x264 found /home/andrei/.conan/data/libx264/20191217/_/_/package/78a4adf6e31b054eea4f0ff3eca5b73acda628bc/lib/libx264.a
+-- Found: /home/andrei/.conan/data/libx264/20191217/_/_/package/78a4adf6e31b054eea4f0ff3eca5b73acda628bc/lib/libx264.a
+-- Library x265 found /home/andrei/.conan/data/libx265/3.4/_/_/package/57f115e3d08b2cd26f2e805bbc087060aeaf090e/lib/libx265.a
+-- Found: /home/andrei/.conan/data/libx265/3.4/_/_/package/57f115e3d08b2cd26f2e805bbc087060aeaf090e/lib/libx265.a
+-- Library vpx found /home/andrei/.conan/data/libvpx/1.11.0/_/_/package/3181f3f332c707c6458b9896f44dc8a5fe9f2903/lib/libvpx.a
+-- Found: /home/andrei/.conan/data/libvpx/1.11.0/_/_/package/3181f3f332c707c6458b9896f44dc8a5fe9f2903/lib/libvpx.a
+-- Library mp3lame found /home/andrei/.conan/data/libmp3lame/3.100/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libmp3lame.a
+-- Found: /home/andrei/.conan/data/libmp3lame/3.100/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libmp3lame.a
+-- Library fdk-aac found /home/andrei/.conan/data/libfdk_aac/2.0.2/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libfdk-aac.a
+-- Found: /home/andrei/.conan/data/libfdk_aac/2.0.2/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libfdk-aac.a
+-- Library fdk-aac found /home/andrei/.conan/data/libfdk_aac/2.0.2/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libfdk-aac.a
+-- Found: /home/andrei/.conan/data/libfdk_aac/2.0.2/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libfdk-aac.a
+-- Library webpdecoder found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdecoder.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdecoder.a
+-- Library webpdemux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdemux.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdemux.a
+-- Library webpmux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpmux.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpmux.a
+-- Library webp found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebp.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebp.a
+-- Library webp found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebp.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebp.a
+-- Library webpmux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpmux.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpmux.a
+-- Library webpdemux found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdemux.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdemux.a
+-- Library webpdecoder found /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdecoder.a
+-- Found: /home/andrei/.conan/data/libwebp/1.2.2/_/_/package/99bcb766743611083f315e9707f98916f47963be/lib/libwebpdecoder.a
+-- Dependency xorg already found
+-- Library vulkan found /home/andrei/.conan/data/vulkan-loader/1.3.221/_/_/package/6944c9e379a7d1bffd7359888391a94f35eb4d88/lib/libvulkan.so
+-- Found: /home/andrei/.conan/data/vulkan-loader/1.3.221/_/_/package/6944c9e379a7d1bffd7359888391a94f35eb4d88/lib/libvulkan.so
+-- Dependency xorg already found
+-- Library wayland-server found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-server.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-server.a
+-- Library wayland-cursor found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-cursor.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-cursor.a
+-- Library wayland-egl found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-egl.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-egl.a
+-- Library wayland-client found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-client.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-client.a
+-- Library wayland-client found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-client.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-client.a
+-- Library wayland-egl found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-egl.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-egl.a
+-- Library wayland-cursor found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-cursor.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-cursor.a
+-- Library wayland-server found /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-server.a
+-- Found: /home/andrei/.conan/data/wayland/1.20.0/_/_/package/6a056b02812d6b5fde4086ecb50d8898d185701c/lib/libwayland-server.a
+-- Library expat found /home/andrei/.conan/data/expat/2.4.8/_/_/package/9a9d842c0ceba718c8f1fd99f73ec28d0131f49e/lib/libexpat.a
+-- Found: /home/andrei/.conan/data/expat/2.4.8/_/_/package/9a9d842c0ceba718c8f1fd99f73ec28d0131f49e/lib/libexpat.a
+-- Library xml2 found /home/andrei/.conan/data/libxml2/2.9.14/_/_/package/cf8a34a142e6e5455869cb62ec7690474b7edcab/lib/libxml2.a
+-- Found: /home/andrei/.conan/data/libxml2/2.9.14/_/_/package/cf8a34a142e6e5455869cb62ec7690474b7edcab/lib/libxml2.a
+-- Dependency ZLIB already found
+-- Dependency Iconv already found
+-- Library ffi found /home/andrei/.conan/data/libffi/3.4.2/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libffi.a
+-- Found: /home/andrei/.conan/data/libffi/3.4.2/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libffi.a
+-- Dependency ffmpeg already found
+-- Dependency ffmpeg already found
+-- Dependency ffmpeg already found
+-- Dependency ffmpeg already found
+-- Dependency ffmpeg already found
+-- Dependency ZLIB already found
+-- Library jasper found /home/andrei/.conan/data/jasper/2.0.33/_/_/package/d0186ec0ee3b9ef7020e642e92c7525ee11f3dca/lib/libjasper.a
+-- Found: /home/andrei/.conan/data/jasper/2.0.33/_/_/package/d0186ec0ee3b9ef7020e642e92c7525ee11f3dca/lib/libjasper.a
+-- Library jpeg found /home/andrei/.conan/data/libjpeg/9d/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libjpeg.a
+-- Found: /home/andrei/.conan/data/libjpeg/9d/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libjpeg.a
+-- Dependency PNG already found
+-- Dependency JPEG already found
+-- Library tiffxx found /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiffxx.a
+-- Found: /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiffxx.a
+-- Library tiff found /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiff.a
+-- Found: /home/andrei/.conan/data/libtiff/4.3.0/_/_/package/02dca76bfed0e2dac53ed9f03fb1b5520f1e31b3/lib/libtiff.a
+-- Dependency ZLIB already found
+-- Library deflate found /home/andrei/.conan/data/libdeflate/1.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libdeflate.a
+-- Found: /home/andrei/.conan/data/libdeflate/1.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libdeflate.a
+-- Dependency LibLZMA already found
+-- Dependency JPEG already found
+-- Library jbig found /home/andrei/.conan/data/jbig/20160605/_/_/package/8a4d06876bc7cb527a3d11b7eca87364520c52f9/lib/libjbig.a
+-- Found: /home/andrei/.conan/data/jbig/20160605/_/_/package/8a4d06876bc7cb527a3d11b7eca87364520c52f9/lib/libjbig.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Found: /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Found: /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Dependency WebP already found
+-- Library IlmImfUtil-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImfUtil-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImfUtil-2_5.a
+-- Library IlmImf-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImf-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImf-2_5.a
+-- Library Imath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libImath-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libImath-2_5.a
+-- Library Half-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libHalf-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libHalf-2_5.a
+-- Library IexMath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIexMath-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIexMath-2_5.a
+-- Library IlmThread-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmThread-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmThread-2_5.a
+-- Library Iex-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIex-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIex-2_5.a
+-- Library Iex-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIex-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIex-2_5.a
+-- Library IlmThread-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmThread-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmThread-2_5.a
+-- Library IexMath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIexMath-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIexMath-2_5.a
+-- Library Half-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libHalf-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libHalf-2_5.a
+-- Library Imath-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libImath-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libImath-2_5.a
+-- Library IlmImf-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImf-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImf-2_5.a
+-- Library IlmImfUtil-2_5 found /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImfUtil-2_5.a
+-- Found: /home/andrei/.conan/data/openexr/2.5.7/_/_/package/f07b9dccdac4e4e613f0c8886831954d94ae02bd/lib/libIlmImfUtil-2_5.a
+-- Dependency ZLIB already found
+-- Dependency WebP already found
+-- Library protoc found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotoc.a
+-- Found: /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotoc.a
+-- Library protobuf found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotobuf.a
+-- Found: /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotobuf.a
+-- Library protobuf found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotobuf.a
+-- Found: /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotobuf.a
+-- Library protoc found /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotoc.a
+-- Found: /home/andrei/.conan/data/protobuf/3.17.1/_/_/package/e4e05a2ee978b4c57211ea7020b5123baf81221f/lib/libprotoc.a
+-- Dependency ZLIB already found
+-- Library quirc found /home/andrei/.conan/data/quirc/1.1/_/_/package/19d06aeb959419c05ceae129924a576930ef3c20/lib/libquirc.a
+-- Found: /home/andrei/.conan/data/quirc/1.1/_/_/package/19d06aeb959419c05ceae129924a576930ef3c20/lib/libquirc.a
+-- Library ade found /home/andrei/.conan/data/ade/0.1.1f/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libade.a
+-- Found: /home/andrei/.conan/data/ade/0.1.1f/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libade.a
+-- Dependency OpenCV already found
+-- Dependency OpenCV already found
+-- Dependency OpenCV already found
+-- Dependency Boost already found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/cctag/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/test_package.dir/test_package.cpp.o
+[100%] Linking CXX executable bin/test_package
+[100%] Built target test_package
+cctag/1.0.1@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
