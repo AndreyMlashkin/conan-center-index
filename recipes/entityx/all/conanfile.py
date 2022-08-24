@@ -1,7 +1,8 @@
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.32.0"
@@ -46,7 +47,7 @@ class EntityXConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("entityx-" + self.version, self._source_subfolder)
 
     def validate(self):
@@ -65,7 +66,7 @@ class EntityXConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -76,7 +77,7 @@ class EntityXConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("COPYING", src=self._source_subfolder, dst="licenses", keep_path=False)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "entityx"
