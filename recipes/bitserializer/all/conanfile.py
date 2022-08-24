@@ -1,5 +1,5 @@
 from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -29,7 +29,7 @@ class BitserializerConan(ConanFile):
 
     @property
     def _supported_compilers(self):
-        if tools.Version(self.version) >= "0.44":
+        if tools.scm.Version(self.version) >= "0.44":
             return {
                 "gcc": "8",
                 "clang": "8",
@@ -59,10 +59,10 @@ class BitserializerConan(ConanFile):
     def validate(self):
         # Check compiler for supporting C++ 17
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         try:
             minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
-            if tools.Version(self.settings.compiler.version) < minimum_required_compiler_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration("This package requires c++17 support. The current compiler does not support it.")
         except KeyError:
             self.output.warn("This recipe has no support for the current compiler. Please consider adding it.")
@@ -79,7 +79,7 @@ class BitserializerConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -92,7 +92,7 @@ class BitserializerConan(ConanFile):
         # cpprestjson-core
         self.cpp_info.components["bitserializer-core"].set_property("cmake_target_name", "BitSerializer::core")
         if self.settings.compiler == "gcc" or (self.settings.os == "Linux" and self.settings.compiler == "clang"):
-            if tools.Version(self.settings.compiler.version) < 9:
+            if tools.scm.Version(self.settings.compiler.version) < 9:
                 self.cpp_info.components["bitserializer-core"].system_libs = ["stdc++fs"]
 
         # cpprestjson-archive
