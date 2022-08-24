@@ -1,0 +1,132 @@
+Exporting package recipe
+c-blosc/1.21.1@andrei/test exports: File 'conandata.yml' found. Exporting it...
+c-blosc/1.21.1@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+c-blosc/1.21.1@andrei/test: Calling export_sources()
+c-blosc/1.21.1@andrei/test export_sources() method: Copied 1 '.txt' file: CMakeLists.txt
+c-blosc/1.21.1@andrei/test export_sources() method: Copied 1 '.patch' file: cmake-dependencies-1.21.1+.patch
+c-blosc/1.21.1@andrei/test: The stored package has not changed
+c-blosc/1.21.1@andrei/test: Using the exported files summary hash as the recipe revision: 282251f2780e98898d807d84357d568b 
+c-blosc/1.21.1@andrei/test: Exported revision: 282251f2780e98898d807d84357d568b
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+c-blosc/1.21.1@andrei/test (test package): Installing package
+Requirements
+    c-blosc/1.21.1@andrei/test from local cache - Cache
+    lz4/1.9.3 from 'conancenter' - Cache
+    snappy/1.1.9 from 'conancenter' - Cache
+    zlib/1.2.12 from 'conancenter' - Cache
+    zstd/1.5.2 from 'conancenter' - Cache
+Packages
+    c-blosc/1.21.1@andrei/test:d17e974e23a503c31ae4311307673a7b92fc4f59 - Cache
+    lz4/1.9.3:b6f45f661d53342860982dee02186c649186beee - Cache
+    snappy/1.1.9:4fe24683ffe8a706768c1b2acb82958968f73838 - Cache
+    zlib/1.2.12:b6f45f661d53342860982dee02186c649186beee - Cache
+    zstd/1.5.2:3812593fe5197d9c607640d874f2115359295a2e - Cache
+
+Installing (downloading, building) binaries...
+lz4/1.9.3: Already installed!
+snappy/1.1.9: Already installed!
+zlib/1.2.12: Already installed!
+zstd/1.5.2: Already installed!
+c-blosc/1.21.1@andrei/test: Already installed!
+c-blosc/1.21.1@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created c-blosc-config-version.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created c-blosc-config.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created c-bloscTargets.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created c-bloscTarget-release.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created lz4-config-version.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created lz4-config.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created lz4Targets.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created lz4Target-release.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created SnappyConfigVersion.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created SnappyTarget-release.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created SnappyTargets.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created SnappyConfig.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBConfigVersion.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBConfig.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBTargets.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created ZLIBTarget-release.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created zstd-config-version.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created zstdTarget-release.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created zstdTargets.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator cmake_find_package_multi created zstd-config.cmake
+c-blosc/1.21.1@andrei/test (test package): Generator txt created conanbuildinfo.txt
+c-blosc/1.21.1@andrei/test (test package): Aggregating env generators
+c-blosc/1.21.1@andrei/test (test package): Generated conaninfo.txt
+c-blosc/1.21.1@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+c-blosc/1.21.1@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_PREFIX_PATH="/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_MODULE_PATH="/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake targets configuration
+-- Library blosc found /home/andrei/.conan/data/c-blosc/1.21.1/andrei/test/package/d17e974e23a503c31ae4311307673a7b92fc4f59/lib/libblosc.a
+-- Library lz4 found /home/andrei/.conan/data/lz4/1.9.3/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblz4.a
+-- Library snappy found /home/andrei/.conan/data/snappy/1.1.9/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libsnappy.a
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- This project seems to be plain C, using 'GNU' compiler
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Library blosc found /home/andrei/.conan/data/c-blosc/1.21.1/andrei/test/package/d17e974e23a503c31ae4311307673a7b92fc4f59/lib/libblosc.a
+-- Found: /home/andrei/.conan/data/c-blosc/1.21.1/andrei/test/package/d17e974e23a503c31ae4311307673a7b92fc4f59/lib/libblosc.a
+-- Library lz4 found /home/andrei/.conan/data/lz4/1.9.3/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblz4.a
+-- Found: /home/andrei/.conan/data/lz4/1.9.3/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/liblz4.a
+-- Library snappy found /home/andrei/.conan/data/snappy/1.1.9/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libsnappy.a
+-- Found: /home/andrei/.conan/data/snappy/1.1.9/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libsnappy.a
+-- Library snappy found /home/andrei/.conan/data/snappy/1.1.9/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libsnappy.a
+-- Found: /home/andrei/.conan/data/snappy/1.1.9/_/_/package/4fe24683ffe8a706768c1b2acb82958968f73838/lib/libsnappy.a
+-- Library z found /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Found: /home/andrei/.conan/data/zlib/1.2.12/_/_/package/b6f45f661d53342860982dee02186c649186beee/lib/libz.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Found: /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Library zstd found /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Found: /home/andrei/.conan/data/zstd/1.5.2/_/_/package/3812593fe5197d9c607640d874f2115359295a2e/lib/libzstd.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/c-blosc/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building C object CMakeFiles/test_package.dir/test_package.c.o
+[100%] Linking C executable bin/test_package
+[100%] Built target test_package
+c-blosc/1.21.1@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
+Blosc version info: 1.21.1 ($Date:: 2021-10-06 #$)
+Compression: 4000000 -> 36321 (110.1x)
+Decompression succesful!
+Succesful roundtrip!
