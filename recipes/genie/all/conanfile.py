@@ -1,6 +1,6 @@
 import os
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.33.0"
@@ -35,15 +35,15 @@ class GenieConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
     
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @property
     def _os(self):
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             return "darwin"
         return {
             "Windows": "windows",
@@ -52,8 +52,8 @@ class GenieConan(ConanFile):
         }[str(self.settings.os)]
 
     def _patch_compiler(self, cc, cxx):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "build", "gmake.{}".format(self._os), "genie.make"), "CC  = gcc", "CC  = {}".format(cc))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "build", "gmake.{}".format(self._os), "genie.make"), "CXX = g++", "CXX = {}".format(cxx))
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "gmake.{}".format(self._os), "genie.make"), "CC  = gcc", "CC  = {}".format(cc))
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "gmake.{}".format(self._os), "genie.make"), "CXX = g++", "CXX = {}".format(cxx))
 
     @property
     def _genie_config(self):
@@ -63,12 +63,12 @@ class GenieConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._patch_compiler("cccl", "cccl")
             with tools.vcvars(self.settings):
-                with tools.chdir(self._source_subfolder):
+                with tools.files.chdir(self, self._source_subfolder):
                     self.run("make", win_bash=tools.os_info.is_windows)
         else:
             cc = tools.get_env("CC")
             cxx = tools.get_env("CXX")
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 if not cc:
                     cc = "clang"
                 if not cxx:
@@ -81,7 +81,7 @@ class GenieConan(ConanFile):
             self._patch_compiler(cc, cxx)
 
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 autotools.make(args=["OS={}".format(self._os), "config={}".format(self._genie_config)])
 
     def package(self):
