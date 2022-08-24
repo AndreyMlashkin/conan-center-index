@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -62,9 +63,9 @@ class GeographiclibConan(ConanFile):
         }.get(str(self.settings.compiler), False)
 
     def validate(self):
-        if tools.Version(self.version) >= "1.51":
+        if tools.scm.Version(self.version) >= "1.51":
             if self.settings.compiler.get_safe("cppstd"):
-                tools.check_min_cppstd(self, 11)
+                tools.build.check_min_cppstd(self, 11)
 
             def lazy_lt_semver(v1, v2):
                 lv1 = [int(v) for v in v1.split(".")]
@@ -84,21 +85,21 @@ class GeographiclibConan(ConanFile):
             raise ConanInvalidConfiguration("extended, quadruple and variable precisions not yet supported in this recipe")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # it does not work on Windows but is not needed
-        tools.replace_in_file(cmakelists, "add_subdirectory (js)", "")
+        tools.files.replace_in_file(self, cmakelists, "add_subdirectory (js)", "")
         # Don't install system libs
-        tools.replace_in_file(cmakelists, "include (InstallRequiredSystemLibraries)", "")
+        tools.files.replace_in_file(self, cmakelists, "include (InstallRequiredSystemLibraries)", "")
         # Don't build tools if asked
         if not self.options.tools:
-            tools.replace_in_file(cmakelists, "add_subdirectory (tools)", "")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, cmakelists, "add_subdirectory (tools)", "")
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CMakeLists.txt"),
                                   "${TOOLS}", "")
 
     def _configure_cmake(self):
@@ -130,13 +131,13 @@ class GeographiclibConan(ConanFile):
         cmake.install()
         for folder in ["share", os.path.join("lib", "python"), os.path.join("lib", "pkgconfig"),
                        os.path.join("lib", "cmake"), "sbin", "python", "matlab", "doc", "cmake"]:
-            tools.rmdir(os.path.join(os.path.join(self.package_folder, folder)))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+            tools.files.rmdir(self, os.path.join(os.path.join(self.package_folder, folder)))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "geographiclib")
         self.cpp_info.set_property("cmake_target_name", "GeographicLib::GeographicLib")
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.defines.append("GEOGRAPHICLIB_SHARED_LIB={}".format("1" if self.options.shared else "0"))
 
         if self.options.tools:
