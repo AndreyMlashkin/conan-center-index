@@ -1,0 +1,93 @@
+Exporting package recipe
+cppcodec/0.2@andrei/test exports: File 'conandata.yml' found. Exporting it...
+cppcodec/0.2@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+cppcodec/0.2@andrei/test: A new conanfile.py version was exported
+cppcodec/0.2@andrei/test: Folder: /home/andrei/.conan/data/cppcodec/0.2/andrei/test/export
+cppcodec/0.2@andrei/test: Using the exported files summary hash as the recipe revision: 97de9a11f9c20ac36a0085d495f60c24 
+cppcodec/0.2@andrei/test: Source folder is corrupted, forcing removal
+cppcodec/0.2@andrei/test: Exported revision: 97de9a11f9c20ac36a0085d495f60c24
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+cppcodec/0.2@andrei/test (test package): Installing package
+Requirements
+    cppcodec/0.2@andrei/test from local cache - Cache
+Packages
+    cppcodec/0.2@andrei/test:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Build
+
+Installing (downloading, building) binaries...
+cppcodec/0.2@andrei/test: Configuring sources in /home/andrei/.conan/data/cppcodec/0.2/andrei/test/source
+cppcodec/0.2@andrei/test: 
+cppcodec/0.2@andrei/test: Building your package in /home/andrei/.conan/data/cppcodec/0.2/andrei/test/build/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cppcodec/0.2@andrei/test: Generator txt created conanbuildinfo.txt
+cppcodec/0.2@andrei/test: Aggregating env generators
+cppcodec/0.2@andrei/test: Calling build()
+cppcodec/0.2@andrei/test: Package '5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9' built
+cppcodec/0.2@andrei/test: Build folder /home/andrei/.conan/data/cppcodec/0.2/andrei/test/build/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cppcodec/0.2@andrei/test: Generated conaninfo.txt
+cppcodec/0.2@andrei/test: Generated conanbuildinfo.txt
+cppcodec/0.2@andrei/test: Generating the package
+cppcodec/0.2@andrei/test: Package folder /home/andrei/.conan/data/cppcodec/0.2/andrei/test/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+cppcodec/0.2@andrei/test: Calling package()
+cppcodec/0.2@andrei/test package(): Packaged 25 '.hpp' files
+cppcodec/0.2@andrei/test package(): Packaged 1 file: LICENSE
+cppcodec/0.2@andrei/test: Package '5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9' created
+cppcodec/0.2@andrei/test: Created package revision e88205a95f910b6c9291e8c6f24de932
+cppcodec/0.2@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+cppcodec/0.2@andrei/test (test package): Generator txt created conanbuildinfo.txt
+cppcodec/0.2@andrei/test (test package): Aggregating env generators
+cppcodec/0.2@andrei/test (test package): Generated conaninfo.txt
+cppcodec/0.2@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+cppcodec/0.2@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package'
+-----------------
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/cppcodec/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/example.dir/example.cpp.o
+[100%] Linking CXX executable bin/example
+[100%] Built target example
+cppcodec/0.2@andrei/test (test package): Running test()
+
+----Running------
+> bin/example
+-----------------
+decoded size ("any carnal pleasure"): 19
+C5Q7J833C5S6WRBC41R6RSB1EDTQ4S8
