@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from fnmatch import fnmatch
 import os
 
@@ -15,7 +16,7 @@ class ConcurrentqueueConan(ConanFile):
     _source_subfolder = "concurrentqueue"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("concurrentqueue-{}".format(self.version),
                   self._source_subfolder)
 
