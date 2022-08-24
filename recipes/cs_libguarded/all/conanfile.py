@@ -1,5 +1,5 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class CsLibguardedConan(ConanFile):
@@ -16,7 +16,7 @@ class CsLibguardedConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "cs_libguarded-libguarded-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
