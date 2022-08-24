@@ -1,0 +1,95 @@
+Exporting package recipe
+date/2.4.1@andrei/test exports: File 'conandata.yml' found. Exporting it...
+date/2.4.1@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+date/2.4.1@andrei/test exports_sources: Copied 5 '.patch' files
+date/2.4.1@andrei/test exports_sources: Copied 1 '.txt' file: CMakeLists.txt
+date/2.4.1@andrei/test: The stored package has not changed
+date/2.4.1@andrei/test: Using the exported files summary hash as the recipe revision: f740c2e045e1fb983670b742bf66f38a 
+date/2.4.1@andrei/test: Exported revision: f740c2e045e1fb983670b742bf66f38a
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+date/2.4.1@andrei/test (test package): Installing package
+Requirements
+    date/2.4.1@andrei/test from local cache - Cache
+    libcurl/7.78.0 from 'conancenter' - Cache
+    openssl/1.1.1q from 'conancenter' - Cache
+    zlib/1.2.12 from 'conancenter' - Cache
+Packages
+    date/2.4.1@andrei/test:0d8c1b0ef47cf01a64b1a514abc0dd36de15baad - Cache
+    libcurl/7.78.0:eb6291b083f2b4fc5db9af2c57b6c37ce322045e - Cache
+    openssl/1.1.1q:b6f45f661d53342860982dee02186c649186beee - Cache
+    zlib/1.2.12:b6f45f661d53342860982dee02186c649186beee - Cache
+
+Installing (downloading, building) binaries...
+openssl/1.1.1q: Already installed!
+zlib/1.2.12: Already installed!
+libcurl/7.78.0: Already installed!
+date/2.4.1@andrei/test: Already installed!
+date/2.4.1@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+date/2.4.1@andrei/test (test package): Generator txt created conanbuildinfo.txt
+date/2.4.1@andrei/test (test package): Aggregating env generators
+date/2.4.1@andrei/test (test package): Generated conaninfo.txt
+date/2.4.1@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/date/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+date/2.4.1@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/date/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/date/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -DDATE_HEADER_ONLY="<conans.model.options.PackageOptionValues object at 0x7f3330cacd30>" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/date/all/test_package'
+-----------------
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/date/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/date/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/test_package.dir/test_package.cpp.o
+[100%] Linking CXX executable bin/test_package
+[100%] Built target test_package
+date/2.4.1@andrei/test (test package): Running test()
+
+----Running------
+> bin/test_package
+-----------------
+2015-03-22
+2015-03-22
+2015-03-22
+2022-08-24 13:05:42.788 (sys time)
+2022-08-24 16:50:42.788 (local time)
