@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from from conan import ConanFile, tools
+from conans import CMake
 from conans.errors import ConanException
 import os
 
@@ -69,7 +70,7 @@ class BdwGcConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        if tools.Version(self.version) <= "8.0.6":
+        if tools.scm.Version(self.version) <= "8.0.6":
             del self.options.throw_bad_alloc_library
         if not self.options.cplusplus:
             del self.settings.compiler.libcxx
@@ -80,7 +81,7 @@ class BdwGcConan(ConanFile):
             self.requires("libatomic_ops/7.6.10")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -100,7 +101,7 @@ class BdwGcConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -116,7 +117,7 @@ class BdwGcConan(ConanFile):
         return readme_md[index+len(copyright_header):]
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "COPYRIGHT"), self._extract_copyright())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "COPYRIGHT"), self._extract_copyright())
         cmake = self._configure_cmake()
         cmake.install()
 
