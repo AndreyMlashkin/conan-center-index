@@ -1,0 +1,73 @@
+Exporting package recipe
+concurrentqueue/1.0.1@andrei/test exports: File 'conandata.yml' found. Exporting it...
+concurrentqueue/1.0.1@andrei/test exports: Copied 1 '.yml' file: conandata.yml
+concurrentqueue/1.0.1@andrei/test: The stored package has not changed
+concurrentqueue/1.0.1@andrei/test: Using the exported files summary hash as the recipe revision: db3c55d356a5aede8360483cafa3cb5b 
+concurrentqueue/1.0.1@andrei/test: Exported revision: db3c55d356a5aede8360483cafa3cb5b
+Configuration:
+[settings]
+arch=x86_64
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11.2
+os=Linux
+os_build=Linux
+[options]
+cmake:with_openssl=False
+vulkan-loader:shared=True
+[build_requires]
+[env]
+
+concurrentqueue/1.0.1@andrei/test (test package): Installing package
+Requirements
+    concurrentqueue/1.0.1@andrei/test from local cache - Cache
+Packages
+    concurrentqueue/1.0.1@andrei/test:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+
+Installing (downloading, building) binaries...
+concurrentqueue/1.0.1@andrei/test: Already installed!
+concurrentqueue/1.0.1@andrei/test (test package): Generator txt created conanbuildinfo.txt
+concurrentqueue/1.0.1@andrei/test (test package): Generator cmake created conanbuildinfo.cmake
+concurrentqueue/1.0.1@andrei/test (test package): Aggregating env generators
+concurrentqueue/1.0.1@andrei/test (test package): Generated conaninfo.txt
+concurrentqueue/1.0.1@andrei/test (test package): Generated graphinfo
+Using lockfile: '/home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/conan.lock'
+Using cached profile from lockfile
+concurrentqueue/1.0.1@andrei/test (test package): Calling build()
+
+----Running------
+> cd '/home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_CMAKE_CXX_STANDARD="17" -DCONAN_CMAKE_CXX_EXTENSIONS="OFF" -DCONAN_STD_CXX_FLAG="-std=c++17" -DCONAN_IN_LOCAL_CACHE="OFF" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="11.2" -DCONAN_CXX_FLAGS="-m64" -DCONAN_SHARED_LINKER_FLAGS="-m64" -DCONAN_C_FLAGS="-m64" -DCONAN_LIBCXX="libstdc++11" -DCMAKE_INSTALL_PREFIX="/home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d/package" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DCONAN_EXPORTED="1" -Wno-dev '/home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package'
+-----------------
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan setting CPP STANDARD: 17 WITH EXTENSIONS OFF
+-- Conan: Compiler GCC>=5, checking major version 11.2
+-- Conan: Checking correct version: 11.2
+-- Conan: C++ stdlib: libstdc++11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d
+
+----Running------
+> cmake --build '/home/andrei/sources/conan-center-index/recipes/concurrentqueue/all/test_package/build/723a985a2fff5b1a074e0cdab6051609ee91156d' '--' '-j12'
+-----------------
+[ 50%] Building CXX object CMakeFiles/example.dir/example.cpp.o
+[100%] Linking CXX executable bin/example
+[100%] Built target example
+concurrentqueue/1.0.1@andrei/test (test package): Running test()
+
+----Running------
+> bin/example
+-----------------
