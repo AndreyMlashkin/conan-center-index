@@ -1,6 +1,7 @@
 from conan.tools.files import apply_conandata_patches
 from conan.tools.microsoft import is_msvc
 from conans import ConanFile, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment, tools
+from conan.tools import files
 from conans.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import functools

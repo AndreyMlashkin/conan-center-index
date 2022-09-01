@@ -1,5 +1,6 @@
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version

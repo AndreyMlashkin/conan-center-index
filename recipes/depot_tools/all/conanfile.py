@@ -1,6 +1,7 @@
 import os
 import shutil
 from conan import ConanFile, tools
+from conan.tools import files
 
 
 class DepotToolsConan(ConanFile):

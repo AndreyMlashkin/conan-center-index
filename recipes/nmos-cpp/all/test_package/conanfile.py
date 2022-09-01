@@ -2,6 +2,7 @@ import os
 import subprocess
 from six import StringIO
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 
 class NmosCppTestPackageConan(ConanFile):

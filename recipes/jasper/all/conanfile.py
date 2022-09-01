@@ -103,12 +103,12 @@ class JasperConan(ConanFile):
             for dll_prefix in ["concrt", "msvcp", "vcruntime"]:
                 files.rm(self, "bin", os.path.join(self.package_folder),
                                            "{}*.dll".format(dll_prefix))
-        self._create_cmake_module_variables(
+        self._create_cmake_module_variables(self,
             os.path.join(self.package_folder, self._module_file_rel_path)
         )
 
     @staticmethod
-    def _create_cmake_module_variables(module_file):
+    def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\
             if(DEFINED Jasper_FOUND)
                 set(JASPER_FOUND ${Jasper_FOUND})

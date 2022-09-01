@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc
 from conan.tools.microsoft.visual import vs_ide_version
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 import functools

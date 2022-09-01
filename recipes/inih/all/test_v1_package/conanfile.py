@@ -1,5 +1,6 @@
 # pylint: skip-file
 from conans import ConanFile, CMake, tools
+from conan.tools import files
 import os
 import textwrap
 

@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc

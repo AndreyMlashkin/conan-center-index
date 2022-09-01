@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 import os
 
 required_conan_version = ">=1.28.0"

@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import conan.tools.files as tools_files

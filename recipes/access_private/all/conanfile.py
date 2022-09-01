@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile, tools
+from conan.tools import files
 from conan.tools.scm import Version
 
 class AccessPrivateConan(ConanFile):

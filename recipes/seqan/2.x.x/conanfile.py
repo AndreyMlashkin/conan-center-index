@@ -1,5 +1,6 @@
 import os
 from conan import ConanFile, tools
+from conan.tools import files
 from conan.errors import ConanInvalidConfiguration
 
 class SeqanConan(ConanFile):

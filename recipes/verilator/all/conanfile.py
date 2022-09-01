@@ -3,6 +3,7 @@ from conan.tools.files import get
 from conan.tools.files import rmdir
 from conan.tools.build import cross_building
 from conans import AutoToolsBuildEnvironment, tools
+from conan.tools import files
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
 from contextlib import contextmanager

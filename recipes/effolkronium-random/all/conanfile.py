@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile, tools
+from conan.tools import files
 
 class RandomConan(ConanFile):
     name = "effolkronium-random"

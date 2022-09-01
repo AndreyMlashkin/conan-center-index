@@ -2,6 +2,7 @@ from conan import ConanFile
 from conan.tools import files, scm, microsoft
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conans import CMake, Meson, tools
+from conan.tools import files
 from tempfile import TemporaryDirectory
 import functools
 import os

@@ -1,5 +1,6 @@
 
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 import os
 

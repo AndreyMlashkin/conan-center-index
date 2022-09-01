@@ -1,5 +1,6 @@
 from conan.tools.files import apply_conandata_patches
 from conan import ConanFile, tools
+from conan.tools import files
 from conan.errors import ConanInvalidConfiguration
 import os
 

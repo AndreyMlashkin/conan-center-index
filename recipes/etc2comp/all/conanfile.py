@@ -1,6 +1,7 @@
 import os
 import glob
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 
 class Etc2compConan(ConanFile):

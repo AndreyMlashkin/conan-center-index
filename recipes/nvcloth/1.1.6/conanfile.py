@@ -2,6 +2,7 @@ import os
 import shutil
 
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc_static_runtime, is_msvc

@@ -1,4 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, CMake, VisualStudioBuildEnvironment, tools
+from conan.tools import files
 import contextlib
 import functools
 import os

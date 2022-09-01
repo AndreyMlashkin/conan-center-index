@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+from conan.tools import files
 import functools
 
 required_conan_version = ">=1.33.0"

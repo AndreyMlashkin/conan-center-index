@@ -1,5 +1,6 @@
 import os
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
+from conan.tools import files
 from conans.errors import ConanInvalidConfiguration
 
 

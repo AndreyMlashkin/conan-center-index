@@ -1,4 +1,5 @@
 from conans import ConanFile, Meson, tools
+from conan.tools import files
 from conan.tools.files import rename
 from conan.errors import ConanInvalidConfiguration
 import glob

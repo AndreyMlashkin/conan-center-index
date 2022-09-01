@@ -3,6 +3,7 @@ import shutil
 import glob
 
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import Meson, VisualStudioBuildEnvironment
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc

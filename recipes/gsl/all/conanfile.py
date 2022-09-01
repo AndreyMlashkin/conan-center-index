@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import AutoToolsBuildEnvironment
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc

@@ -1,5 +1,6 @@
 import os
 from conan import ConanFile, tools
+from conan.tools import files
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version

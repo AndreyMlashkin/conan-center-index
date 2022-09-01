@@ -2,6 +2,7 @@ from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.files import rename
 from conan.tools.build import cross_building
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 import functools

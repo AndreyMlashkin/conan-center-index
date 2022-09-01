@@ -1,6 +1,7 @@
 import os
 import conan.tools.files
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
 import textwrap

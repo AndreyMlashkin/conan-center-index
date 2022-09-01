@@ -3,6 +3,7 @@ import os
 import textwrap
 
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 
 required_conan_version = ">=1.43.0"

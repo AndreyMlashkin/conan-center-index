@@ -1,4 +1,5 @@
 from conans import Meson, tools
+from conan.tools import files
 from conan import ConanFile
 from conan.tools.build import cross_building
 import os

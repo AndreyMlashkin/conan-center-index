@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import Meson, VisualStudioBuildEnvironment
 from conan.errors import ConanInvalidConfiguration
 import os

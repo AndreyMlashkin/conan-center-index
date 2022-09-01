@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import AutoToolsBuildEnvironment, MSBuild
 from conan.tools.scm import Version
 import os

@@ -1,4 +1,5 @@
 from conans import ConanFile, ConanFile, tools
+from conan.tools import files
 import os, glob
 
 class HippomocksConan(ConanFile):

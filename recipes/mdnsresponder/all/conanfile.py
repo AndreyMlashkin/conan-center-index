@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import AutoToolsBuildEnvironment, MSBuild
 from conan.errors import ConanInvalidConfiguration
 from conan.files.symlinks import absolute_to_relative_symlinks

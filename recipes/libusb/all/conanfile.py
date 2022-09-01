@@ -1,4 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, MSBuild, tools
+from conan.tools import files
 import os
 import re
 

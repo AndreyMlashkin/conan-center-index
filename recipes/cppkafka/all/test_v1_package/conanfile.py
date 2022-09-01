@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+from conan.tools import files
 import os
 
 class TestPackageConan(ConanFile):

@@ -1,4 +1,5 @@
 from conans import AutoToolsBuildEnvironment, tools
+from conan.tools import files
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, rmdir, chdir
