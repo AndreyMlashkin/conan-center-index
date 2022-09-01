@@ -1,4 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conan.tools.microsoft import is_msvc
 import os

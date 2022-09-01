@@ -1,5 +1,6 @@
 import os
 from conans import ConanFile, errors, tools
+from conan.tools.scm import Version
 from conan.tools import files
 
 class OutcomeConan(ConanFile):

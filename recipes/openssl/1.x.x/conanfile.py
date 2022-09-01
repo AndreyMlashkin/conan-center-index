@@ -3,6 +3,7 @@ from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.build import cross_building
 from conan.errors import ConanInvalidConfiguration
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from contextlib import contextmanager
 from functools import total_ordering

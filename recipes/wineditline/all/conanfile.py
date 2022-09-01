@@ -2,6 +2,7 @@ import functools
 import os
 
 from conan import ConanFile, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration

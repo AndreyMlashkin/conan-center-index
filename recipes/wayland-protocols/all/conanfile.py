@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conans import Meson, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conan.tools.scm import Version
 import os

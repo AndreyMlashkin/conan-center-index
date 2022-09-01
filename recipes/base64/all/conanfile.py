@@ -1,5 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, CMake, tools
+from conan.tools.scm import Version
 from conan.tools import files
 
 

@@ -2,6 +2,7 @@ import os
 import shutil
 
 from conan import ConanFile, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conans import Meson, RunEnvironment, CMake
 from conans.errors import ConanException

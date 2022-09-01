@@ -1,5 +1,6 @@
 from conan.tools.files import rename
 from conans import ConanFile, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from contextlib import contextmanager
 import functools

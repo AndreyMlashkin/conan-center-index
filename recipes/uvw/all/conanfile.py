@@ -2,6 +2,7 @@ import os
 import glob
 import re
 from conan import ConanFile, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conans.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.scm import Version

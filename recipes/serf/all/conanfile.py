@@ -1,4 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conans.errors import ConanException
 from contextlib import contextmanager

@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.files import rmdir, mkdir, save, load
 from conans import AutoToolsBuildEnvironment, tools
+from conan.tools.scm import Version
 from conan.tools import files
 import contextlib
 import glob

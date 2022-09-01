@@ -1,4 +1,5 @@
 from conans import ConanFile, Meson, tools
+from conan.tools.scm import Version
 from conan.tools import files
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc

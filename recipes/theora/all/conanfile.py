@@ -1,5 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag
 from conans import ConanFile, MSBuild, AutoToolsBuildEnvironment, tools
+from conan.tools.scm import Version
 from conan.tools import files
 import functools
 import os
