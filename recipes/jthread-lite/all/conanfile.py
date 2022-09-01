@@ -1,4 +1,6 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conan.tools import files
 import os
 
 required_conan_version = ">=1.43.0"
@@ -22,7 +24,7 @@ class JthreadLiteConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
