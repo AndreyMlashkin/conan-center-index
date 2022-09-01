@@ -1,4 +1,7 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conan.tools import files
+from conans import CMake
 import os
 
 
@@ -12,7 +15,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if not tools.build.cross_building(self, self.settings):
             bin_path = os.path.join("bin", "test_package")
             img_path = os.path.join(self.source_folder, "test.jxr")
             self.run("{0} {1}".format(bin_path, img_path), run_environment=True)

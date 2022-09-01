@@ -1,5 +1,8 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conan.tools import files
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -48,7 +51,7 @@ class JxrlibConan(ConanFile):
             raise ConanInvalidConfiguration("jxrlib shared not supported by Visual Studio")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -60,7 +63,7 @@ class JxrlibConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
