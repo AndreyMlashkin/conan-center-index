@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 import os.path
 
@@ -13,7 +14,7 @@ class LLVMCoreTestPackageConan(ConanFile):
         build_system.build()
 
     def test(self):
-        test_package = not tools.cross_building(self.settings)
+        test_package = not tools.build.cross_building(self, self.settings)
         if 'x86' not in str(self.settings.arch).lower():
             test_package = False
         elif str(self.options['llvm-core'].targets) not in ['all', 'X86']:

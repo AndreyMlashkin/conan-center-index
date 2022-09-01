@@ -1,6 +1,7 @@
 import functools
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.43.0"
 
@@ -33,7 +34,7 @@ class EnchantConan(ConanFile):
     def source(self):
         root = self._source_subfolder
         get_args = self.conan_data["sources"][self.version]
-        tools.get(**get_args, destination=root, strip_root=True)
+        tools.files.get(self, **get_args, destination=root, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -44,7 +45,7 @@ class EnchantConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         self._configure_cmake().build()
 
     def package(self):

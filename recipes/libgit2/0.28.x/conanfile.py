@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -49,7 +50,7 @@ class LibGit2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        if not tools.is_apple_os(self.settings.os):
+        if not tools.apple.is_apple_os(self):
             del self.options.with_iconv
 
     def configure(self):
@@ -75,12 +76,12 @@ class LibGit2Conan(ConanFile):
             self.requires("openssl/1.1.1o")
         if self._need_mbedtls:
             self.requires("mbedtls/3.1.0")
-        if tools.is_apple_os(self.settings.os) and self.options.with_iconv:
+        if tools.apple.is_apple_os(self) and self.options.with_iconv:
             self.requires("libiconv/1.16")
 
     def validate(self):
         if self.options.with_https == "security":
-            if not tools.is_apple_os(self.settings.os):
+            if not tools.apple.is_apple_os(self):
                 raise ConanInvalidConfiguration("security is only valid for Apple products")
         elif self.options.with_https == "winhttp":
             if self.settings.os != "Windows":
@@ -91,7 +92,7 @@ class LibGit2Conan(ConanFile):
                 raise ConanInvalidConfiguration("win32 is only valid on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     _cmake_https = {
@@ -132,7 +133,7 @@ class LibGit2Conan(ConanFile):
         return cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                               "FIND_PKGLIBRARIES(LIBSSH2 libssh2)",
                               "FIND_PACKAGE(Libssh2 REQUIRED)\n"
                               "\tSET(LIBSSH2_FOUND ON)\n"
@@ -149,7 +150,7 @@ class LibGit2Conan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libgit2")

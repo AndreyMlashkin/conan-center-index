@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -19,12 +20,12 @@ class UaNodeSetConan(ConanFile):
         return "source_subfolder"
 
     def _extract_license(self):
-        content = tools.load(os.path.join(self.source_folder, self._source_subfolder, "AnsiC", "opcua_clientapi.c"))
+        content = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "AnsiC", "opcua_clientapi.c"))
         license_contents = content[2:content.find("*/", 1)]
-        tools.save("LICENSE", license_contents)
+        tools.files.save(self, "LICENSE", license_contents)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         pass

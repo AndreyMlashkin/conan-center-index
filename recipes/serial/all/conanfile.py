@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration, ConanException
 
 
 class ConanRecipe(ConanFile):
@@ -37,7 +38,7 @@ class ConanRecipe(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version),
                   self._source_subfolder)
 
@@ -64,5 +65,5 @@ class ConanRecipe(ConanFile):
             self.cpp_info.system_libs = ["rt", "pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["setupapi"]
-        elif tools.is_apple_os(self.settings.os):
+        elif tools.apple.is_apple_os(self):
             self.cpp_info.frameworks = ["IOKit", "Foundation"]

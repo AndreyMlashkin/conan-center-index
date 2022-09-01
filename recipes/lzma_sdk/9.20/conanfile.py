@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment, VisualStudioBuildEnvironment
 import os
 
 required_conan_version = ">=1.33.0"
@@ -41,7 +42,7 @@ class LzmaSdkConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
         os.unlink(os.path.join(self._source_subfolder, "7zr.exe"))
         os.unlink(os.path.join(self._source_subfolder, "lzma.exe"))
 
@@ -74,14 +75,14 @@ class LzmaSdkConan(ConanFile):
         for make_dir, _ in self._msvc_build_dirs:
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
-                    with tools.chdir(make_dir):
+                    with tools.files.chdir(self, make_dir):
                         self.run("nmake /f makefile NEW_COMPILER=1 CPU={}".format(self._msvc_cpu))
 
     def _build_autotools(self):
         env_build = AutoToolsBuildEnvironment(self)
         with tools.environment_append(env_build.vars):
             for make_dir, _ in self._autotools_build_dirs:
-                with tools.chdir(make_dir):
+                with tools.files.chdir(self, make_dir):
                     args = [
                         "-f", "makefile.gcc",
                     ]
@@ -92,24 +93,24 @@ class LzmaSdkConan(ConanFile):
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CPP", "Build.mak"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CPP", "Build.mak"),
                                   "-MT\r", "-" + str(self.settings.compiler.runtime))
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CPP", "Build.mak"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CPP", "Build.mak"),
                                   "-MD\r", "-" + str(self.settings.compiler.runtime))
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CPP", "Build.mak"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CPP", "Build.mak"),
                                   " -WX ", " ")
 
         # Patches for other build systems
-        tools.replace_in_file(os.path.join(self._source_subfolder, "C", "Util", "7z", "makefile.gcc"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "C", "Util", "7z", "makefile.gcc"),
                               "CFLAGS = ",
                               "CFLAGS = -fpermissive ")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "C", "Util", "7z", "makefile.gcc"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "C", "Util", "7z", "makefile.gcc"),
                               ": 7zAlloc.c",
                               ": ../../7zAlloc.c")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "C", "Util", "Lzma", "makefile.gcc"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "C", "Util", "Lzma", "makefile.gcc"),
                               "CFLAGS = ",
                               "CFLAGS = -fpermissive ")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CPP", "Common", "MyString.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CPP", "Common", "MyString.h"),
                               "#ifdef _WIN32\r\n",
                               "#ifdef _WIN32\r\n#ifndef UNDER_CE\r\n#include <windows.h>\r\n#endif\r\n")
 

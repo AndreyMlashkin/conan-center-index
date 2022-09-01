@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.33.0"
@@ -18,16 +18,16 @@ class YasConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _extract_license(self):
-        header = tools.load(os.path.join(
+        header = tools.files.load(self, os.path.join(
             self.source_folder, self._source_subfolder,
             "include", "yas", "binary_oarchive.hpp"))
         license_contents = header[:header.find("#")] \
             .replace("//", "").replace("\n ", "\n").lstrip()
-        tools.save("LICENSE", license_contents)
+        tools.files.save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()

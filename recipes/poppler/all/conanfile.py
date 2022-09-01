@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -137,12 +138,12 @@ class PopplerConan(ConanFile):
 
         # C++ standard required
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("C++14 support required. Your compiler is unknown. Assuming it supports C++14.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++14 support required, which your compiler does not support.")
 
         if self.options.with_nss:
@@ -153,7 +154,7 @@ class PopplerConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -165,7 +166,7 @@ class PopplerConan(ConanFile):
 
     @property
     def _cppstd_required(self):
-        if self.options.with_qt and tools.Version(self.deps_cpp_info["qt"].version).major == "6":
+        if self.options.with_qt and tools.scm.Version(self.deps_cpp_info["qt"].version).major == "6":
             return 17
         else:
             return 14
@@ -202,7 +203,7 @@ class PopplerConan(ConanFile):
         self._cmake.definitions["ENABLE_LIBOPENJPEG"] = "openjpeg2" if self.options.with_openjpeg else "none"
         if self.options.with_openjpeg:
             # FIXME: openjpeg's cmake_find_package should provide these variables
-            self._cmake.definitions["OPENJPEG_MAJOR_VERSION"] = tools.Version(self.requires["openjpeg"].ref.version).major
+            self._cmake.definitions["OPENJPEG_MAJOR_VERSION"] = tools.scm.Version(self.requires["openjpeg"].ref.version).major
         self._cmake.definitions["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         self._cmake.definitions["ENABLE_LIBCURL"] = self.options.with_libcurl
 
@@ -210,8 +211,8 @@ class PopplerConan(ConanFile):
         self._cmake.definitions["FONT_CONFIGURATION"] = self.options.fontconfiguration
         self._cmake.definitions["BUILD_CPP_TESTS"] = False
         self._cmake.definitions["ENABLE_GTK_DOC"] = False
-        self._cmake.definitions["ENABLE_QT5"] = self.options.with_qt and tools.Version(self.deps_cpp_info["qt"].version).major == "5"
-        self._cmake.definitions["ENABLE_QT6"] = self.options.with_qt and tools.Version(self.deps_cpp_info["qt"].version).major == "6"
+        self._cmake.definitions["ENABLE_QT5"] = self.options.with_qt and tools.scm.Version(self.deps_cpp_info["qt"].version).major == "5"
+        self._cmake.definitions["ENABLE_QT6"] = self.options.with_qt and tools.scm.Version(self.deps_cpp_info["qt"].version).major == "6"
 
         self._cmake.definitions["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         self._cmake.definitions["ENABLE_DCTDECODER"] = self._dct_decoder
@@ -223,7 +224,7 @@ class PopplerConan(ConanFile):
 
         # Workaround for cross-build to at least iOS/tvOS/watchOS,
         # when dependencies are found with find_path() and find_library()
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_INCLUDE"] = "BOTH"
             self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_LIBRARY"] = "BOTH"
 
@@ -232,12 +233,12 @@ class PopplerConan(ConanFile):
 
     def _patch_sources(self):
         for patchdata in self.conan_data["patches"][self.version]:
-            tools.patch(**patchdata)
-        if tools.Version(self.version) < "21.07.0" and not self.options.shared:
+            tools.files.patch(self, **patchdata)
+        if tools.scm.Version(self.version) < "21.07.0" and not self.options.shared:
             poppler_global = os.path.join(self._source_subfolder, "cpp", "poppler-global.h")
-            tools.replace_in_file(poppler_global, "__declspec(dllimport)", "")
-            tools.replace_in_file(poppler_global, "__declspec(dllexport)", "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.replace_in_file(self, poppler_global, "__declspec(dllimport)", "")
+            tools.files.replace_in_file(self, poppler_global, "__declspec(dllexport)", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "FREETYPE_INCLUDE_DIRS",
                               "Freetype_INCLUDE_DIRS")
 
@@ -250,7 +251,7 @@ class PopplerConan(ConanFile):
         self.copy("COPYING*", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["libpoppler"].libs = ["poppler"]
@@ -312,7 +313,7 @@ class PopplerConan(ConanFile):
                 self.cpp_info.components["libpoppler-glib"].requires.append("gobject-introspection::gobject-introspection")
 
         if self.options.with_qt:
-            qt_major = tools.Version(self.deps_cpp_info["qt"].version).major
+            qt_major = tools.scm.Version(self.deps_cpp_info["qt"].version).major
             self.cpp_info.components["libpoppler-qt"].libs = ["poppler-qt{}".format(qt_major)]
             self.cpp_info.components["libpoppler-qt"].names["pkg_config"] = "poppler-qt{}".format(qt_major)
             self.cpp_info.components["libpoppler-qt"].requires = ["libpoppler", "qt::qtCore", "qt::qtGui", "qt::qtWidgets"]

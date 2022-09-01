@@ -1,8 +1,8 @@
 import os
 
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 
 class UnitsConan(ConanFile):
@@ -21,7 +21,7 @@ class UnitsConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
         minimum_version = {
             "clang": 3.4,
             "gcc": "4.9.3",
@@ -36,7 +36,7 @@ class UnitsConan(ConanFile):
                     "Compiler does not support C++14")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

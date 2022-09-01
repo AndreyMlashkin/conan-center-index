@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 required_conan_version = ">=1.29.1"
@@ -52,7 +53,7 @@ class CgnsConan(ConanFile):
             self.requires("hdf5/1.12.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("CGNS-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -73,7 +74,7 @@ class CgnsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build(target="cgns_shared" if self.options.shared else "cgns_static")

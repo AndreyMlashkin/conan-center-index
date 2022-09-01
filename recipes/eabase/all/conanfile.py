@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class EABaseConan(ConanFile):
@@ -17,7 +18,7 @@ class EABaseConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         folder_name = "EABase-{}".format(self.version)
         os.rename(folder_name, self._source_subfolder)
 

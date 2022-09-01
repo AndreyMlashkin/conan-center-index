@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.37.0"
@@ -21,16 +21,16 @@ class WglextConan(ConanFile):
             raise ConanInvalidConfiguration("wglext is only supported on Windows")
 
     def source(self):
-        tools.download(filename="wglext.h", **self.conan_data["sources"][self.version])
+        tools.files.download(self, filename="wglext.h", **self.conan_data["sources"][self.version])
 
     def package(self):
         self.copy(pattern="wglext.h", dst=os.path.join("include", "GL"))
-        license_data = tools.load(os.path.join(self.source_folder, "wglext.h"))
+        license_data = tools.files.load(self, os.path.join(self.source_folder, "wglext.h"))
         begin = license_data.find("/*") + len("/*")
         end = license_data.find("*/")
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
-        tools.save("LICENSE", license_data)
+        tools.files.save(self, "LICENSE", license_data)
         self.copy("LICENSE", dst="licenses")
 
     def package_id(self):

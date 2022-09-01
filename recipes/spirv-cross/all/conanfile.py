@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -78,12 +79,12 @@ class SpirvCrossConan(ConanFile):
             raise ConanInvalidConfiguration("hlsl, msl, cpp and reflect require glsl enabled")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
         if self.options.build_executable and not self._are_proper_binaries_available_for_executable:
@@ -142,10 +143,10 @@ class SpirvCrossConan(ConanFile):
         cmake.install()
         if self.options.build_executable and not self._are_proper_binaries_available_for_executable:
             self.copy(pattern="spirv-cross*", dst="bin", src=os.path.join("build_subfolder_exe", "bin"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.ilk")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.ilk", os.path.join(self.package_folder, "bin"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {target: "spirv-cross::{}".format(target) for target in self._spirv_cross_components.keys()}
@@ -161,7 +162,7 @@ class SpirvCrossConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

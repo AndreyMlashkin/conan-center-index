@@ -1,111 +1,89 @@
-from conan import ConanFile
-from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.layout import basic_layout
-from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.50.0"
+from conan.tools.build import cross_building
+from conan.tools.microsoft import is_msvc
+from conan import ConanFile, tools
+from conans import Meson
+from conan.errors import ConanInvalidConfiguration
+from conans.tools import rmdir
+
+required_conan_version = ">=1.33.0"
 
 
-class SerdConan(ConanFile):
+class Recipe(ConanFile):
     name = "serd"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://drobilla.net/software/serd.html"
     description = "A lightweight C library for RDF syntax"
     topics = "linked-data", "semantic-web", "rdf", "turtle", "trig", "ntriples", "nquads"
-    license = "ISC"
-
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "build_type", "compiler", "os", "arch"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
+        "fPIC": [True, False]
     }
     default_options = {
         "shared": False,
-        "fPIC": True,
+        "fPIC": True
     }
+    license = "ISC"
+
+    _meson = None
+
+    def source(self):
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self.folders.base_source,
+                  strip_root=True)
+
+    def build_requirements(self):
+        self.build_requires("pkgconf/1.7.4")
+        self.build_requires("meson/0.63.0")
 
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
 
     def configure(self):
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
 
-    def build_requirements(self):
-        self.tool_requires("meson/0.63.1")
-        self.tool_requires("pkgconf/1.7.4")
+    def validate(self):
+        if cross_building(self):
+            raise ConanInvalidConfiguration("Cross compiling is not working.")
+        if is_msvc(self):
+            raise ConanInvalidConfiguration("Meson packaging is broken for MSVC.")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = MesonToolchain(self)
-        tc.project_options["docs"] = "disabled"
-        tc.project_options["tests"] = "disabled"
-        tc.project_options["tools"] = "disabled"
-        # TODO: fixed in conan 1.51.0?
-        tc.project_options["bindir"] = "bin"
-        tc.project_options["libdir"] = "lib"
-        tc.generate()
-
-        env = VirtualBuildEnv(self)
-        env.generate(scope="build")
+    def _configure_meson(self):
+        if self._meson:
+            return self._meson
+        self._meson = Meson(self)
+        args = ["--wrap-mode=nofallback"]
+        defs = {"docs": "disabled", "tests": "disabled", "tools": "disabled"}
+        self._meson.configure(source_folder=self.folders.source_folder,
+                              build_folder=os.path.join(self.package_folder, "build"),
+                              args=args, defs=defs)
+        return self._meson
 
     def build(self):
-        meson = Meson(self)
-        meson.configure()
+        meson = self._configure_meson()
         meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        meson = Meson(self)
+        meson = self._configure_meson()
         meson.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(os.path.join(self.package_folder, "build"))
+        self.copy("COPYING", src=self.folders.base_source, dst="licenses")
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "serd-0")
-        libname = "serd"
-        if not (is_msvc(self) and self.options.shared):
-            libname += "-0"
+        libname = f"{self.name}-0"
         self.cpp_info.libs = [libname]
-        self.cpp_info.includedirs = [os.path.join("include", "serd-0")]
-        if self.settings.os == "Windows" and not self.options.shared:
-            self.cpp_info.defines.append("SERD_STATIC")
+        self.cpp_info.includedirs = [os.path.join("include", libname)]
+        self.cpp_info.set_property("pkg_config_name", libname)
+
+        # TODO: to remove in conan v2 once pkg_config generators removed
+        self.cpp_info.names["pkg_config"] = libname
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib"""
-    from conan.tools.files import rename
-    import glob
-    if not is_msvc(conanfile):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
-                    libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

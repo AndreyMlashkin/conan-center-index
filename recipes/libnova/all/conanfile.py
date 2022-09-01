@@ -1,11 +1,10 @@
-from conan import ConanFile
-from conan.errors import ConanException
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get
-import os
+from conan import ConanFile, tools
+from conans import CMake
+from conans.errors import ConanException
+import functools
 import requests
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.33.0"
 
 
 class LibnovaConan(ConanFile):
@@ -29,9 +28,16 @@ class LibnovaConan(ConanFile):
         "fPIC": True,
     }
 
+    generators = "cmake"
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -40,17 +46,8 @@ class LibnovaConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     @staticmethod
     def _generate_git_tag_archive_sourceforge(url, timeout=10, retry=2):
@@ -69,27 +66,29 @@ class LibnovaConan(ConanFile):
         self._generate_git_tag_archive_sourceforge(self.conan_data["sources"][self.version]["post"]["url"])
 
         # Download archive
-        get(self, **self.conan_data["sources"][self.version]["archive"],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["BUILD_SHARED_LIBRARY"] = self.options.shared
-        tc.generate()
+        tools.files.get(self, **self.conan_data["sources"][self.version]["archive"],
+                  destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
-    def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+    @functools.lru_cache(1)
+    def _configure_cmake(self):
         cmake = CMake(self)
+        cmake.definitions["BUILD_SHARED_LIBRARY"] = self.options.shared
+        cmake.configure()
+        return cmake
+
+    def package(self):
+        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
 
     def package_info(self):
         postfix = "d" if self.settings.build_type == "Debug" else ""
-        self.cpp_info.libs = [f"nova{postfix}"]
+        self.cpp_info.libs = ["nova{}".format(postfix)]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

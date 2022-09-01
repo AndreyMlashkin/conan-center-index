@@ -1,11 +1,9 @@
-from conan import ConanFile
+from conan import ConanFile, tools
+from conans import CMake
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get, rmdir
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class DiscountConan(ConanFile):
@@ -26,9 +24,17 @@ class DiscountConan(ConanFile):
         "fPIC": True,
     }
 
+    generators = "cmake"
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -37,48 +43,38 @@ class DiscountConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self):
             raise ConanInvalidConfiguration("discount doesn't support cross-build yet")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["DISCOUNT_MAKE_INSTALL"] = True
-        tc.variables["DISCOUNT_INSTALL_SAMPLES"] = False
-        tc.variables["DISCOUNT_ONLY_LIBRARY"] = True
-        # For shared msvc
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        # Relocatable shared lib on Macos
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-        tc.generate()
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions["DISCOUNT_MAKE_INSTALL"] = True
+        self._cmake.definitions["DISCOUNT_INSTALL_SAMPLES"] = False
+        self._cmake.definitions["DISCOUNT_ONLY_LIBRARY"] = True
+        self._cmake.configure()
+        return self._cmake
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "cmake"))
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "discount")

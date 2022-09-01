@@ -1,5 +1,6 @@
 from conan.tools.microsoft import is_msvc
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -62,7 +63,7 @@ class MinizipNgConan(ConanFile):
             del self.options.fPIC
             del self.options.with_iconv
             del self.options.with_libbsd
-        if not tools.is_apple_os(self.settings.os):
+        if not tools.apple.is_apple_os(self):
             del self.options.with_libcomp
 
     def configure(self):
@@ -94,7 +95,7 @@ class MinizipNgConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -116,7 +117,7 @@ class MinizipNgConan(ConanFile):
         return cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
                               "")
 
@@ -129,8 +130,8 @@ class MinizipNgConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "minizip")
@@ -139,11 +140,11 @@ class MinizipNgConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         prefix = "lib" if is_msvc(self) or self._is_clang_cl else ""
-        suffix = "" if tools.Version(self.version) < "3.0.5" or self.options.mz_compatibility else "-ng"
+        suffix = "" if tools.scm.Version(self.version) < "3.0.5" or self.options.mz_compatibility else "-ng"
         self.cpp_info.components["minizip"].libs = [f"{prefix}minizip{suffix}"]
         if self.options.with_lzma:
             self.cpp_info.components["minizip"].defines.append("HAVE_LZMA")
-        if tools.is_apple_os(self.settings.os) and self.options.get_safe("with_libcomp"):
+        if tools.apple.is_apple_os(self) and self.options.get_safe("with_libcomp"):
             self.cpp_info.components["minizip"].defines.append("HAVE_LIBCOMP")
         if self.options.with_bzip2:
             self.cpp_info.components["minizip"].defines.append("HAVE_BZIP2")

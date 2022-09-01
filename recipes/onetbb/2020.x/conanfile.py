@@ -1,6 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration, ConanException
 import os
 import textwrap
 
@@ -66,10 +66,10 @@ class OneTBBConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos":
-            if hasattr(self, "settings_build") and tools.cross_building(self):
+            if hasattr(self, "settings_build") and tools.build.cross_building(self):
                 # See logs from https://github.com/conan-io/conan-center-index/pull/8454
                 raise ConanInvalidConfiguration("Cross building on Macos is not yet supported. Contributions are welcome")
-            if self.settings.compiler == "apple-clang" and tools.Version(self.settings.compiler.version) < "8.0":
+            if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration("%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version))
         if not self.options.shared:
             self.output.warn("oneTBB strongly discourages usage of static linkage")
@@ -88,7 +88,7 @@ class OneTBBConan(ConanFile):
                 self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def build(self):
@@ -100,14 +100,14 @@ class OneTBBConan(ConanFile):
 
         # Get the version of the current compiler instead of gcc
         linux_include = os.path.join(self._source_subfolder, "build", "linux.inc")
-        tools.replace_in_file(linux_include, "shell gcc", "shell $(CC)")
-        tools.replace_in_file(linux_include, "= gcc", "= $(CC)")
+        tools.files.replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
+        tools.files.replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            tools.save(
+            tools.files.save(self, 
                 os.path.join(self._source_subfolder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
                 textwrap.dedent("""\
@@ -200,7 +200,7 @@ class OneTBBConan(ConanFile):
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")

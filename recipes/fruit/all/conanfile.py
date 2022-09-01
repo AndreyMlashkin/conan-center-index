@@ -1,6 +1,7 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 from fnmatch import fnmatch
 import os
 import tarfile
@@ -59,7 +60,7 @@ class FruitConan(ConanFile):
                                             " supported." % (self.name, compiler, compiler_version))
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     @property
     def _extracted_dir(self):
@@ -68,7 +69,7 @@ class FruitConan(ConanFile):
     def _get_source(self):
         if Version(self.version) == "3.4.0":
             filename = os.path.basename(self.conan_data["sources"][self.version]["url"])
-            tools.download(filename=filename, **self.conan_data["sources"][self.version])
+            tools.files.download(self, filename=filename, **self.conan_data["sources"][self.version])
 
             with tarfile.TarFile.open(filename, 'r:*') as tarredgzippedFile:
                 # NOTE: In fruit v3.4.0, The archive file contains the file names
@@ -81,7 +82,7 @@ class FruitConan(ConanFile):
                                     tarredgzippedFile.getmembers()))
                 tarredgzippedFile.extractall(".", members=members)
         else:
-            tools.get(**self.conan_data["sources"][self.version])
+            tools.files.get(self, **self.conan_data["sources"][self.version])
 
     def source(self):
         self._get_source()
@@ -102,7 +103,7 @@ class FruitConan(ConanFile):
     def _patch_files(self):
         if self.version in self.conan_data["patches"]:
             for patch in self.conan_data["patches"][self.version]:
-                tools.patch(**patch)
+                tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_files()
@@ -117,6 +118,6 @@ class FruitConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

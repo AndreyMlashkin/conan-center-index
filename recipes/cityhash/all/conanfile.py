@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import functools
 import os
@@ -59,7 +59,7 @@ class CityhashConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -70,7 +70,7 @@ class CityhashConan(ConanFile):
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link -nologo",
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -89,16 +89,16 @@ class CityhashConan(ConanFile):
         if self._is_msvc:
             autotools.cxx_flags.append("-EHsc")
             if not (self.settings.compiler == "Visual Studio" and \
-                    tools.Version(self.settings.compiler.version) < "12"):
+                    tools.scm.Version(self.settings.compiler.version) < "12"):
                 autotools.flags.append("-FS")
         autotools.configure(configure_dir=self._source_subfolder, args=args)
         return autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared lib on macOS
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -108,8 +108,8 @@ class CityhashConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["cityhash"]

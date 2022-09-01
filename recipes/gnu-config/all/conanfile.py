@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 from conans.errors import ConanException
 import os
 
@@ -22,11 +22,11 @@ class GnuConfigConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _extract_license(self):
-        txt_lines = tools.load(os.path.join(self.source_folder, self._source_subfolder, "config.guess")).splitlines()
+        txt_lines = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "config.guess")).splitlines()
         start_index = None
         end_index = None
         for line_i, line in enumerate(txt_lines):
@@ -41,7 +41,7 @@ class GnuConfigConan(ConanFile):
         return "\n".join(txt_lines[start_index:end_index])
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "COPYING"), self._extract_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "COPYING"), self._extract_license())
         self.copy("config.guess", src=self._source_subfolder, dst="bin")
         self.copy("config.sub", src=self._source_subfolder, dst="bin")
 

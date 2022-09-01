@@ -1,10 +1,8 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, get, rmdir
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.43.0"
 
 
 class FlacConan(ConanFile):
@@ -25,9 +23,17 @@ class FlacConan(ConanFile):
         "fPIC": True,
     }
 
+    generators = "cmake", "cmake_find_package"
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,43 +48,36 @@ class FlacConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.arch in ["x86", "x86_64"]:
-            self.tool_requires("nasm/2.15.05")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+            self.build_requires("nasm/2.15.05")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["BUILD_EXAMPLES"] = False
-        tc.variables["BUILD_DOCS"] = False
-        tc.variables["BUILD_TESTING"] = False
-        tc.generate()
-        cd = CMakeDeps(self)
-        cd.generate()
-        if self.settings.arch in ["x86", "x86_64"]:
-            envbuild = VirtualBuildEnv(self)
-            envbuild.generate(scope="build")
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions["BUILD_EXAMPLES"] = False
+        self._cmake.definitions["BUILD_DOCS"] = False
+        self._cmake.definitions["BUILD_TESTING"] = False
+        self._cmake.configure()
+        return self._cmake
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        cmake = CMake(self)
+        cmake = self._configure_cmake()
         cmake.install()
-        copy(self, "COPYING.*", src=self.source_folder,
-                                dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include", "share"),
-                          dst=os.path.join(self.package_folder, "include", "share"), keep_path=False)
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include", "share", "grabbag"),
-                          dst=os.path.join(self.package_folder, "include", "share", "grabbag"), keep_path=False)
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        self.copy(pattern="COPYING.*", dst="licenses", src=self._source_subfolder, keep_path=False)
+        self.copy(pattern="*.h", dst=os.path.join("include", "share"), src=os.path.join(self._source_subfolder, "include", "share"), keep_path=False)
+        self.copy(pattern="*.h", dst=os.path.join("include", "share", "grabbag"),
+                  src=os.path.join(self._source_subfolder, "include", "share", "grabbag"), keep_path=False)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "flac")

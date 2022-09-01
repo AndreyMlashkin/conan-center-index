@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -51,7 +52,7 @@ class TinkerforgeBindingsConan(ConanFile):
             raise ConanInvalidConfiguration("Static runtime + shared is failing to link")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=False)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=False)
 
     def _configure_cmake(self):
         if self._cmake:

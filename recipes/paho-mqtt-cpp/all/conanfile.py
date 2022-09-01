@@ -1,6 +1,7 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class PahoMqttCppConan(ConanFile):
@@ -38,7 +39,7 @@ class PahoMqttCppConan(ConanFile):
 
         minimal_cpp_standard = "11"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
         self.options["paho-mqtt-c"].shared = self.options.shared
         self.options["paho-mqtt-c"].ssl = self.options.ssl
@@ -50,13 +51,13 @@ class PahoMqttCppConan(ConanFile):
             raise ConanInvalidConfiguration("{} requires paho-mqtt-c to have a matching 'ssl' option.".format(self.name))
 
     def requirements(self):
-        if tools.Version(self.version) >= "1.2.0":
+        if tools.scm.Version(self.version) >= "1.2.0":
             self.requires("paho-mqtt-c/1.3.9")
         else:
             self.requires("paho-mqtt-c/1.3.1") # https://github.com/eclipse/paho.mqtt.cpp/releases/tag/v1.1
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -75,11 +76,11 @@ class PahoMqttCppConan(ConanFile):
         # Changed by https://github.com/eclipse/paho.mqtt.c/commit/f875768984574fede6065c8ede0a7eac890a6e09
         # and https://github.com/eclipse/paho.mqtt.c/commit/c116b725fff631180414a6e99701977715a4a690
         # FIXME: after https://github.com/conan-io/conan/pull/8053#pullrequestreview-541120387
-        if tools.Version(self.version) < "1.2.0" and tools.Version(self.deps_cpp_info["paho-mqtt-c"].version) >= "1.3.2":
+        if tools.scm.Version(self.version) < "1.2.0" and tools.scm.Version(self.deps_cpp_info["paho-mqtt-c"].version) >= "1.3.2":
             raise ConanInvalidConfiguration("{}/{} requires paho-mqtt-c =< 1.3.1".format(self.name, self.version))
 
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -89,7 +90,7 @@ class PahoMqttCppConan(ConanFile):
         self.copy("notice.html", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "PahoMqttCpp"

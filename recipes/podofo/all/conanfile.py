@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -87,11 +88,11 @@ class PodofoConan(ConanFile):
             self.requires("libunistring/0.9.10")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd") and tools.Version(self.version) >= "0.9.7":
-            tools.check_min_cppstd(self, 11)
+        if self.settings.compiler.get_safe("cppstd") and tools.scm.Version(self.version) >= "0.9.7":
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -102,7 +103,7 @@ class PodofoConan(ConanFile):
         cmake.definitions["PODOFO_BUILD_STATIC"] = not self.options.shared
         if not self.options.threadsafe:
             cmake.definitions["PODOFO_NO_MULTITHREAD"] = True
-        if not tools.valid_min_cppstd(self, 11) and tools.Version(self.version) >= "0.9.7":
+        if not tools.valid_min_cppstd(self, 11) and tools.scm.Version(self.version) >= "0.9.7":
             cmake.definitions["CMAKE_CXX_STANDARD"] = 11
 
         # To install relocatable shared lib on Macos
@@ -121,7 +122,7 @@ class PodofoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -129,10 +130,10 @@ class PodofoConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        podofo_version = tools.Version(self.version)
+        podofo_version = tools.scm.Version(self.version)
         pkg_config_name = f"libpodofo-{podofo_version.major}" if podofo_version < "0.9.7" else "libpodofo"
         self.cpp_info.set_property("pkg_config_name", pkg_config_name)
         self.cpp_info.names["pkg_config"] = pkg_config_name

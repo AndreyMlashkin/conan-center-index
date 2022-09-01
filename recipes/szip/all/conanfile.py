@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
@@ -55,12 +56,12 @@ class SzipConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
         cmake = self._configure_cmake()
         cmake.build()
@@ -75,7 +76,7 @@ class SzipConan(ConanFile):
         self._cmake.definitions["SZIP_BUILD_FRAMEWORKS"] = False
         self._cmake.definitions["SZIP_PACK_MACOSX_FRAMEWORK"] = False
         self._cmake.definitions["SZIP_ENABLE_LARGE_FILE"] = self.options.enable_large_file
-        if tools.cross_building(self, skip_x64_x86=True) and self.options.enable_large_file:
+        if tools.build.cross_building(self, self, skip_x64_x86=True) and self.options.enable_large_file:
             # Assume it works, otherwise raise in 'validate' function
             self._cmake.definitions["TEST_LFS_WORKS_RUN"] = True
             self._cmake.definitions["TEST_LFS_WORKS_RUN__TRYRUN_OUTPUT"] = True
@@ -102,7 +103,7 @@ class SzipConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -111,7 +112,7 @@ class SzipConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "szip")
         self.cpp_info.set_property("cmake_target_name", "szip-shared" if self.options.shared else "szip-static")
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

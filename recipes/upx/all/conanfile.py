@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -32,7 +33,7 @@ class UPXConan(ConanFile):
             raise ConanInvalidConfiguration(f"This recipe has no upx binary for os/arch={self.settings.os}/{self.settings.arch}")
 
     def build(self):
-        tools.get(**self._conan_data_sources(),
+        tools.files.get(self, **self._conan_data_sources(),
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

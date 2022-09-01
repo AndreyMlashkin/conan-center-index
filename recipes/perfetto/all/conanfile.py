@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 import os
 
@@ -41,13 +42,13 @@ class PerfettoConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < 7:
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < 7:
             raise ConanInvalidConfiguration ("perfetto requires gcc >= 7")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -66,7 +67,7 @@ class PerfettoConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()

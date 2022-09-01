@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.43.0"
@@ -22,15 +22,15 @@ class SpectraConan(ConanFile):
         self.requires("eigen/3.4.0")
 
     def validate(self):
-        if tools.Version(self.version) >= "1.0.0":
+        if tools.scm.Version(self.version) >= "1.0.0":
             if self.settings.compiler.get_safe("cppstd"):
-                tools.check_min_cppstd(self, 11)
+                tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

@@ -1,5 +1,6 @@
 import os
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -25,10 +26,10 @@ class LibCuckooConan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -44,7 +45,7 @@ class LibCuckooConan(ConanFile):
         # Copy license files
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         # Remove CMake config files (only files in share)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.header_only()

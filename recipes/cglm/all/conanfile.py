@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.29.1"
@@ -51,7 +52,7 @@ class CglmConan(ConanFile):
             del self.settings.os
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -67,7 +68,7 @@ class CglmConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if not self.options.header_only:
             cmake = self._configure_cmake()
@@ -82,8 +83,8 @@ class CglmConan(ConanFile):
             cmake = self._configure_cmake()
             cmake.install()
 
-            tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cglm")

@@ -1,6 +1,7 @@
-from conans import ConanFile, CMake, tools
-from conans.tools import Version, check_min_cppstd
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.tools.scm import Version, check_min_cppstd
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -45,14 +46,14 @@ class MPUnitsConan(ConanFile):
             check_min_cppstd(self, "20")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
         cmake = CMake(self)
         cmake.configure(source_folder=os.path.join(self._source_subfolder, "src"))
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_id(self):
         self.info.header_only()

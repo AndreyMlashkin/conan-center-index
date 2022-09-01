@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, MSBuild, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import shutil
 
@@ -45,7 +45,7 @@ class LibStudXmlConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
-            if tools.Version(self.settings.compiler.version) < "9":
+            if tools.scm.Version(self.settings.compiler.version) < "9":
                 raise ConanInvalidConfiguration("Visual Studio {} is not supported.".format(self.settings.compiler.version))
 
     @property
@@ -60,7 +60,7 @@ class LibStudXmlConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -76,7 +76,7 @@ class LibStudXmlConan(ConanFile):
         return self._autotools
 
     def _build_vs(self):
-        vc_ver = int(tools.Version(self.settings.compiler.version).major)
+        vc_ver = int(tools.scm.Version(self.settings.compiler.version).major)
         sln_path = None
         def get_sln_path():
             return os.path.join(self._source_subfolder, "libstudxml-vc{}.sln".format(vc_ver))
@@ -89,8 +89,8 @@ class LibStudXmlConan(ConanFile):
         proj_path = os.path.join(self._source_subfolder, "xml", "libstudxml-vc{}.vcxproj".format(vc_ver))
 
         if not self.options.shared:
-            tools.replace_in_file(proj_path, "DynamicLibrary", "StaticLibrary")
-            tools.replace_in_file(proj_path, "LIBSTUDXML_DYNAMIC_LIB", "LIBSTUDXML_STATIC_LIB")
+            tools.files.replace_in_file(self, proj_path, "DynamicLibrary", "StaticLibrary")
+            tools.files.replace_in_file(self, proj_path, "LIBSTUDXML_DYNAMIC_LIB", "LIBSTUDXML_STATIC_LIB")
 
         msbuild = MSBuild(self)
         msbuild.build(sln_path, platforms={"x86": "Win32"})
@@ -108,9 +108,9 @@ class LibStudXmlConan(ConanFile):
         if self.settings.compiler.get_safe("libcxx") == "libc++":
             # libc++ includes a file called 'version', and since libstudxml adds source_subfolder as an
             # include dir, libc++ ends up including their 'version' file instead, causing a compile error
-            tools.remove_files_by_mask(self._source_subfolder, "version")
+            tools.files.rm(self, "version", self._source_subfolder)
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
 
         autotools = self._configure_autotools()
@@ -118,7 +118,7 @@ class LibStudXmlConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if self.settings.compiler == "Visual Studio":
             self._build_vs()
@@ -151,12 +151,12 @@ class LibStudXmlConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "libstudxml.la")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, "libstudxml.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.names["pkg_config"] = "libstudxml"
 
         # If built with makefile, static library mechanism is provided by their buildsystem already

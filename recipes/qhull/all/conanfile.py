@@ -1,10 +1,8 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get, rmdir
-from conan.tools.microsoft import is_msvc
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.43.0"
 
 
 class QhullConan(ConanFile):
@@ -30,9 +28,25 @@ class QhullConan(ConanFile):
         "reentrant": True,
     }
 
+    generators = "cmake"
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
+
+    @property
+    def _is_msvc(self):
+        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
+
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -41,55 +55,49 @@ class QhullConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def package_id(self):
         del self.info.options.reentrant
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.generate()
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.configure(build_folder=self._build_subfolder)
+        return self._cmake
+
     def package(self):
-        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("COPYING.txt", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "doc"))
-        rmdir(self, os.path.join(self.package_folder, "man"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Qhull")
-        self.cpp_info.set_property("cmake_target_name", f"Qhull::{self._qhull_cmake_name}")
+        self.cpp_info.set_property("cmake_target_name", "Qhull::{}".format(self._qhull_cmake_name))
         self.cpp_info.set_property("pkg_config_name", self._qhull_pkgconfig_name)
 
         # TODO: back to global scope once cmake_find_package* generators removed
         self.cpp_info.components["libqhull"].libs = [self._qhull_lib_name]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libqhull"].system_libs.append("m")
-        if is_msvc(self) and self.options.shared:
+        if self._is_msvc and self.options.shared:
             self.cpp_info.components["libqhull"].defines.extend(["qh_dllimport"])
 
         bin_path = os.path.join(self.package_folder, "bin")
@@ -103,7 +111,7 @@ class QhullConan(ConanFile):
         self.cpp_info.components["libqhull"].names["cmake_find_package"] = self._qhull_cmake_name
         self.cpp_info.components["libqhull"].names["cmake_find_package_multi"] = self._qhull_cmake_name
         self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name
-        self.cpp_info.components["libqhull"].set_property("cmake_target_name", f"Qhull::{self._qhull_cmake_name}")
+        self.cpp_info.components["libqhull"].set_property("cmake_target_name", "Qhull::{}".format(self._qhull_cmake_name))
         self.cpp_info.components["libqhull"].set_property("pkg_config_name", self._qhull_pkgconfig_name)
 
     @property

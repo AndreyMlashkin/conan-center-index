@@ -63,14 +63,14 @@ class ReadosmConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_msvc(self):
         target = "readosm_i.lib" if self.options.shared else "readosm.lib"
         optflags = ["-DDLL_EXPORT"] if self.options.shared else []
         system_libs = [lib + ".lib" for lib in self.deps_cpp_info.system_libs]
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     self.run("nmake -f makefile.vc {} OPTFLAGS=\"{}\" SYSTEM_LIBS=\"{}\"".format(target,
@@ -79,18 +79,18 @@ class ReadosmConan(ConanFile):
 
     def _build_autotools(self):
         # fix MinGW
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure.ac"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
                               "AC_CHECK_LIB(z,",
                               "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]))
         # Disable tests & examples
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.am"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
                               "SUBDIRS = headers src tests examples",
                               "SUBDIRS = headers src")
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # Relocatable shared lib for Apple platforms
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             autotools = self._configure_autotools()
             autotools.make()
 
@@ -108,7 +108,7 @@ class ReadosmConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
@@ -121,11 +121,11 @@ class ReadosmConan(ConanFile):
             self.copy("*.lib", dst="lib", src=self._source_subfolder)
             self.copy("*.dll", dst="bin", src=self._source_subfolder)
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 autotools = self._configure_autotools()
                 autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "readosm")

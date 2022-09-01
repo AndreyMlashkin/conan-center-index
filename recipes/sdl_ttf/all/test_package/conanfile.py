@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -12,7 +13,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
             ttf_path = os.path.join(self.source_folder, "OpenSans-Bold.ttf")
             self.run("{} {}".format(bin_path, ttf_path), run_environment=True)

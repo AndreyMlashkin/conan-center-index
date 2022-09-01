@@ -1,5 +1,6 @@
 from conan.tools.files import rename
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import contextlib
 import os
 
@@ -63,7 +64,7 @@ class LibX264Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -88,7 +89,7 @@ class LibX264Conan(ConanFile):
         args = [
             "--bit-depth=%s" % str(self.options.bit_depth),
             "--disable-cli",
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
+            "--prefix={}".format(tools.microsoft.unix_path(self, self.package_folder)),
         ]
         if self.options.shared:
             args.append("--enable-shared")
@@ -107,11 +108,11 @@ class LibX264Conan(ConanFile):
         if self._with_nasm:
             # FIXME: get using user_build_info
             self._override_env["AS"] = os.path.join(self.dependencies.build["nasm"].package_folder, "bin", "nasm{}".format(".exe" if tools.os_info.is_windows else "")).replace("\\", "/")
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             if self.settings.os == "Android":
                 # the as of ndk does not work well for building libx264
                 self._override_env["AS"] = os.environ["CC"]
-                ndk_root = tools.unix_path(os.environ["NDK_ROOT"])
+                ndk_root = tools.microsoft.unix_path(self, os.environ["NDK_ROOT"])
                 arch = {
                     "armv7": "arm",
                     "armv8": "aarch64",
@@ -123,7 +124,7 @@ class LibX264Conan(ConanFile):
         if self._is_msvc:
             self._override_env["CC"] = "cl -nologo"
             extra_cflags.extend(self._autotools.flags)
-            if not (self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "12"):
+            if not (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "12"):
                 extra_cflags.append("-FS")
         build_canonical_name = None
         host_canonical_name = None
@@ -143,7 +144,7 @@ class LibX264Conan(ConanFile):
     def build(self):
         with self._build_context():
             # relocatable shared lib on macOS
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "-install_name \\$(DESTDIR)\\$(libdir)/",
                                   "-install_name @rpath/")
             autotools = self._configure_autotools()
@@ -154,7 +155,7 @@ class LibX264Conan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self._is_msvc:
             ext = ".dll.lib" if self.options.shared else ".lib"
             rename(self, os.path.join(self.package_folder, "lib", "libx264{}".format(ext)),

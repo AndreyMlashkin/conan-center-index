@@ -56,7 +56,7 @@ class Argtable2Conan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -92,12 +92,12 @@ class Argtable2Conan(ConanFile):
         autotools.libs = []
         vars = " ".join("CONAN_{}=\"{}\"".format(k, v) for k, v in autotools.vars.items())
         with tools.vcvars(self.settings):
-            with tools.chdir(os.path.join(self._source_subfolder, "src")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src")):
                 self.run("nmake -f Makefile.nmake {} {}".format(target, vars), run_environment=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
             self._run_nmake("argtable2.dll" if self.options.shared else "argtable2.lib")
         else:
@@ -117,9 +117,9 @@ class Argtable2Conan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["argtable2"]

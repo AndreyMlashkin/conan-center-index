@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.29.1"
@@ -49,7 +49,7 @@ class ResiprocateConan(ConanFile):
             self.requires("libmysqlclient/8.0.29")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
 
     def _configure_autotools(self):
@@ -82,8 +82,8 @@ class ResiprocateConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(os.path.join(self.package_folder, "share")))
-        tools.remove_files_by_mask(os.path.join(self.package_folder), "*.la")
+        tools.files.rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder))
 
     def package_info(self):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]

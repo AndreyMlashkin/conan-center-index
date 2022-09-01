@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import contextlib
 import os
 
@@ -64,7 +65,7 @@ class ImakeConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -76,9 +77,9 @@ class ImakeConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CPP": "{} cl -E".format(tools.unix_path(self._user_info_build["automake"].compile)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CPP": "{} cl -E".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -120,8 +121,8 @@ class ImakeConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        # tools.replace_in_file(os.path.join(self._source_subfolder, ""))
+            tools.files.patch(self, **patch)
+        # tools.files.replace_in_file(self, os.path.join(self._source_subfolder, ""))
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make(args=["V=1"])
@@ -131,7 +132,7 @@ class ImakeConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

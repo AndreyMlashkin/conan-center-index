@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 import os
 
@@ -57,12 +58,12 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def validate(self):
         compiler_name = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         # Exclude compiler.cppstd < 17
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            tools.build.check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn("%s recipe lacks information about the %s compiler"
                              " standard version support." % (self.name, compiler_name))
@@ -87,7 +88,7 @@ class TCSBankUriTemplateConan(ConanFile):
                                             ' or "compiler.libcxx=libc++"' % self.name)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         cmake = self._configure_cmake()
@@ -97,11 +98,11 @@ class TCSBankUriTemplateConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "uri-template"
         self.cpp_info.names["cmake_find_package"] = "uri-template"
         self.cpp_info.names["cmake_find_package_multi"] = "uri-template"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

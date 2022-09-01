@@ -1,9 +1,8 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
-import os
+from conan import ConanFile, tools
+from conans import CMake
+import functools
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.33.0"
 
 
 class HttpParserConan(ConanFile):
@@ -25,6 +24,11 @@ class HttpParserConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt"
+    generators = "cmake"
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -33,35 +37,26 @@ class HttpParserConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        del self.settings.compiler.cppstd
+        del self.settings.compiler.libcxx
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    @functools.lru_cache(1)
+    def _configure_cmake(self):
+        cmake = CMake(self)
+        cmake.configure()
+        return cmake
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["HTTP_PARSER_SRC_DIR"] = self.source_folder.replace("\\", "/")
-        tc.generate()
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE-MIT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("LICENSE-MIT", src=self._source_subfolder, dst="licenses")
+        cmake = self._configure_cmake()
         cmake.install()
 
     def package_info(self):

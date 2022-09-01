@@ -1,8 +1,9 @@
 import functools
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
@@ -39,7 +40,7 @@ class WineditlineConan(ConanFile):
     def source(self):
         root = self._source_subfolder
         get_args = self.conan_data["sources"][self.version]
-        tools.get(**get_args, destination=root, strip_root=True)
+        tools.files.get(self, **get_args, destination=root, strip_root=True)
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -53,7 +54,7 @@ class WineditlineConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         self._configure_cmake().build()
 
     def package(self):

@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
@@ -80,7 +81,7 @@ class ICUBase(ConanFile):
         del self.info.options.with_unit_tests  # ICU unit testing shouldn't affect the package's ID
         del self.info.options.silent  # Verbosity doesn't affect package's ID
         if self.info.options.dat_package_file:
-            dat_package_file_sha256 = tools.sha256sum(str(self.info.options.dat_package_file))
+            dat_package_file_sha256 = tools.files.check_sha256(self, str(self.info.options.dat_package_file))
             self.info.options.dat_package_file = dat_package_file_sha256
 
     @property
@@ -91,11 +92,11 @@ class ICUBase(ConanFile):
         if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
-        if tools.cross_building(self, skip_x64_x86=True) and hasattr(self, 'settings_build'):
+        if tools.build.cross_building(self, self, skip_x64_x86=True) and hasattr(self, 'settings_build'):
             self.build_requires("icu/{}".format(self.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         self._patch_sources()
@@ -113,16 +114,16 @@ class ICUBase(ConanFile):
             build_env.update({'CC': 'cl', 'CXX': 'cl'})
         with tools.vcvars(self.settings) if self._is_msvc else tools.no_op():
             with tools.environment_append(build_env):
-                with tools.chdir(build_dir):
+                with tools.files.chdir(self, build_dir):
                     # workaround for https://unicode-org.atlassian.net/browse/ICU-20531
                     os.makedirs(os.path.join("data", "out", "tmp"))
                     # workaround for "No rule to make target 'out/tmp/dirs.timestamp'"
-                    tools.save(os.path.join("data", "out", "tmp", "dirs.timestamp"), "")
+                    tools.files.save(self, os.path.join("data", "out", "tmp", "dirs.timestamp"), "")
 
                     self.run(self._build_config_cmd, win_bash=tools.os_info.is_windows)
                     command = "{make} {silent} -j {cpu_count}".format(make=self._make_tool,
                                                                       silent=self._silent,
-                                                                      cpu_count=tools.cpu_count())
+                                                                      cpu_count=tools.cpu_count(self, ))
                     self.run(command, win_bash=tools.os_info.is_windows)
                     if self.options.with_unit_tests:
                         command = "{make} {silent} check".format(make=self._make_tool,
@@ -131,20 +132,20 @@ class ICUBase(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if tools.os_info.is_windows:
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
             srcdir = os.path.join(self.build_folder, self._source_subfolder, "source")
             makeconv_cpp = os.path.join(srcdir, "tools", "makeconv", "makeconv.cpp")
-            tools.replace_in_file(makeconv_cpp,
+            tools.files.replace_in_file(self, makeconv_cpp,
                                   "pathBuf.appendPathPart(arg, localError);",
                                   "pathBuf.append(\"/\", localError); pathBuf.append(arg, localError);")
 
         # relocatable shared libs on macOS
         mh_darwin = os.path.join(self._source_subfolder, "source", "config", "mh-darwin")
-        tools.replace_in_file(mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
+        tools.files.replace_in_file(self, 
             mh_darwin,
             "-install_name $(notdir $(MIDDLE_SO_TARGET)) $(PKGDATA_TRAILING_SPACE)",
             "-install_name @rpath/$(notdir $(MIDDLE_SO_TARGET))",
@@ -158,10 +159,10 @@ class ICUBase(ConanFile):
             self._env_build.flags.append("-FS")
         if not self.options.shared:
             self._env_build.defines.append("U_STATIC_IMPLEMENTATION")
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self._env_build.defines.append("_DARWIN_C_SOURCE")
         if "msys2" in self.deps_user_info:
-            self._env_build.vars["PYTHON"] = tools.unix_path(os.path.join(self.deps_env_info["msys2"].MSYS_BIN, "python"), tools.MSYS2)
+            self._env_build.vars["PYTHON"] = tools.microsoft.unix_path(self, os.path.join(self.deps_env_info["msys2"].MSYS_BIN, "python"), tools.MSYS2)
         return self._env_build
 
     @property
@@ -187,7 +188,7 @@ class ICUBase(ConanFile):
             args.append("--disable-extras")
 
         env_build = self._configure_autotools()
-        if tools.cross_building(self, skip_x64_x86=True):
+        if tools.build.cross_building(self, self, skip_x64_x86=True):
             if self.settings.os in ["iOS", "tvOS", "watchOS"]:
                 args.append("--host={}".format(tools.get_gnu_triplet("Macos", str(self.settings.arch))))
             elif env_build.host:
@@ -239,7 +240,7 @@ class ICUBase(ConanFile):
         build_dir = os.path.join(self.build_folder, self._source_subfolder, "build")
         with tools.vcvars(self.settings) if self._is_msvc else tools.no_op():
             with tools.environment_append(env_build.vars):
-                with tools.chdir(build_dir):
+                with tools.files.chdir(self, build_dir):
                     command = "{make} {silent} install".format(make=self._make_tool,
                                                                silent=self._silent)
                     self.run(command, win_bash=tools.os_info.is_windows)
@@ -248,17 +249,17 @@ class ICUBase(ConanFile):
             shutil.move(dll, os.path.join(self.package_folder, "bin"))
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
-            tools.mkdir(os.path.join(self.package_folder, "res"))
+            tools.files.mkdir(self, os.path.join(self.package_folder, "res"))
             shutil.move(self._data_path, os.path.join(self.package_folder, "res"))
 
         # Copy some files required for cross-compiling
         self.copy("icucross.mk", src=os.path.join(build_dir, "config"), dst="config")
         self.copy("icucross.inc", src=os.path.join(build_dir, "config"), dst="config")
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "icu"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "man"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "icu"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     @property
     def _data_path(self):

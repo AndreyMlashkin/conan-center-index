@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -62,7 +63,7 @@ class QCoroConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 20)
+            tools.build.check_min_cppstd(self, 20)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -85,7 +86,7 @@ class QCoroConan(ConanFile):
             print("Your compiler is {} {} and is compatible.".format(str(self.settings.compiler), compiler_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -103,7 +104,7 @@ class QCoroConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -113,7 +114,7 @@ class QCoroConan(ConanFile):
         cmake.install()
 
         for mask in ["Find*.cmake", "*Config*.cmake", "*-config.cmake", "*Targets*.cmake"]:
-            tools.remove_files_by_mask(self.package_folder, mask)
+            tools.files.rm(self, mask, self.package_folder)
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "QCoro6"

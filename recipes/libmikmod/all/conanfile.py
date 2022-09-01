@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -52,7 +53,7 @@ class LibmikmodConan(ConanFile):
             del self.options.with_oss
             del self.options.with_pulse
         # Apple
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             del self.options.with_coreaudio
 
     def configure(self):
@@ -69,7 +70,7 @@ class LibmikmodConan(ConanFile):
                 self.requires("pulseaudio/14.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -90,18 +91,18 @@ class LibmikmodConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "CMAKE_SOURCE_DIR",
                               "PROJECT_SOURCE_DIR")
 
          # Ensure missing dependencies yields errors
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "MESSAGE(WARNING",
                               "MESSAGE(FATAL_ERROR")
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "drivers", "drv_alsa.c"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "drivers", "drv_alsa.c"),
                               "alsa_pcm_close(pcm_h);",
                               "if (pcm_h) alsa_pcm_close(pcm_h);")
 
@@ -114,11 +115,11 @@ class LibmikmodConan(ConanFile):
         cmake.install()
         os.remove(os.path.join(self.package_folder, "bin", "libmikmod-config"))
         if not self.options.shared:
-            tools.rmdir(os.path.join(self.package_folder, "bin"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.defines = ["MIKMOD_STATIC"]
         self.cpp_info.filenames["pkg_config"] = "libmikmod"

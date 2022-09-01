@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class Rvo2Conan(ConanFile):
@@ -38,7 +39,7 @@ class Rvo2Conan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "RVO2-{}".format(self.version)
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -50,13 +51,13 @@ class Rvo2Conan(ConanFile):
         return self._cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                     "add_subdirectory(examples)",
                     "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                     "DESTINATION include",
                     "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                     "RVO DESTINATION lib",
                     "RVO RUNTIME LIBRARY ARCHIVE")
 
@@ -71,4 +72,4 @@ class Rvo2Conan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

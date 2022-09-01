@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -47,7 +48,7 @@ class FastCDRConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self._is_msvc and self.options.shared and "MT" in msvc_runtime_flag(self):
             # This combination leads to an fast-cdr error when linking
             # linking dynamic '*.dll' and static MT runtime
@@ -56,7 +57,7 @@ class FastCDRConan(ConanFile):
             raise ConanInvalidConfiguration("Mixing a dll eprosima library with a static runtime is a bad idea")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -75,13 +76,13 @@ class FastCDRConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, 
             directory=os.path.join(self.package_folder, "lib"),
             pattern="*.pdb"
         )
-        tools.remove_files_by_mask(
+        tools.files.rm(self, 
             directory=os.path.join(self.package_folder, "bin"),
             pattern="*.pdb"
         )
@@ -102,7 +103,7 @@ class FastCDRConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -111,7 +112,7 @@ class FastCDRConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fastcdr")
         self.cpp_info.set_property("cmake_target_name", "fastcdr")
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("FASTCDR_DYN_LINK")
 

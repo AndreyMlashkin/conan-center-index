@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -54,23 +55,23 @@ class SQLiteCppConan(ConanFile):
         self.requires("sqlite3/3.38.5")
 
     def validate(self):
-        if tools.Version(self.version) >= "3.0.0" and self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+        if tools.scm.Version(self.version) >= "3.0.0" and self.settings.compiler.get_safe("cppstd"):
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("SQLiteCpp can not be built as shared lib on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.compiler == "clang" and \
-           tools.Version(self.settings.compiler.version) < "6.0" and \
+           tools.scm.Version(self.settings.compiler.version) < "6.0" and \
            self.settings.compiler.libcxx == "libc++" and \
-           tools.Version(self.version) < "3":
-            tools.replace_in_file(
+           tools.scm.Version(self.version) < "3":
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "include", "SQLiteCpp", "Utils.h"),
                 "const nullptr_t nullptr = {};",
                 "")
@@ -98,7 +99,7 @@ class SQLiteCppConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -116,7 +117,7 @@ class SQLiteCppConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

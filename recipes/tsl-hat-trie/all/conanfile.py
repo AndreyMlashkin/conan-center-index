@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.43.0"
@@ -25,12 +25,12 @@ class TslHatTrieConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        tools.rmdir(os.path.join(self._source_subfolder, "include", "tsl", "array-hash"))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "include", "tsl", "htrie_hash.h"),
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "include", "tsl", "array-hash"))
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "include", "tsl", "htrie_hash.h"),
                               '#include "array-hash/', '#include "tsl/')
 
     def package(self):

@@ -1,10 +1,7 @@
-from conan import ConanFile
-from conan.tools.build import check_min_cppstd
-from conan.tools.files import copy, get
-from conan.tools.layout import basic_layout
+from conan import ConanFile, tools
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class FastFloatConan(ConanFile):
@@ -15,39 +12,34 @@ class FastFloatConan(ConanFile):
     topics = ("fast_float", "conversion", "from_chars")
     homepage = "https://github.com/fastfloat/fast_float"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+
+    settings = "compiler"
+
     no_copy_source = True
 
-    def package_id(self):
-        self.info.clear()
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
 
-    def validate(self):
+    def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def package_id(self):
+        self.info.header_only()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def build(self):
-        pass
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
+        self.copy("*", dst="include", src=os.path.join(self._source_subfolder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "FastFloat")
         self.cpp_info.set_property("cmake_target_name", "FastFloat::fast_float")
-        self.cpp_info.bindirs = []
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
 
-        # TODO: to remove in conan v2 once legacy generators removed
         self.cpp_info.names["cmake_find_package"] = "FastFloat"
         self.cpp_info.names["cmake_find_package_multi"] = "FastFloat"
         self.cpp_info.components["fastfloat"].names["cmake_find_package"] = "fast_float"

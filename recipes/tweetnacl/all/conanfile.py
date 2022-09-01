@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.32.0"
@@ -43,7 +44,7 @@ class TweetnaclConan(ConanFile):
 
     def source(self):
         for url_sha in self.conan_data["sources"][self.version]:
-            tools.download(url_sha["url"], os.path.basename(url_sha["url"]))
+            tools.files.download(self, url_sha["url"], os.path.basename(url_sha["url"]))
             tools.check_sha256(os.path.basename(url_sha["url"]), url_sha["sha256"])
 
     def _configure_cmake(self):

@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import functools
 import os
@@ -88,15 +88,15 @@ class GmpConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Relocatable shared lib on macOS & fix permission issue
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             configure_file = os.path.join(self._source_subfolder, "configure")
-            tools.replace_in_file(configure_file, "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, configure_file, "-install_name \\$rpath/", "-install_name @rpath/")
             configure_stats = os.stat(configure_file)
             os.chmod(configure_file, configure_stats.st_mode | stat.S_IEXEC)
 
@@ -119,7 +119,7 @@ class GmpConan(ConanFile):
                 "gmp_cv_asm_label_suffix=:",
                 "lt_cv_sys_global_symbol_pipe=cat",  # added to get further in shared MSVC build, but it gets stuck later
             ])
-            if not (self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < 12):
+            if not (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < 12):
                 autotools.flags.append("-FS")
             autotools.cxx_flags.append("-EHsc")
         autotools.configure(args=configure_args, configure_dir=self._source_subfolder)
@@ -139,7 +139,7 @@ class GmpConan(ConanFile):
                     "CXX": "cl -nologo",
                     "AR": "{} lib".format(self._user_info_build["automake"].ar_lib.replace("\\", "/")),
                     "LD": "link -nologo",
-                    "NM": "python {}".format(tools.unix_path(os.path.join(self.build_folder, "dumpbin_nm.py"))),
+                    "NM": "python {}".format(tools.microsoft.unix_path(self, os.path.join(self.build_folder, "dumpbin_nm.py"))),
                 }
                 with tools.environment_append(env):
                     yield
@@ -162,9 +162,9 @@ class GmpConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         # Workaround to always provide a pkgconfig file depending on all components

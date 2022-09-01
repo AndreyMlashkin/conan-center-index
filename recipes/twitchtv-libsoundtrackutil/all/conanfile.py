@@ -1,6 +1,7 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 
 class TwitchTvLibSoundtrackUtilConan(ConanFile):
@@ -44,17 +45,17 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17".format(self.name))
         else:
             self.output.warn("unknown compiler, assuming C++17 support")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format("libsoundtrackutil", self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -73,7 +74,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -81,7 +82,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["libsoundtrackutil"]

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -12,10 +13,10 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
             input_file = os.path.join(self.source_folder, "DCMTK_JPEGExt_12Bits.dcm")
             test_dir = "test_dir"
-            tools.mkdir(test_dir)
+            tools.files.mkdir(self, test_dir)
             output_file = os.path.join(test_dir, "output.dcm")
             self.run([bin_path, input_file, output_file], run_environment=True)

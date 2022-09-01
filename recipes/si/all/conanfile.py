@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 import os
 
@@ -38,12 +39,12 @@ class SiConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
 
         minimum_version = self._compilers_minimum_version.get(
             str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("'si' requires C++17, which your compiler ({} {}) does not support.".format(
                     self.settings.compiler, self.settings.compiler.version))
         else:
@@ -54,7 +55,7 @@ class SiConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -65,7 +66,7 @@ class SiConan(ConanFile):
         cmake.definitions["SI_INSTALL_LIBRARY"] = True
         cmake.configure(build_folder=self._build_subfolder)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "SI::SI")

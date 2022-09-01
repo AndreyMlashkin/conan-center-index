@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 import textwrap
@@ -56,20 +57,20 @@ class LLVMOpenMpConan(ConanFile):
 
     def validate(self):
         if (
-            tools.Version(self.version) <= "10.0.0"
+            tools.scm.Version(self.version) <= "10.0.0"
             and self.settings.os == "Macos"
             and self.settings.arch == "armv8"
         ):
             raise ConanInvalidConfiguration("ARM v8 not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "openmp-{}.src".format(self.version)
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -83,7 +84,7 @@ class LLVMOpenMpConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        tools.replace_in_file(os.path.join(self._source_subfolder, "runtime/CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "runtime/CMakeLists.txt"),
                               "add_subdirectory(test)", "")
         cmake = self._configure_cmake()
         cmake.build()
@@ -112,7 +113,7 @@ class LLVMOpenMpConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -136,6 +137,6 @@ class LLVMOpenMpConan(ConanFile):
             self.cpp_info.cxxflags = ["-fopenmp"]
         elif self.settings.compiler == 'intel':
             self.cpp_info.cxxflags = ["/Qopenmp"] if self.settings.os == 'Windows' else ["-Qopenmp"]
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["dl", "m", "pthread", "rt"]

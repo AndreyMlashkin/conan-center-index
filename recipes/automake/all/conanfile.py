@@ -50,7 +50,7 @@ class AutomakeConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -66,18 +66,18 @@ class AutomakeConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         conf_args = [
-            "--datarootdir={}".format(tools.unix_path(self._datarootdir)),
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
+            "--datarootdir={}".format(tools.microsoft.unix_path(self, self._datarootdir)),
+            "--prefix={}".format(tools.microsoft.unix_path(self, self.package_folder)),
         ]
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         return self._autotools
 
     def _patch_files(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.os == "Windows":
             # tracing using m4 on Windows returns Windows paths => use cygpath to convert to unix paths
-            tools.replace_in_file(os.path.join(self._source_subfolder, "bin", "aclocal.in"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "bin", "aclocal.in"),
                                                "          $map_traced_defs{$arg1} = $file;",
                                                "          $file = `cygpath -u $file`;\n"
                                                "          $file =~ s/^\\s+|\\s+$//g;\n"
@@ -92,9 +92,9 @@ class AutomakeConan(ConanFile):
         self.copy("COPYING*", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self._datarootdir, "info"))
-        tools.rmdir(os.path.join(self._datarootdir, "man"))
-        tools.rmdir(os.path.join(self._datarootdir, "doc"))
+        tools.files.rmdir(self, os.path.join(self._datarootdir, "info"))
+        tools.files.rmdir(self, os.path.join(self._datarootdir, "man"))
+        tools.files.rmdir(self, os.path.join(self._datarootdir, "doc"))
 
         if self.settings.os == "Windows":
             binpath = os.path.join(self.package_folder, "bin")
@@ -114,23 +114,23 @@ class AutomakeConan(ConanFile):
 
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
 
-        aclocal = tools.unix_path(os.path.join(self.package_folder, "bin", "aclocal" + bin_ext))
+        aclocal = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin", "aclocal" + bin_ext))
         self.output.info("Appending ACLOCAL environment variable with: {}".format(aclocal))
         self.env_info.ACLOCAL.append(aclocal)
 
-        automake_datadir = tools.unix_path(self._datarootdir)
+        automake_datadir = tools.microsoft.unix_path(self, self._datarootdir)
         self.output.info("Setting AUTOMAKE_DATADIR to {}".format(automake_datadir))
         self.env_info.AUTOMAKE_DATADIR = automake_datadir
 
-        automake_libdir = tools.unix_path(self._automake_libdir)
+        automake_libdir = tools.microsoft.unix_path(self, self._automake_libdir)
         self.output.info("Setting AUTOMAKE_LIBDIR to {}".format(automake_libdir))
         self.env_info.AUTOMAKE_LIBDIR = automake_libdir
 
-        automake_perllibdir = tools.unix_path(self._automake_libdir)
+        automake_perllibdir = tools.microsoft.unix_path(self, self._automake_libdir)
         self.output.info("Setting AUTOMAKE_PERLLIBDIR to {}".format(automake_perllibdir))
         self.env_info.AUTOMAKE_PERLLIBDIR = automake_perllibdir
 
-        automake = tools.unix_path(os.path.join(self.package_folder, "bin", "automake" + bin_ext))
+        automake = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin", "automake" + bin_ext))
         self.output.info("Setting AUTOMAKE to {}".format(automake))
         self.env_info.AUTOMAKE = automake
 

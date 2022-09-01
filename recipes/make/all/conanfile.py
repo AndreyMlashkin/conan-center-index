@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import os
 
 required_conan_version = ">=1.33.0"
@@ -24,7 +25,7 @@ class MakeConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package_id(self):
@@ -32,9 +33,9 @@ class MakeConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches").get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             # README.W32
             if tools.os_info.is_windows:
                 if self.settings.compiler == "Visual Studio":

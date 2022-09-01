@@ -1,14 +1,11 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
-from conan.tools.files import apply_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
-from conans import CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.45.0"
 
 
 class SDLConan(ConanFile):
@@ -141,7 +138,7 @@ class SDLConan(ConanFile):
             if self.options.nas:
                 self.requires("nas/1.9.4")
             if self.options.wayland:
-                self.requires("wayland/1.21.0")
+                self.requires("wayland/1.20.0")
                 self.requires("xkbcommon/1.4.1")
                 self.requires("egl/system")
             if self.options.libunwind:
@@ -152,7 +149,7 @@ class SDLConan(ConanFile):
             raise ConanInvalidConfiguration("On macOS iconv can't be disabled")
 
         # SDL>=2.0.18 requires xcode 12 or higher because it uses CoreHaptics.
-        if Version(self.version) >= "2.0.18" and is_apple_os(self) and Version(self.settings.compiler.version) < "12":
+        if tools.scm.Version(self.version) >= "2.0.18" and tools.apple.is_apple_os(self) and tools.scm.Version(self.settings.compiler.version) < "12":
             raise ConanInvalidConfiguration("{}/{} requires xcode 12 or higher".format(self.name, self.version))
 
         if self.settings.os == "Linux":
@@ -166,7 +163,7 @@ class SDLConan(ConanFile):
                 raise ConanInvalidConfiguration("Package for 'directfb' is not available (yet)")
 
     def package_id(self):
-        if Version(self.version) < "2.0.22":
+        if tools.scm.Version(self.version) < "2.0.22":
             del self.info.options.sdl2main
 
     def build_requirements(self):
@@ -176,20 +173,20 @@ class SDLConan(ConanFile):
             self.build_requires("wayland/1.20.0")  # Provides wayland-scanner
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True,
-            destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
 
-        replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                         'check_library_exists(c iconv_open "" HAVE_BUILTIN_ICONV)',
                         '# check_library_exists(c iconv_open "" HAVE_BUILTIN_ICONV)')
 
         # Ensure to find wayland-scanner from wayland recipe in build requirements (or requirements if 1 profile)
-        if self.options.get_safe("wayland") and Version(self.version) >= "2.0.18":
+        if self.options.get_safe("wayland") and tools.scm.Version(self.version) >= "2.0.18":
             wayland_bin_path = " ".join("\"{}\"".format(path) for path in self.deps_env_info["wayland"].PATH)
-            replace_in_file(self,
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "cmake", "sdlchecks.cmake"),
                 "find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED)",
                 "find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED PATHS {} NO_DEFAULT_PATH)".format(wayland_bin_path),
@@ -209,7 +206,7 @@ class SDLConan(ConanFile):
         cmake.definitions["SDL_SHARED"] = self.options.shared
         cmake.definitions["SDL_STATIC"] = not self.options.shared
 
-        if Version(self.version) < "2.0.18":
+        if tools.scm.Version(self.version) < "2.0.18":
             cmake.definitions["VIDEO_OPENGL"] = self.options.opengl
             cmake.definitions["VIDEO_OPENGLES"] = self.options.opengles
             cmake.definitions["VIDEO_VULKAN"] = self.options.vulkan
@@ -341,7 +338,7 @@ class SDLConan(ConanFile):
             elif self.settings.os == "Windows":
                 cmake.definitions["SDL_DIRECTX"] = self.options.directx
 
-        if Version(self.version) >= "2.0.22":
+        if tools.scm.Version(self.version) >= "2.0.22":
             cmake.definitions["SDL2_DISABLE_SDL2MAIN"] = not self.options.sdl2main
 
         # Add extra information collected from the deps
@@ -364,12 +361,12 @@ class SDLConan(ConanFile):
             self.copy(pattern="COPYING.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        rm(self, "sdl2-config", os.path.join(self.package_folder, "bin"))
-        rmdir(self, os.path.join(self.package_folder, "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "libdata"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "sdl2-config", os.path.join(self.package_folder, "bin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "libdata"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SDL2")
@@ -427,29 +424,24 @@ class SDLConan(ConanFile):
                 self.cpp_info.components["libsdl2"].requires.append("egl::egl")
             if self.options.libunwind:
                 self.cpp_info.components["libsdl2"].requires.append("libunwind::libunwind")
-        elif is_apple_os(self) and not self.options.shared:
+        elif tools.apple.is_apple_os(self):
             self.cpp_info.components["libsdl2"].frameworks = [
                 "CoreVideo", "CoreAudio", "AudioToolbox",
                 "AVFoundation", "Foundation", "QuartzCore",
             ]
-            add_core_haptics = False
             if self.settings.os == "Macos":
                 self.cpp_info.components["libsdl2"].frameworks.extend(["Cocoa", "Carbon", "IOKit", "ForceFeedback"])
-                if Version(self.version) >= "2.0.18":
+                if tools.scm.Version(self.version) >= "2.0.18":
                     self.cpp_info.components["libsdl2"].frameworks.append("GameController")
             elif self.settings.os in ["iOS", "tvOS", "watchOS"]:
                 self.cpp_info.components["libsdl2"].frameworks.extend([
                     "UIKit", "OpenGLES", "GameController", "CoreMotion",
-                    "CoreGraphics", "CoreBluetooth",
+                    "CoreGraphics", "CoreBluetooth", "CoreHaptics",
                 ])
-                add_core_haptics = True
-            if Version(self.version) >= "2.0.14":
+            if tools.scm.Version(self.version) >= "2.0.14":
                 self.cpp_info.components["libsdl2"].frameworks.append("Metal")
-            if Version(self.version) >= "2.0.18":
-                add_core_haptics = True
-            if add_core_haptics:
-                self.cpp_info.components["libsdl2"].sharedlinkflags.append("-Wl,-weak_framework,CoreHaptics")
-                self.cpp_info.components["libsdl2"].exelinkflags.append("-Wl,-weak_framework,CoreHaptics")
+            if tools.scm.Version(self.version) >= "2.0.18":
+                self.cpp_info.components["libsdl2"].frameworks.append("CoreHaptics")
         elif self.settings.os == "Windows":
             self.cpp_info.components["libsdl2"].system_libs = ["user32", "gdi32", "winmm", "imm32", "ole32", "oleaut32", "version", "uuid", "advapi32", "setupapi", "shell32"]
             if self.settings.compiler == "gcc":

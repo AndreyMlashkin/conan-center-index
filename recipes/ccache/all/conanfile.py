@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -46,7 +47,7 @@ class CcacheConan(ConanFile):
             "gcc": "6",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15.7" if tools.Version(self.version) < "4.6" else "16.2",
+            "Visual Studio": "15.7" if tools.scm.Version(self.version) < "4.6" else "16.2",
         }
 
     def export_sources(self):
@@ -61,7 +62,7 @@ class CcacheConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            tools.build.check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -79,12 +80,12 @@ class CcacheConan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self) and \
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self) and \
            self.settings.os == "Macos" and self.settings.arch == "armv8":
             self.build_requires("cmake/3.22.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -98,7 +99,7 @@ class CcacheConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

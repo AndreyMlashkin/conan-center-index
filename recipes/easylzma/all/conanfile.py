@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class EazylzmaConan(ConanFile):
@@ -23,7 +24,7 @@ class EazylzmaConan(ConanFile):
     @property
     def _license_text(self):
         # Extract the License/s from the README to a file
-        tmp = tools.load(os.path.join("source_subfolder", "README"))
+        tmp = tools.files.load(self, os.path.join("source_subfolder", "README"))
         return tmp[tmp.find("License",1):tmp.find("work.", 1)+5]
 
     @property
@@ -41,19 +42,19 @@ class EazylzmaConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = CMake(self)
         cmake.configure()
         cmake.build(target=self._libname)
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         self.copy(pattern="*.dylib*", dst="lib", src="lib", keep_path=False, symlinks=True)
         self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False, symlinks=True)

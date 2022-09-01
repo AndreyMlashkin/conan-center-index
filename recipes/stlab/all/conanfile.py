@@ -1,6 +1,6 @@
-from conans import ConanFile, tools
-from conans.tools import Version
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conan.errors import ConanInvalidConfiguration
 import os
 
 class Stlab(ConanFile):
@@ -46,7 +46,7 @@ class Stlab(ConanFile):
             self.requires("libdispatch/5.3.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "libraries-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -119,7 +119,7 @@ class Stlab(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, '17')
+            tools.build.check_min_cppstd(self, '17')
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "9":
             raise ConanInvalidConfiguration("Need GCC >= 9")

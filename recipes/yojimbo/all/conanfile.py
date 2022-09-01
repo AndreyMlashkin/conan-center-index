@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, MSBuild, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import yaml
 
 
@@ -33,7 +33,7 @@ class YojimboConan(ConanFile):
         self.requires("mbedtls/2.25.0")
  
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
         
         submodule_filename = os.path.join(self.recipe_folder, 'submoduledata.yml')
         with open(submodule_filename, 'r') as submodule_stream:
@@ -46,9 +46,9 @@ class YojimboConan(ConanFile):
                     "strip_root": True
                 }
 
-                tools.get(**submodule_data)
+                tools.files.get(self, **submodule_data)
                 submodule_source = os.path.join(self._source_subfolder, path)
-                tools.rmdir(submodule_source)
+                tools.files.rmdir(self, submodule_source)
 
     def build(self):
 
@@ -67,16 +67,16 @@ class YojimboConan(ConanFile):
             lib_path_str = lib_path_str.replace("\\", "/")
             
             # Edit the premake script to use conan rather than bundled dependencies
-            tools.replace_in_file(premake_path, "includedirs { \".\", \"./windows\"", "includedirs { \".\", %s" % include_path_str, strict=True)
-            tools.replace_in_file(premake_path, "libdirs { \"./windows\" }", "libdirs { %s }" % lib_path_str, strict=True)
+            tools.files.replace_in_file(self, premake_path, "includedirs { \".\", \"./windows\"", "includedirs { \".\", %s" % include_path_str, strict=True)
+            tools.files.replace_in_file(self, premake_path, "libdirs { \"./windows\" }", "libdirs { %s }" % lib_path_str, strict=True)
             
             # Edit the premake script to change the name of libsodium
-            tools.replace_in_file(premake_path, "\"sodium\"", "\"libsodium\"", strict=True)
+            tools.files.replace_in_file(self, premake_path, "\"sodium\"", "\"libsodium\"", strict=True)
             
         else:
         
         	# Edit the premake script to use  conan rather than local dependencies
-            tools.replace_in_file(premake_path, "\"/usr/local/include\"", include_path_str, strict=True)
+            tools.files.replace_in_file(self, premake_path, "\"/usr/local/include\"", include_path_str, strict=True)
             
             
         # Build using premake
@@ -93,7 +93,7 @@ class YojimboConan(ConanFile):
         else:
             generator = "gmake2"
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("premake5 %s" % generator)
             
             if self.settings.compiler == "Visual Studio":
@@ -114,4 +114,4 @@ class YojimboConan(ConanFile):
         self.copy(pattern="*/libyojimbo.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

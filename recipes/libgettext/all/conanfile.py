@@ -79,14 +79,14 @@ class GetTextConan(ConanFile):
             self.build_requires("automake/1.16.5")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         libiconv_prefix = self.deps_cpp_info["libiconv"].rootpath
-        libiconv_prefix = tools.unix_path(libiconv_prefix) if tools.os_info.is_windows else libiconv_prefix
+        libiconv_prefix = tools.microsoft.unix_path(self, libiconv_prefix) if tools.os_info.is_windows else libiconv_prefix
         args = ["HELP2MAN=/bin/true",
                 "EMACS=no",
                 "--disable-nls",
@@ -118,21 +118,21 @@ class GetTextConan(ConanFile):
             cl = "cl" if self._is_msvc else os.environ.get("CC", 'clang-cl')
             lib = "lib" if self._is_msvc else os.environ.get('AR', "llvm-lib")
             link = "link" if self._is_msvc else os.environ.get("LD", "lld-link")
-            args.extend(["CC=%s %s -nologo" % (tools.unix_path(self._user_info_build["automake"].compile), cl),
+            args.extend(["CC=%s %s -nologo" % (tools.microsoft.unix_path(self, self._user_info_build["automake"].compile), cl),
                          "LD=%s" % link,
                          "NM=dumpbin -symbols",
                          "STRIP=:",
-                         "AR=%s %s" % (tools.unix_path(self._user_info_build["automake"].ar_lib), lib),
+                         "AR=%s %s" % (tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib), lib),
                          "RANLIB=:"])
             if rc:
                 args.extend(['RC=%s' % rc, 'WINDRES=%s' % rc])
         with tools.vcvars(self.settings) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
             with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
-                with tools.chdir(os.path.join(self._source_subfolder, self._gettext_folder)):
+                with tools.files.chdir(self, os.path.join(self._source_subfolder, self._gettext_folder)):
                     env_build = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
                     if self._is_msvc:
                         if not (self.settings.compiler == "Visual Studio" and
-                                tools.Version(self.settings.compiler.version) < "12"):
+                                tools.scm.Version(self.settings.compiler.version) < "12"):
                             env_build.flags.append("-FS")
                     env_build.configure(args=args, build=build, host=host)
                     env_build.make(self._make_args)
@@ -145,10 +145,10 @@ class GetTextConan(ConanFile):
         self.copy(pattern="*gnuintl*.so*", dst="lib", src=self._source_subfolder, keep_path=False, symlinks=True)
         self.copy(pattern="*gnuintl*.dylib", dst="lib", src=self._source_subfolder, keep_path=False, symlinks=True)
         self.copy(pattern="*libgnuintl.h", dst="include", src=self._source_subfolder, keep_path=False)
-        tools.rename(os.path.join(self.package_folder, "include", "libgnuintl.h"),
+        tools.files.rename(self, os.path.join(self.package_folder, "include", "libgnuintl.h"),
                      os.path.join(self.package_folder, "include", "libintl.h"))
         if (self._is_msvc or self._is_clang_cl) and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "gnuintl.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "gnuintl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "gnuintl.lib"))
 
     def package_info(self):
@@ -156,7 +156,7 @@ class GetTextConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Intl")
         self.cpp_info.set_property("cmake_target_name", "Intl::Intl")
         self.cpp_info.libs = ["gnuintl"]
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
 
         self.cpp_info.names["cmake_find_package"] = "Intl"

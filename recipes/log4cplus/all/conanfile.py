@@ -1,6 +1,7 @@
 import os
 from conan.tools import files
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.35.0"
 
@@ -55,7 +56,7 @@ class Log4cplusConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def requirements(self):
         if self.options.with_iconv:
@@ -86,7 +87,7 @@ class Log4cplusConan(ConanFile):
 
     def _patch_sources(self):
         # don't force PIC
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def build(self):
@@ -101,7 +102,7 @@ class Log4cplusConan(ConanFile):
         files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.options.unicode:
             self.cpp_info.defines = ["UNICODE", "_UNICODE"]
         if self.settings.os == "Linux":

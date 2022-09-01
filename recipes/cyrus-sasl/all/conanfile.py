@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import shutil
@@ -94,7 +94,7 @@ class CyrusSaslConan(ConanFile):
         self.build_requires("gnu-config/cci.20210814")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
@@ -105,11 +105,11 @@ class CyrusSaslConan(ConanFile):
 
         configure = os.path.join(self._source_subfolder, "configure")
         # relocatable shared libs on macOS
-        tools.replace_in_file(configure, "-install_name \\$rpath/", "-install_name @rpath/")
+        tools.files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
         # avoid SIP issues on macOS when dependencies are shared
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             libpaths = ":".join(self.deps_cpp_info.lib_paths)
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 configure,
                 "#! /bin/sh\n",
                 "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -120,7 +120,7 @@ class CyrusSaslConan(ConanFile):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
 
         yes_no = lambda v: "yes" if v else "no"
-        rootpath = lambda req: tools.unix_path(self.deps_cpp_info[req].rootpath)
+        rootpath = lambda req: tools.microsoft.unix_path(self, self.deps_cpp_info[req].rootpath)
         rootpath_no = lambda v, req: rootpath(req) if v else "no"
         args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
@@ -159,9 +159,9 @@ class CyrusSaslConan(ConanFile):
         self.copy(pattern="COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsasl2")

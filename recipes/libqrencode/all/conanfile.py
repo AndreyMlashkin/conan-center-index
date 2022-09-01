@@ -1,10 +1,6 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get, replace_in_file, rmdir
-from conan.tools.microsoft import is_msvc
 import os
-
-required_conan_version = ">=1.50.0"
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class LibqrencodeConan(ConanFile):
@@ -13,8 +9,9 @@ class LibqrencodeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/fukuchi/libqrencode"
     license = "LGPL-2.1-or-later"
-    topics = ("qr-code", "encoding")
-
+    topics = ("conan", "graphics")
+    exports_sources = "CMakeLists.txt", "patches/**"
+    generators = "cmake", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,10 +21,18 @@ class LibqrencodeConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    requires = (
+        "libiconv/1.15",
+        "libpng/1.6.37",
+    )
 
-    def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -36,53 +41,39 @@ class LibqrencodeConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        del self.settings.compiler.cppstd
+        del self.settings.compiler.libcxx
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version])
+        os.rename("libqrencode-{}".format(self.version), self._source_subfolder)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["WITH_TOOLS"] = False
-        tc.variables["WITH_TESTS"] = False
-        # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.generate()
+    def _configure_cmake(self):
+        cmake = CMake(self)
+        cmake.definitions["WITH_TOOLS"] = False
+        cmake.definitions["WITH_TESTS"] = False
+        cmake.configure(build_folder=self._build_subfolder)
+        return cmake
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-        # libpng is required by tools only & libiconv is not used at all
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(PNG)", "")
-        replace_in_file(self, cmakelists, "find_package(Iconv)", "")
+        for patch in self.conan_data["patches"][self.version]:
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        cmake = CMake(self)
-        cmake.configure()
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy(pattern="COPYING", src=self._source_subfolder, dst="licenses")
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "libqrencode")
-        suffix = "d" if is_msvc(self) and self.settings.build_type == "Debug" else ""
-        self.cpp_info.libs = [f"qrencode{suffix}"]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("pthread")
+        lib = "qrencode"
+        if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug":
+            lib += "d"
+        self.cpp_info.libs = [lib]

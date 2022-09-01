@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import functools
 import os
@@ -93,7 +93,7 @@ class NCursesConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
-        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and tools.cross_building(self):
+        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and tools.build.cross_building(self):
             # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
             # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
             raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
@@ -106,7 +106,7 @@ class NCursesConan(ConanFile):
                 raise ConanInvalidConfiguration("ticlib cannot be built separately as a shared library on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -134,7 +134,7 @@ class NCursesConan(ConanFile):
             "--without-profile",
             "--with-sp-funcs",
             "--disable-rpath",
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
             "--disable-pc-files",
         ]
         build = None
@@ -155,7 +155,7 @@ class NCursesConan(ConanFile):
                 "ac_cv_func_setvbuf_reversed=no",
             ])
             autotools.cxx_flags.append("-EHsc")
-            if tools.Version(self.settings.compiler.version) >= 12:
+            if tools.scm.Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
         if (self.settings.os, self.settings.compiler) == ("Windows", "gcc"):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
@@ -170,7 +170,7 @@ class NCursesConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -199,11 +199,11 @@ class NCursesConan(ConanFile):
 
     @property
     def _major_version(self):
-        return tools.Version(self.version).major
+        return tools.scm.Version(self.version).major
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file):
-        tools.save(module_file, textwrap.dedent("""\
+        tools.files.save(self, module_file, textwrap.dedent("""\
             set(CURSES_FOUND ON)
             set(CURSES_INCLUDE_DIRS ${ncurses_libcurses_INCLUDE_DIRS})
             set(CURSES_LIBRARIES ${ncurses_libcurses_LINK_LIBS})

@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -42,7 +42,7 @@ class TinyMidiConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _get_autotools(self):
@@ -54,7 +54,7 @@ class TinyMidiConan(ConanFile):
 
     def _make_args(self, autotools):
         args = [
-            "INSTALL_PREFIX={}".format(tools.unix_path(self.package_folder)),
+            "INSTALL_PREFIX={}".format(tools.microsoft.unix_path(self, self.package_folder)),
             "COMPILE_FLAGS={}".format(autotools.vars["CFLAGS"]),
             "LINKING_FLAGS={} -o".format(autotools.vars["LDFLAGS"]),
         ]
@@ -63,23 +63,23 @@ class TinyMidiConan(ConanFile):
         return args
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._get_autotools()
             make_args = self._make_args(autotools)
             autotools.make(args=make_args)
 
     def package(self):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        tools.mkdir(os.path.join(self.package_folder, "include"))
-        tools.mkdir(os.path.join(self.package_folder, "lib"))
-        with tools.chdir(self._source_subfolder):
+        tools.files.mkdir(self, os.path.join(self.package_folder, "include"))
+        tools.files.mkdir(self, os.path.join(self.package_folder, "lib"))
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._get_autotools()
             make_args = self._make_args(autotools)
             autotools.install(args=make_args)
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so*")
+            tools.files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["tinymidi"]

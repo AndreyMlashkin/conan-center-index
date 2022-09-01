@@ -34,14 +34,14 @@ class NASMConan(ConanFile):
             self.build_requires("strawberryperl/5.30.0.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package_id(self):
         del self.info.settings.compiler
 
     def _build_vs(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.vcvars(self):
                 autotools = AutoToolsBuildEnvironment(self)
                 autotools.flags.append("-nologo")
@@ -60,18 +60,18 @@ class NASMConan(ConanFile):
         self._autotools.configure(configure_dir=self._source_subfolder)
 
         # GCC9 - "pure" attribute on function returning "void"
-        tools.replace_in_file("Makefile", "-Werror=attributes", "")
+        tools.files.replace_in_file(self, "Makefile", "-Werror=attributes", "")
 
         # Need "-arch" flag for the linker when cross-compiling.
         # FIXME: Revisit after https://github.com/conan-io/conan/issues/9069, using new Autotools integration
         if str(self.version).startswith("2.13"):
-            tools.replace_in_file("Makefile", "$(CC) $(LDFLAGS) -o", "$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o")
+            tools.files.replace_in_file(self, "Makefile", "$(CC) $(LDFLAGS) -o", "$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o")
 
         return self._autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
             self._build_vs()
         else:
@@ -85,7 +85,7 @@ class NASMConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

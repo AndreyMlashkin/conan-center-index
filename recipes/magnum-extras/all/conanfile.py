@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -78,7 +79,7 @@ class MagnumExtrasConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -98,9 +99,9 @@ class MagnumExtrasConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
                               "")
 
@@ -108,7 +109,7 @@ class MagnumExtrasConan(ConanFile):
                       os.path.join("src", "player","CMakeLists.txt")]
         app_name = "{}Application".format("XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize())
         for cmakelist in cmakelists:
-            tools.replace_in_file(os.path.join(self._source_subfolder, cmakelist),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, cmakelist),
                                   "Magnum::Application",
                                   "Magnum::{}".format(app_name))
 
@@ -122,7 +123,7 @@ class MagnumExtrasConan(ConanFile):
         cm = self._configure_cmake()
         cm.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):

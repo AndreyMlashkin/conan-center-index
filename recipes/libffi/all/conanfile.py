@@ -1,5 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import contextlib
 import os
 import shutil
@@ -63,32 +64,32 @@ class LibffiConan(ConanFile):
         self.build_requires("gnu-config/cci.20201022")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Generate rpath friendly shared lib on macOS
         configure_path = os.path.join(self._source_subfolder, "configure")
-        tools.replace_in_file(configure_path, "-install_name \\$rpath/", "-install_name @rpath/")
+        tools.files.replace_in_file(self, configure_path, "-install_name \\$rpath/", "-install_name @rpath/")
 
-        if tools.Version(self.version) < "3.3":
-            if self.settings.compiler == "clang" and tools.Version(str(self.settings.compiler.version)) >= 7.0:
+        if tools.scm.Version(self.version) < "3.3":
+            if self.settings.compiler == "clang" and tools.scm.Version(str(self.settings.compiler.version)) >= 7.0:
                 # https://android.googlesource.com/platform/external/libffi/+/ca22c3cb49a8cca299828c5ffad6fcfa76fdfa77
                 sysv_s_src = os.path.join(self._source_subfolder, "src", "arm", "sysv.S")
-                tools.replace_in_file(sysv_s_src, "fldmiad", "vldmia")
-                tools.replace_in_file(sysv_s_src, "fstmiad", "vstmia")
-                tools.replace_in_file(sysv_s_src, "fstmfdd\tsp!,", "vpush")
+                tools.files.replace_in_file(self, sysv_s_src, "fldmiad", "vldmia")
+                tools.files.replace_in_file(self, sysv_s_src, "fstmiad", "vstmia")
+                tools.files.replace_in_file(self, sysv_s_src, "fstmfdd\tsp!,", "vpush")
 
                 # https://android.googlesource.com/platform/external/libffi/+/7748bd0e4a8f7d7c67b2867a3afdd92420e95a9f
-                tools.replace_in_file(sysv_s_src, "stmeqia", "stmiaeq")
+                tools.files.replace_in_file(self, sysv_s_src, "stmeqia", "stmiaeq")
 
     @contextlib.contextmanager
     def _build_context(self):
         extra_env_vars = {}
         if tools.os_info.is_windows and (self._is_msvc or self.settings.compiler == "clang") :
-            msvcc = tools.unix_path(os.path.join(self.source_folder, self._source_subfolder, "msvcc.sh"))
+            msvcc = tools.microsoft.unix_path(self, os.path.join(self.source_folder, self._source_subfolder, "msvcc.sh"))
             msvcc_args = []
             if self._is_msvc:
                 if self.settings.arch == "x86_64":
@@ -102,8 +103,8 @@ class LibffiConan(ConanFile):
                 msvcc = "{} {}".format(msvcc, " ".join(msvcc_args))
             extra_env_vars.update(tools.vcvars_dict(self.settings))
             extra_env_vars.update({
-                "INSTALL": tools.unix_path(os.path.join(self.source_folder, self._source_subfolder, "install-sh")),
-                "LIBTOOL": tools.unix_path(os.path.join(self.source_folder, self._source_subfolder, "ltmain.sh")),
+                "INSTALL": tools.microsoft.unix_path(self, os.path.join(self.source_folder, self._source_subfolder, "install-sh")),
+                "LIBTOOL": tools.microsoft.unix_path(self, os.path.join(self.source_folder, self._source_subfolder, "ltmain.sh")),
                 "CC": msvcc,
                 "CXX": msvcc,
                 "LD": "link",
@@ -173,9 +174,9 @@ class LibffiConan(ConanFile):
                 autotools = self._configure_autotools()
                 autotools.install()
 
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libffi")

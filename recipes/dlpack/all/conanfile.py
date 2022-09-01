@@ -1,5 +1,5 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 required_conan_version = ">=1.33.0"
 
@@ -14,7 +14,7 @@ class DlpackConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         self.copy("LICENSE", dst="licenses")

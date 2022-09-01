@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conans.errors import ConanException
 import os
 import glob
@@ -32,6 +33,6 @@ class TestPackageConan(ConanFile):
         for fn in glob.glob(os.path.join("lib", "*")):
             shutil.copy(src=fn, dst="bin")
             shutil.copy(src=fn, dst=".")
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "test_package")
             self.run(bin_path, run_environment=True)

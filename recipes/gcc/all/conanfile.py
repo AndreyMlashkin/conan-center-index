@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 from conans.errors import ConanException, ConanInvalidConfiguration
 import os
 
@@ -71,11 +72,11 @@ class GccConan(ConanFile):
     def configure(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Windows builds aren't supported (yet), sorry")
-        if tools.cross_building(self.settings):
+        if tools.build.cross_building(self, self.settings):
             raise ConanInvalidConfiguration("no cross-building support (yet), sorry")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "gcc-%s" % self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -88,12 +89,12 @@ class GccConan(ConanFile):
     def build(self):
         # If building on x86_64, change the default directory name for 64-bit libraries to "lib":
         libdir = "%s/lib/gcc/%s" % (self.package_folder, self.version)
-        tools.replace_in_file(os.path.join(self.source_folder,
+        tools.files.replace_in_file(self, os.path.join(self.source_folder,
                                            self._source_subfolder, "gcc", "config", "i386", "t-linux64"),
                               "m64=../lib64", "m64=../lib", strict=False)
         # Ensure correct install names when linking against libgcc_s;
         # see discussion in https://github.com/Homebrew/legacy-homebrew/pull/34303
-        tools.replace_in_file(os.path.join(self.source_folder,
+        tools.files.replace_in_file(self, os.path.join(self.source_folder,
                                            self._source_subfolder, "libgcc", "config", "t-slibgcc-darwin"),
                               "@shlib_slibdir@", libdir, strict=False)
         autotools = self._configure_autotools()
@@ -108,8 +109,8 @@ class GccConan(ConanFile):
             autotools.install(args=self._make_args)
         else:
             autotools.make(args=["install-strip"] + self._make_args)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(self.package_folder, "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", self.package_folder)
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):

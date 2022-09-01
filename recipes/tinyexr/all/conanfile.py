@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.33.0"
@@ -49,10 +49,10 @@ class TinyExrConan(ConanFile):
 
     def validate(self):
         if self.options.with_thread and self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -65,10 +65,10 @@ class TinyExrConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
         self.copy("tinyexr.h", dst="include", src=self._source_subfolder)
 
     def package_info(self):

@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -41,9 +41,9 @@ class WasmedgeConan(ConanFile):
         self.info.settings.compiler = self._compiler_alias
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][self._compiler_alias][0],
+        tools.files.get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][self._compiler_alias][0],
                   destination=self._source_subfolder, strip_root=True)
-        tools.download(filename="LICENSE",
+        tools.files.download(self, filename="LICENSE",
                        **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][self._compiler_alias][1])
 
     def package(self):

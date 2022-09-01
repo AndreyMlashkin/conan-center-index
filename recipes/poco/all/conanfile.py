@@ -4,7 +4,8 @@ from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 from conan.tools.scm import Version
 from conan.tools.files import get, patch, rmdir
 
-from conans import CMake, tools
+from conan import ConanFile
+from conans import CMake
 
 from collections import namedtuple
 import functools
@@ -232,7 +233,7 @@ class PocoConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Poco")

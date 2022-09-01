@@ -1,6 +1,7 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import os
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.40.0"
 
@@ -35,13 +36,13 @@ class OfeliConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Ofeli is just supported for GCC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration(
                 "Ofeli supports only libstdc++'s new ABI")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -54,7 +55,7 @@ class OfeliConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.make()
 

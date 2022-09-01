@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc
 from contextlib import contextmanager
@@ -60,7 +61,7 @@ class GslConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     @contextmanager
@@ -71,7 +72,7 @@ class GslConan(ConanFile):
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
                     "LD": "link -nologo",
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -80,10 +81,10 @@ class GslConan(ConanFile):
 
     def _patch_source(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+            tools.files.patch(self, **patch)
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows, run_environment=True)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               r"-install_name \$rpath/",
                               "-install_name @rpath/")
 
@@ -109,7 +110,7 @@ class GslConan(ConanFile):
 
         if is_msvc(self):
             if self.settings.compiler == "Visual Studio" and \
-               tools.Version(self.settings.compiler.version) >= "12":
+               tools.scm.Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
             self._autotools.cxx_flags.append("-EHsc")
             args.extend([
@@ -131,10 +132,10 @@ class GslConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "include", "gsl"), "*.c")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rm(self, "*.c", os.path.join(self.package_folder, "include", "gsl"))
 
         os.unlink(os.path.join(self.package_folder, "bin", "gsl-config"))
 

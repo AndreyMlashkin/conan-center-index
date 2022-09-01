@@ -40,7 +40,7 @@ class PExportsConan(ConanFile):
 
     def source(self):
         filename = "pexports.tar.xz"
-        tools.get(**self.conan_data["sources"][self.version], filename=filename,
+        tools.files.get(self, **self.conan_data["sources"][self.version], filename=filename,
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -52,8 +52,8 @@ class PExportsConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -73,8 +73,8 @@ class PExportsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+            tools.files.patch(self, **patch)
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()

@@ -1,8 +1,8 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 from conan.tools.microsoft import is_msvc
-from conans.errors import ConanInvalidConfiguration
-
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 class ZugConan(ConanFile):
     name = "zug"
@@ -16,7 +16,7 @@ class ZugConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self.source_folder
@@ -33,14 +33,14 @@ class ZugConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
 
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
             self.output.warn("Unknown compiler, assuming it supports at least C++14")
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++14")
 

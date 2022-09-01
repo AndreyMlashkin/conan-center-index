@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -56,7 +57,7 @@ class LibGit2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        if not tools.is_apple_os(self.settings.os):
+        if not tools.apple.is_apple_os(self):
             del self.options.with_iconv
 
         if self.settings.os == "Windows":
@@ -97,7 +98,7 @@ class LibGit2Conan(ConanFile):
 
     def validate(self):
         if self.options.with_https == "security":
-            if not tools.is_apple_os(self.settings.os):
+            if not tools.apple.is_apple_os(self):
                 raise ConanInvalidConfiguration("security is only valid for Apple products")
         elif self.options.with_https == "winhttp":
             if self.settings.os != "Windows":
@@ -115,7 +116,7 @@ class LibGit2Conan(ConanFile):
             raise ConanInvalidConfiguration("regcomp_l isn't supported on {}".format(self.settings.os))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     _cmake_https = {
@@ -146,7 +147,7 @@ class LibGit2Conan(ConanFile):
         cmake.definitions["USE_HTTPS"] = self._cmake_https[str(self.options.with_https)]
         cmake.definitions["USE_SHA1"] = self._cmake_sha1[str(self.options.with_sha1)]
 
-        if tools.Version(self.version) >= "1.4.0":
+        if tools.scm.Version(self.version) >= "1.4.0":
             cmake.definitions["BUILD_TESTS"] = False
         cmake.definitions["BUILD_CLAR"] = False
         cmake.definitions["BUILD_EXAMPLES"] = False
@@ -162,7 +163,7 @@ class LibGit2Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -170,7 +171,7 @@ class LibGit2Conan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libgit2")

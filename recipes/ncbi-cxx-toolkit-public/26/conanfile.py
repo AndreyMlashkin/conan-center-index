@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 class NcbiCxxToolkit(ConanFile):
@@ -83,16 +84,16 @@ class NcbiCxxToolkit(ConanFile):
 #----------------------------------------------------------------------------
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
         if self.settings.os not in ["Linux", "Macos", "Windows"]:   
             raise ConanInvalidConfiguration("This operating system is not supported")
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
         if self.settings.compiler == "Visual Studio" and self.options.shared and "MT" in self.settings.compiler.runtime:
             raise ConanInvalidConfiguration("This configuration is not supported")
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "7":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("This version of GCC is not supported")
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross compilation is not supported")
 
     def config_options(self):
@@ -113,7 +114,7 @@ class NcbiCxxToolkit(ConanFile):
 
 #----------------------------------------------------------------------------
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root = True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root = True)
 
 #----------------------------------------------------------------------------
     def build(self):

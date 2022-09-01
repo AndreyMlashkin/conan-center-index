@@ -72,7 +72,7 @@ class MozjpegConan(ConanFile):
 
     @property
     def _use_cmake(self):
-        return self.settings.os == "Windows" or tools.Version(self.version) >= "4.0.0"
+        return self.settings.os == "Windows" or tools.scm.Version(self.version) >= "4.0.0"
 
     def build_requirements(self):
         if not self._use_cmake:
@@ -83,14 +83,14 @@ class MozjpegConan(ConanFile):
             self.build_requires("nasm/2.15.05")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
-        if tools.cross_building(self.settings):
+        if tools.build.cross_building(self, self.settings):
             # FIXME: too specific and error prone, should be delegated to CMake helper
             cmake_system_processor = {
                 "armv8": "aarch64",
@@ -140,12 +140,12 @@ class MozjpegConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._use_cmake:
             cmake = self._configure_cmake()
             cmake.build()
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")))
             autotools = self._configure_autotools()
             autotools.make()
@@ -155,17 +155,17 @@ class MozjpegConan(ConanFile):
         if self._use_cmake:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.rmdir(os.path.join(self.package_folder, "doc"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # remove binaries and pdb files
         for bin_pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), bin_pattern_to_remove)
+            tools.files.rm(self, bin_pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def _lib_name(self, name):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio" and not self.options.shared:

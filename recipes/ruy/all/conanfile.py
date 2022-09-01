@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -42,16 +43,16 @@ class RuyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("Compiler is unknown. Assuming it supports C++14.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("Build requires support for C++14. Minimum version for {} is {}"
                 .format(str(self.settings.compiler), minimum_version))
 
-        if str(self.settings.compiler) == "clang" and tools.Version(self.settings.compiler.version) <= 5 and self.settings.build_type == "Debug":
+        if str(self.settings.compiler) == "clang" and tools.scm.Version(self.settings.compiler.version) <= 5 and self.settings.build_type == "Debug":
             raise ConanInvalidConfiguration("Debug builds are not supported on older versions of Clang (<=5)")
 
     def config_options(self):
@@ -66,7 +67,7 @@ class RuyConan(ConanFile):
         self.requires("cpuinfo/cci.20201217")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                 destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -80,7 +81,7 @@ class RuyConan(ConanFile):
 
     def build(self):
         # 1. Allow Shared builds
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "ruy_cc_library.cmake"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "ruy_cc_library.cmake"),
                               "add_library(${_NAME} STATIC",
                               "add_library(${_NAME}"
                               )
@@ -90,12 +91,12 @@ class RuyConan(ConanFile):
         cpuinfoLibs = self.deps_cpp_info["cpuinfo"].libs + self.deps_cpp_info["cpuinfo"].system_libs
         libsListAsString = ";".join(cpuinfoLibs)
         if int(self.version.strip('cci.')) < 20220628:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "ruy", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "ruy", "CMakeLists.txt"),
                                   "set(ruy_6_cpuinfo \"cpuinfo\")",
                                   f"set(ruy_6_cpuinfo \"{libsListAsString}\")"
                                   )
         else:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "ruy", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "ruy", "CMakeLists.txt"),
                                   "set(ruy_6_cpuinfo_cpuinfo \"cpuinfo::cpuinfo\")",
                                   f"set(ruy_6_cpuinfo_cpuinfo \"{libsListAsString}\")"
                                   )
@@ -109,7 +110,7 @@ class RuyConan(ConanFile):
         self.copy(pattern="*", dst="lib", src="lib")
         self.copy(pattern="*", dst="bin", src="bin")
 
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        tools.files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["ruy_frontend",

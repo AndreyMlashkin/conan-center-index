@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, MSBuild, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import re
 
@@ -50,7 +50,7 @@ class LibsassConan(ConanFile):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -65,8 +65,8 @@ class LibsassConan(ConanFile):
         return self._autotools
 
     def _build_autotools(self):
-        with tools.chdir(self._source_subfolder):
-            tools.save(path="VERSION", content="%s" % self.version)
+        with tools.files.chdir(self, self._source_subfolder):
+            tools.files.save(self, path="VERSION", content="%s" % self.version)
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")))
             autotools = self._configure_autotools()
             autotools.make()
@@ -77,14 +77,14 @@ class LibsassConan(ConanFile):
 
     def _build_mingw(self):
         makefile = os.path.join(self._source_subfolder, "Makefile")
-        tools.replace_in_file(makefile, "CFLAGS   += -O2", "")
-        tools.replace_in_file(makefile, "CXXFLAGS += -O2", "")
-        tools.replace_in_file(makefile, "LDFLAGS  += -O2", "")
-        with tools.chdir(self._source_subfolder):
+        tools.files.replace_in_file(self, makefile, "CFLAGS   += -O2", "")
+        tools.files.replace_in_file(self, makefile, "CXXFLAGS += -O2", "")
+        tools.files.replace_in_file(self, makefile, "LDFLAGS  += -O2", "")
+        with tools.files.chdir(self, self._source_subfolder):
             env_vars = AutoToolsBuildEnvironment(self).vars
             env_vars.update({
                 "BUILD": "shared" if self.options.shared else "static",
-                "PREFIX": tools.unix_path(os.path.join(self.package_folder)),
+                "PREFIX": tools.microsoft.unix_path(self, os.path.join(self.package_folder)),
                 # Don't force static link to mingw libs, leave this decision to consumer (through LDFLAGS in env)
                 "STATIC_ALL": "0",
                 "STATIC_LIBGCC": "0",
@@ -94,7 +94,7 @@ class LibsassConan(ConanFile):
                 self.run("{} -f Makefile".format(self._make_program))
 
     def _build_visual_studio(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             properties = {
                 "LIBSASS_STATIC_LIB": "" if self.options.shared else "true",
                 "WholeProgramOptimization": "true" if any(re.finditer("(^| )[/-]GL($| )", tools.get_env("CFLAGS", ""))) else "false",
@@ -115,11 +115,11 @@ class LibsassConan(ConanFile):
             self._build_autotools()
 
     def _install_autotools(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(self.package_folder, "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", self.package_folder)
 
     def _install_mingw(self):
         self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))

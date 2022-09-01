@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -38,7 +39,7 @@ class PlatformExceptionsConan(ConanFile):
         return 20
 
     def requirements(self):
-        if tools.Version(self.version) >= "0.3.0":
+        if tools.scm.Version(self.version) >= "0.3.0":
             self.requires("platform.delegates/0.2.7")
         else:
             self.requires("platform.delegates/0.1.3")
@@ -50,20 +51,20 @@ class PlatformExceptionsConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
 
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("{}/{} requires c++{}, "
                                             "which is not supported by {} {}.".format(
                 self.name, self.version, self._minimum_cpp_standard, self.settings.compiler,
                 self.settings.compiler.version))
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

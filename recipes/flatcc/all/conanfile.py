@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -61,11 +62,11 @@ class FlatccConan(ConanFile):
             if self.settings.compiler == "Visual Studio" and self.options.shared:
                 #Building flatcc shared libs with Visual Studio is broken
                 raise ConanInvalidConfiguration("Building flatcc libraries shared is not supported")
-            if tools.Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
+            if tools.scm.Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
                 raise ConanInvalidConfiguration("Building flatcc with MinGW is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)

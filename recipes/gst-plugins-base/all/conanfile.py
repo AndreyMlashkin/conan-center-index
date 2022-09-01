@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, Meson, VisualStudioBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import Meson, VisualStudioBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
@@ -71,9 +72,9 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.shared != self.options["gstreamer"].shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("GStreamer and GstPlugins must be either all shared, or all static")
-        if tools.Version(self.version) >= "1.18.2" and\
+        if tools.scm.Version(self.version) >= "1.18.2" and\
            self.settings.compiler == "gcc" and\
-           tools.Version(self.settings.compiler.version) < "5":
+           tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "gst-plugins-base %s does not support gcc older than 5" % self.version
             )
@@ -147,7 +148,7 @@ class GStPluginsBaseConan(ConanFile):
             self.build_requires("gobject-introspection/1.70.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _gl_config(self):
@@ -244,7 +245,7 @@ class GStPluginsBaseConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if self._is_msvc else tools.no_op():
             meson = self._configure_meson()
@@ -253,7 +254,7 @@ class GStPluginsBaseConan(ConanFile):
     def _fix_library_names(self, path):
         # regression in 1.16
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(path):
+            with tools.files.chdir(self, path):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
@@ -267,10 +268,10 @@ class GStPluginsBaseConan(ConanFile):
 
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
+        tools.files.rm(self, "*.pdb", self.package_folder)
 
     def package_id(self):
         self.info.requires["glib"].full_package_mode()

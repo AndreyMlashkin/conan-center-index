@@ -1,5 +1,6 @@
 import os
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class EasyExifConan(ConanFile):
     name = "easyexif"
@@ -31,10 +32,10 @@ class EasyExifConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

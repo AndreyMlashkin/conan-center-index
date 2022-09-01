@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 class TestPackageConan(ConanFile):
@@ -7,12 +8,12 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["OGRE_VERSION"] = tools.Version(self.deps_cpp_info["ogre"].version)
+        cmake.definitions["OGRE_VERSION"] = tools.scm.Version(self.deps_cpp_info["ogre"].version)
         cmake.configure()
         cmake.build()
 
     def test(self):
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             return
  
         ogre_main_bin_path = os.path.join("bin", "ogre_main")

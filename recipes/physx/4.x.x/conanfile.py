@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import shutil
@@ -84,7 +85,7 @@ class PhysXConan(ConanFile):
         if self.settings.os == "Windows" and not self._is_msvc:
             raise ConanInvalidConfiguration("{} only supports Visual Studio on Windows".format(self.name))
 
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < 9:
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < 9:
             raise ConanInvalidConfiguration("Visual Studio versions < 9 are not supported")
 
         if self._is_msvc:
@@ -98,7 +99,7 @@ class PhysXConan(ConanFile):
                 )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -134,11 +135,11 @@ class PhysXConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         # There is no reason to force consumer of PhysX public headers to use one of
         # NDEBUG or _DEBUG, since none of them relies on NDEBUG or _DEBUG
-        tools.replace_in_file(os.path.join(self._source_subfolder, "pxshared", "include", "foundation", "PxPreprocessor.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "pxshared", "include", "foundation", "PxPreprocessor.h"),
                               "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
                               "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!")
 
@@ -147,7 +148,7 @@ class PhysXConan(ConanFile):
         # Remove global and specifics hard-coded PIC settings
         # (conan's CMake build helper properly sets CMAKE_POSITION_INDEPENDENT_CODE
         # depending on options)
-        tools.replace_in_file(os.path.join(physx_source_cmake_dir, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(physx_source_cmake_dir, "CMakeLists.txt"),
                               "SET(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
         for cmake_file in (
             "FastXml.cmake",
@@ -167,15 +168,15 @@ class PhysXConan(ConanFile):
             "SimulationController.cmake",
         ):
             target, _ = os.path.splitext(os.path.basename(cmake_file))
-            tools.replace_in_file(os.path.join(physx_source_cmake_dir, cmake_file),
+            tools.files.replace_in_file(self, os.path.join(physx_source_cmake_dir, cmake_file),
                                   "SET_TARGET_PROPERTIES({} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)".format(target),
                                   "")
 
         # No error for compiler warnings
-        tools.replace_in_file(os.path.join(physx_source_cmake_dir, "windows", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(physx_source_cmake_dir, "windows", "CMakeLists.txt"),
                               "/WX", "")
         for cmake_os in ("linux", "mac", "android", "ios"):
-            tools.replace_in_file(os.path.join(physx_source_cmake_dir, cmake_os, "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(physx_source_cmake_dir, cmake_os, "CMakeLists.txt"),
                                   "-Werror", "")
 
     @functools.lru_cache(1)
@@ -257,7 +258,7 @@ class PhysXConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
 
         out_lib_dir = os.path.join(self.package_folder, "lib", self._get_physx_build_type())
         self.copy(pattern="*.a", dst="lib", src=out_lib_dir, keep_path=False)
@@ -266,13 +267,13 @@ class PhysXConan(ConanFile):
         self.copy(pattern="*.lib", dst="lib", src=out_lib_dir, keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src=out_lib_dir, keep_path=False)
 
-        tools.rmdir(out_lib_dir)
-        tools.rmdir(os.path.join(self.package_folder, "source"))
+        tools.files.rmdir(self, out_lib_dir)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "source"))
 
         self._copy_external_bin()
 
     def _get_license(self):
-        readme = tools.load(os.path.join(self.source_folder, self._source_subfolder, "README.md"))
+        readme = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "README.md"))
         begin = readme.find("Copyright")
         end = readme.find("\n## Introduction", begin)
         return readme[begin:end]
@@ -283,7 +284,7 @@ class PhysXConan(ConanFile):
         # application uses GPU features.
         external_bin_dir = os.path.join(self.source_folder, self._source_subfolder, "physx", "bin")
         physx_build_type = self._get_physx_build_type()
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         if self.settings.os == "Linux" and self.settings.arch == "x86_64":
             physx_gpu_dir = os.path.join(external_bin_dir, "linux.clang", physx_build_type)

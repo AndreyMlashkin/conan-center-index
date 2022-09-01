@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 import glob
 
@@ -79,7 +79,7 @@ class LibpqConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -88,15 +88,15 @@ class LibpqConan(ConanFile):
             args = ['--without-readline']
             args.append('--without-zlib')
             args.append('--with-openssl' if self.options.with_openssl else '--without-openssl')
-            if tools.cross_building(self) and not self.options.with_openssl:
+            if tools.build.cross_building(self, self) and not self.options.with_openssl:
                 args.append("--disable-strong-random")
-            if tools.cross_building(self, skip_x64_x86=True):
+            if tools.build.cross_building(self, self, skip_x64_x86=True):
                 args.append("USE_DEV_URANDOM=1")
             if self.settings.os != "Windows" and self.options.disable_rpath:
                 args.append('--disable-rpath')
             if self._is_clang8_x86:
                 self._autotools.flags.append("-msse2")
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 self._autotools.configure(args=args)
         return self._autotools
 
@@ -109,17 +109,17 @@ class LibpqConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         if self._is_msvc:
             # https://www.postgresql.org/docs/8.3/install-win32-libpq.html
             # https://github.com/postgres/postgres/blob/master/src/tools/msvc/README
             if not self.options.shared:
-                tools.replace_in_file(os.path.join(self._source_subfolder, "src", "tools", "msvc", "MKvcbuild.pm"),
+                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "tools", "msvc", "MKvcbuild.pm"),
                                       "$libpq = $solution->AddProject('libpq', 'dll', 'interfaces',",
                                       "$libpq = $solution->AddProject('libpq', 'lib', 'interfaces',")
             system_libs = ", ".join(["'{}.lib'".format(lib) for lib in self.deps_cpp_info.system_libs])
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "tools", "msvc", "Project.pm"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "tools", "msvc", "Project.pm"),
                                   "libraries             => [],",
                                   "libraries             => [{}],".format(system_libs))
             if self.settings.compiler == "Visual Studio":
@@ -135,61 +135,61 @@ class LibpqConan(ConanFile):
                     "DLL" if self.settings.compiler.runtime == "dynamic" else "",
                 )
             msbuild_project_pm = os.path.join(self._source_subfolder, "src", "tools", "msvc", "MSBuildProject.pm")
-            tools.replace_in_file(msbuild_project_pm, "</Link>", """</Link>
+            tools.files.replace_in_file(self, msbuild_project_pm, "</Link>", """</Link>
     <Lib>
       <TargetMachine>$targetmachine</TargetMachine>
     </Lib>""")
-            tools.replace_in_file(msbuild_project_pm, "'MultiThreadedDebugDLL'", "'%s'" % runtime)
-            tools.replace_in_file(msbuild_project_pm, "'MultiThreadedDLL'", "'%s'" % runtime)
+            tools.files.replace_in_file(self, msbuild_project_pm, "'MultiThreadedDebugDLL'", "'%s'" % runtime)
+            tools.files.replace_in_file(self, msbuild_project_pm, "'MultiThreadedDLL'", "'%s'" % runtime)
             config_default_pl = os.path.join(self._source_subfolder, "src", "tools", "msvc", "config_default.pl")
             solution_pm = os.path.join(self._source_subfolder, "src", "tools", "msvc", "Solution.pm")
             if self.options.with_openssl:
                 for ssl in ["VC\libssl32", "VC\libssl64", "libssl"]:
-                    tools.replace_in_file(solution_pm,
+                    tools.files.replace_in_file(self, solution_pm,
                                           "%s.lib" % ssl,
                                           "%s.lib" % self.deps_cpp_info["openssl"].libs[0])
                 for crypto in ["VC\libcrypto32", "VC\libcrypto64", "libcrypto"]:
-                    tools.replace_in_file(solution_pm,
+                    tools.files.replace_in_file(self, solution_pm,
                                           "%s.lib" % crypto,
                                           "%s.lib" % self.deps_cpp_info["openssl"].libs[1])
-                tools.replace_in_file(config_default_pl,
+                tools.files.replace_in_file(self, config_default_pl,
                                       "openssl   => undef",
                                       "openssl   => '%s'" % self.deps_cpp_info["openssl"].rootpath.replace("\\", "/"))
             with tools.vcvars(self.settings):
                 config = "DEBUG" if self.settings.build_type == "Debug" else "RELEASE"
                 with tools.environment_append({"CONFIG": config}):
-                    with tools.chdir(os.path.join(self._source_subfolder, "src", "tools", "msvc")):
+                    with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "tools", "msvc")):
                         self.run("perl build.pl libpq")
                         if not self.options.shared:
                             self.run("perl build.pl libpgport")
         else:
             # relocatable shared lib on macOS
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "src", "Makefile.shlib"),
                 "-install_name '$(libdir)/",
                 "-install_name '@rpath/",
             )
             # avoid SIP issues on macOS when dependencies are shared
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 libpaths = ":".join(self.deps_cpp_info.lib_paths)
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     os.path.join(self._source_subfolder, "configure"),
                     "#! /bin/sh\n",
                     "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
                 )
             autotools = self._configure_autotools()
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "backend")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "backend")):
                 autotools.make(args=self._make_args, target="generated-headers")
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "common")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "common")):
                 autotools.make(args=self._make_args)
-            if tools.Version(self.version) >= "12":
-                with tools.chdir(os.path.join(self._source_subfolder, "src", "port")):
+            if tools.scm.Version(self.version) >= "12":
+                with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "port")):
                     autotools.make(args=self._make_args)
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "include")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "include")):
                 autotools.make(args=self._make_args)
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "interfaces", "libpq")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "interfaces", "libpq")):
                 autotools.make(args=self._make_args)
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "bin", "pg_config")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "bin", "pg_config")):
                 autotools.make(args=self._make_args)
 
     def _remove_unused_libraries_from_package(self):
@@ -228,26 +228,26 @@ class LibpqConan(ConanFile):
                 self.copy("*.lib", src=self._source_subfolder, dst="lib", keep_path=False)
         else:
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)#self._configure_autotools()
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "common")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "common")):
                 autotools.install(args=self._make_args)
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "include")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "include")):
                 autotools.install(args=self._make_args)
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "interfaces", "libpq")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "interfaces", "libpq")):
                 autotools.install(args=self._make_args)
-            if tools.Version(self.version) >= "12":
-                with tools.chdir(os.path.join(self._source_subfolder, "src", "port")):
+            if tools.scm.Version(self.version) >= "12":
+                with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "port")):
                     autotools.install(args=self._make_args)
 
-            with tools.chdir(os.path.join(self._source_subfolder, "src", "bin", "pg_config")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src", "bin", "pg_config")):
                 autotools.install(args=self._make_args)
 
             self._remove_unused_libraries_from_package()
 
-            tools.rmdir(os.path.join(self.package_folder, "include", "postgresql", "server"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "include", "postgresql", "server"))
             self.copy(pattern="*.h", dst=os.path.join("include", "catalog"), src=os.path.join(self._source_subfolder, "src", "include", "catalog"))
         self.copy(pattern="*.h", dst=os.path.join("include", "catalog"), src=os.path.join(self._source_subfolder, "src", "backend", "catalog"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def _construct_library_name(self, name):
         if self._is_msvc:
@@ -272,7 +272,7 @@ class LibpqConan(ConanFile):
 
         if not self.options.shared:
             if self._is_msvc:
-                if tools.Version(self.version) < "12":
+                if tools.scm.Version(self.version) < "12":
                     self.cpp_info.components["pgport"].libs = ["libpgport"]
                     self.cpp_info.components["pq"].requires.extend(["pgport"])
                 else:
@@ -280,7 +280,7 @@ class LibpqConan(ConanFile):
                     self.cpp_info.components["pgport"].libs = ["libpgport"]
                     self.cpp_info.components["pq"].requires.extend(["pgport", "pgcommon"])
             else:
-                if tools.Version(self.version) < "12":
+                if tools.scm.Version(self.version) < "12":
                     self.cpp_info.components["pgcommon"].libs = ["pgcommon"]
                     self.cpp_info.components["pq"].requires.extend(["pgcommon"])
                 else:

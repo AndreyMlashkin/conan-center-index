@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -47,7 +48,7 @@ class TidyHtml5Conan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -68,7 +69,7 @@ class TidyHtml5Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -77,11 +78,11 @@ class TidyHtml5Conan(ConanFile):
         self.copy("LICENSE.md", dst="licenses", src=os.path.join(self._source_subfolder, 'README'))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         if self.options.shared:
             to_remove = "*tidy_static*" if self.settings.os == "Windows" else "*.a"
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), to_remove)
+            tools.files.rm(self, to_remove, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "tidy"

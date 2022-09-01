@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -57,7 +58,7 @@ class OnnxConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self._is_msvc and self.options.shared:
             raise ConanInvalidConfiguration("onnx shared is broken with Visual Studio")
 
@@ -66,7 +67,7 @@ class OnnxConan(ConanFile):
             self.build_requires("protobuf/3.17.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -84,7 +85,7 @@ class OnnxConan(ConanFile):
         self._cmake.definitions["ONNXIFI_ENABLE_EXT"] = False
         self._cmake.definitions["ONNX_ML"] = True
         self._cmake.definitions["ONNXIFI_DUMMY_BACKEND"] = False
-        self._cmake.definitions["ONNX_VERIFY_PROTO3"] = tools.Version(self.deps_cpp_info["protobuf"].version).major == "3"
+        self._cmake.definitions["ONNX_VERIFY_PROTO3"] = tools.scm.Version(self.deps_cpp_info["protobuf"].version).major == "3"
         if self.settings.compiler.get_safe("runtime"):
             self._cmake.definitions["ONNX_USE_MSVC_STATIC_RUNTIME"] = str(self.settings.compiler.runtime) in ["MT", "MTd", "static"]
         self._cmake.configure(build_folder=self._build_subfolder)
@@ -92,7 +93,7 @@ class OnnxConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -100,7 +101,7 @@ class OnnxConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {component["target"]:"ONNX::{}".format(component["target"]) for component in self._onnx_components.values()}
@@ -116,7 +117,7 @@ class OnnxConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -159,7 +160,7 @@ class OnnxConan(ConanFile):
                 "target": "onnxifi_wrapper"
             }
         }
-        if tools.Version(self.version) >= "1.11.0":
+        if tools.scm.Version(self.version) >= "1.11.0":
             components["libonnx"]["defines"].append("__STDC_FORMAT_MACROS")
         return components
 

@@ -1,5 +1,5 @@
 import os
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 
 class MinGWTestConan(ConanFile):
@@ -11,6 +11,6 @@ class MinGWTestConan(ConanFile):
         self.run("gcc.exe {} @conanbuildinfo.gcc -lstdc++ -o main".format(source_file), run_environment=True)
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             self.run("gcc.exe --version", run_environment=True)
             self.run("main")

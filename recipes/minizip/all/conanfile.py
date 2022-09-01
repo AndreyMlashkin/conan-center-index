@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -54,7 +55,7 @@ class MinizipConan(ConanFile):
             self.requires("bzip2/1.0.8")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -67,15 +68,15 @@ class MinizipConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def _extract_license(self):
-        with tools.chdir(os.path.join(self.source_folder, self._source_subfolder)):
-            tmp = tools.load("zlib.h")
+        with tools.files.chdir(self, os.path.join(self.source_folder, self._source_subfolder)):
+            tmp = tools.files.load(self, "zlib.h")
             license_contents = tmp[2:tmp.find("*/", 1)]
-            tools.save("LICENSE", license_contents)
+            tools.files.save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()

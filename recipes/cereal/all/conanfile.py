@@ -1,10 +1,9 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir, save
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class CerealConan(ConanFile):
@@ -23,37 +22,34 @@ class CerealConan(ConanFile):
         "thread_safe": False,
     }
 
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
+    exports_sources = "CMakeLists.txt"
+    generators = "cmake"
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    def package_id(self):
+        self.info.header_only()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["JUST_INSTALL_CEREAL"] = True
-        tc.variables["CEREAL_INSTALL"] = True
-        tc.generate()
-
-    def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = CMake(self)
+        cmake.definitions["JUST_INSTALL_CEREAL"] = True
+        cmake.definitions["CEREAL_INSTALL"] = True
+        cmake.configure()
         cmake.install()
 
         # The "share" folder was being removed up to and including version 1.3.0.
         # The module files were moved to lib/cmake from 1.3.1 on, so now removing both
         # as to avoid breaking versions < 1.3.1
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        rmdir(self, os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
@@ -61,29 +57,26 @@ class CerealConan(ConanFile):
             {"cereal": "cereal::cereal"}
         )
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
+    @staticmethod
+    def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
-        save(self, module_file, content)
+            """.format(alias=alias, aliased=aliased))
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cereal")
         self.cpp_info.set_property("cmake_target_name", "cereal::cereal")
         self.cpp_info.set_property("cmake_target_aliases", ["cereal"]) # target before 1.3.1
-        self.cpp_info.bindirs = []
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
         if self.options.thread_safe:
             self.cpp_info.defines = ["CEREAL_THREAD_SAFE=1"]
             if self.settings.os in ["Linux", "FreeBSD"]:

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.36.0"
@@ -43,7 +44,7 @@ class ShadercConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) >= "2020.4":
+        if tools.scm.Version(self.version) >= "2020.4":
             del self.options.spvc
 
     def configure(self):
@@ -72,14 +73,14 @@ class ShadercConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -97,7 +98,7 @@ class ShadercConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._cmake.definitions["SHADERC_ENABLE_SHARED_CRT"] = str(self.settings.compiler.runtime).startswith("MD")
         self._cmake.definitions["ENABLE_CODE_COVERAGE"] = False
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self._cmake.definitions["CMAKE_MACOSX_BUNDLE"] = False
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -106,7 +107,7 @@ class ShadercConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "shaderc" if self.options.shared else "shaderc_static")

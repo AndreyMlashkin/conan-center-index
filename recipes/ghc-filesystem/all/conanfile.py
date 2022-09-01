@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -22,7 +23,7 @@ class GhcFilesystemRecipe(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -33,7 +34,7 @@ class GhcFilesystemRecipe(ConanFile):
         cmake.definitions["GHC_FILESYSTEM_WITH_INSTALL"] = True
         cmake.configure(source_folder=self._source_subfolder)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ghc_filesystem")

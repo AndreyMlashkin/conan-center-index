@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import conan.tools.files as tools_files
 import conan.tools.scm as tools_scm
@@ -35,7 +35,7 @@ class GnConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
         else:
             if self._minimum_compiler_version_supporting_cxx17:
                 if tools_scm.Version(self.settings.compiler.version) < self._minimum_compiler_version_supporting_cxx17:
@@ -84,7 +84,7 @@ class GnConan(ConanFile):
 
     @staticmethod
     def _to_gn_platform(os_, compiler):
-        if tools.is_apple_os(os_):
+        if tools.apple.is_apple_os(self, os_):
             return "darwin"
         if compiler == "Visual Studio":
             return "msvc"
@@ -92,10 +92,10 @@ class GnConan(ConanFile):
         return str(os_).lower()
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with self._build_context():
                 # Generate dummy header to be able to run `build/ben.py` with `--no-last-commit-position`. This allows running the script without the tree having to be a git checkout.
-                tools.save(os.path.join("src", "gn", "last_commit_position.h"),
+                tools.files.save(self, os.path.join("src", "gn", "last_commit_position.h"),
                            textwrap.dedent("""\
                                 #pragma once
                                 #define LAST_COMMIT_POSITION "1"
@@ -112,7 +112,7 @@ class GnConan(ConanFile):
                 time.sleep(1)
                 build_args = [
                     "-C", "out",
-                    "-j{}".format(tools.cpu_count()),
+                    "-j{}".format(tools.cpu_count(self, )),
                 ]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 

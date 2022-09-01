@@ -3,7 +3,7 @@ import os
 import stat
 
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
@@ -44,7 +44,7 @@ class NetSnmpConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -85,15 +85,15 @@ class NetSnmpConan(ConanFile):
         if self.options.with_ipv6:
             search_replace.append(("$b_ipv6 = false", "$b_ipv6 = true"))
         for search, replace in search_replace:
-            tools.replace_in_file("win32\\build.pl", search, replace)
+            tools.files.replace_in_file(self, "win32\\build.pl", search, replace)
         runtime = self.settings.compiler.runtime
-        tools.replace_in_file("win32\\Configure", '"/runtime', f'"/{runtime}')
+        tools.files.replace_in_file(self, "win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
             f'#    pragma comment(lib, "{lib}.lib")'
             for lib in ssl_info.libs + ssl_info.system_libs
         )
         config = r"win32\net-snmp\net-snmp-config.h.in"
-        tools.replace_in_file(config, "/* Conan: system_libs */", link_lines)
+        tools.files.replace_in_file(self, config, "/* Conan: system_libs */", link_lines)
 
     def _build_msvc(self):
         if self.should_configure:
@@ -130,7 +130,7 @@ class NetSnmpConan(ConanFile):
         return autotools
 
     def _patch_unix(self):
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             "configure",
             "-install_name \\$rpath/",
             "-install_name @rpath/"
@@ -138,12 +138,12 @@ class NetSnmpConan(ConanFile):
         crypto_libs = self.deps_cpp_info["openssl"].system_libs
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 "configure",
                 'LIBCRYPTO="-l${CRYPTO}"',
                 'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,)
             )
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 "configure",
                 'LIBS="-lcrypto  $LIBS"',
                 f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
@@ -151,7 +151,7 @@ class NetSnmpConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
@@ -171,14 +171,14 @@ class NetSnmpConan(ConanFile):
 
     def _remove(self, path):
         if os.path.isdir(path):
-            tools.rmdir(path)
+            tools.files.rmdir(self, path)
         else:
             os.remove(path)
 
     def _package_unix(self):
         self._configure_autotools().install(args=["NOAUTODEPS=1"])
-        tools.remove_files_by_mask(self.package_folder, "README")
-        tools.rmdir(os.path.join(self.package_folder, "bin"))
+        tools.files.rm(self, "README", self.package_folder)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
         lib_dir = os.path.join(self.package_folder, "lib")
         for entry in os.listdir(lib_dir):
             if not entry.startswith("libnetsnmp.") or entry.endswith(".la"):

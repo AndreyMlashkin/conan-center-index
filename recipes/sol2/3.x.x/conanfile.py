@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -22,14 +22,14 @@ class Sol2Conan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15.7" if tools.Version(self.version) < "3.3.0" else "16",
+            "Visual Studio": "15.7" if tools.scm.Version(self.version) < "3.3.0" else "16",
             "clang": "6",
             "apple-clang": "10",
         }
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -47,7 +47,7 @@ class Sol2Conan(ConanFile):
                                                     self.settings.compiler.version))
 
     def requirements(self):
-        if tools.Version(self.version) < "3.2.0":
+        if tools.scm.Version(self.version) < "3.2.0":
             self.requires("lua/5.3.5")
         else:
             self.requires("lua/5.4.4")
@@ -56,7 +56,7 @@ class Sol2Conan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class QuickfixTestConan(ConanFile):
@@ -13,6 +14,6 @@ class QuickfixTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             bin_path = os.path.join("bin", "executor")
             self.run(bin_path, run_environment=True)

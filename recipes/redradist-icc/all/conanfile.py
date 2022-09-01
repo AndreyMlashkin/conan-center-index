@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration, ConanException
 import os
 
 
@@ -53,7 +54,7 @@ class ICCConan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
         os = self.settings.os
         if os not in ("Windows", "Linux"):
@@ -65,7 +66,7 @@ class ICCConan(ConanFile):
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.Version(compiler.version) < min_version:
+            if tools.scm.Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {} !!"
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -91,7 +92,7 @@ class ICCConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         cmake = self._configure_cmake()

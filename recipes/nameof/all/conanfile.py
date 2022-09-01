@@ -1,7 +1,8 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 
 class NameofConan(ConanFile):
@@ -30,7 +31,7 @@ class NameofConan(ConanFile):
     @property
     def _supported_compiler(self):
         compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if compiler == "Visual Studio" and version >= "15":
             return True
         if compiler == "gcc" and version >= "7.4":
@@ -42,13 +43,13 @@ class NameofConan(ConanFile):
         return False
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         if not self._supported_compiler:
             raise ConanInvalidConfiguration("nameof: Unsupported compiler (https://github.com/Neargye/nameof#compiler-compatibility).")
 

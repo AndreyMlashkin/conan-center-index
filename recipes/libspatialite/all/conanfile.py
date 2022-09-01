@@ -109,45 +109,45 @@ class LibspatialiteConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_msvc(self):
         # Visual Studio build doesn't provide options, we need to manually edit gaiaconfig-msvc.h
         gaiaconfig_msvc = os.path.join(self._source_subfolder, "src", "headers", "spatialite", "gaiaconfig-msvc.h")
         if not self.options.mathsql:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_MATHSQL */", "#define OMIT_MATHSQL 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_MATHSQL */", "#define OMIT_MATHSQL 1")
         if self.options.geocallbacks:
-            tools.replace_in_file(gaiaconfig_msvc, "#define OMIT_GEOCALLBACKS 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define OMIT_GEOCALLBACKS 1", "")
         if not self.options.knn:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_KNN */", "#define OMIT_KNN 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_KNN */", "#define OMIT_KNN 1")
         if not self.options.epsg:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_EPSG */", "#define OMIT_EPSG 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_EPSG */", "#define OMIT_EPSG 1")
         if not self.options.geopackage:
-            tools.replace_in_file(gaiaconfig_msvc, "#define ENABLE_GEOPACKAGE 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define ENABLE_GEOPACKAGE 1", "")
         if not self.options.get_safe("gcp", False):
-            tools.replace_in_file(gaiaconfig_msvc, "#define ENABLE_GCP 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define ENABLE_GCP 1", "")
         if not self.options.with_proj:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_PROJ */", "#define OMIT_PROJ 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_PROJ */", "#define OMIT_PROJ 1")
         if not self.options.with_iconv:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_ICONV */", "#define OMIT_ICONV 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_ICONV */", "#define OMIT_ICONV 1")
         if not self.options.with_freexl:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_FREEXL */", "#define OMIT_FREEXL 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_FREEXL */", "#define OMIT_FREEXL 1")
         if not self.options.with_geos:
-            tools.replace_in_file(gaiaconfig_msvc, "/* #undef OMIT_GEOS */", "#define OMIT_GEOS 1")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_GEOS */", "#define OMIT_GEOS 1")
         if not self.options.get_safe("with_rttopo", False):
-            tools.replace_in_file(gaiaconfig_msvc, "#define ENABLE_RTTOPO 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define ENABLE_RTTOPO 1", "")
         if not self.options.with_libxml2:
-            tools.replace_in_file(gaiaconfig_msvc, "#define ENABLE_LIBXML2 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define ENABLE_LIBXML2 1", "")
         if not self.options.with_minizip:
-            tools.replace_in_file(gaiaconfig_msvc, "#define ENABLE_MINIZIP 1", "")
+            tools.files.replace_in_file(self, gaiaconfig_msvc, "#define ENABLE_MINIZIP 1", "")
 
         target = "spatialite_i.lib" if self.options.shared else "spatialite.lib"
         optflags = ["-DYY_NO_UNISTD_H"]
         system_libs = [lib + ".lib" for lib in self.deps_cpp_info.system_libs]
         if self.options.shared:
             optflags.append("-DDLL_EXPORT")
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     self.run("nmake -f makefile.vc {} OPTFLAGS=\"{}\" SYSTEM_LIBS=\"{}\"".format(target,
@@ -156,22 +156,22 @@ class LibspatialiteConan(ConanFile):
 
     def _build_autotools(self):
         # fix MinGW
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure.ac"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
                               "AC_CHECK_LIB(z,",
                               "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]))
         # Disable tests
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.am"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
                               "SUBDIRS = src test $(EXAMPLES)",
                               "SUBDIRS = src $(EXAMPLES)")
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared libs on macOS
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 libpaths = ":".join(self.deps_cpp_info.lib_paths)
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     "configure",
                     "#! /bin/sh\n",
                     "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -217,7 +217,7 @@ class LibspatialiteConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
@@ -231,12 +231,12 @@ class LibspatialiteConan(ConanFile):
             self.copy("*.lib", dst="lib", src=self._source_subfolder)
             self.copy("*.dll", dst="bin", src=self._source_subfolder)
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 with tools.run_environment(self):
                     autotools = self._configure_autotools()
                     autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "spatialite")
