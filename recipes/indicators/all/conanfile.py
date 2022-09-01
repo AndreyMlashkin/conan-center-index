@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class IndicatorsConan(ConanFile):
@@ -19,9 +19,9 @@ class IndicatorsConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
-        if tools.Version(self.version) < "2.0" and self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if tools.scm.Version(self.version) < "2.0" and self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "indicators < 2.0 can't be used by {0} {1}".format(
                     self.settings.compiler,
@@ -30,7 +30,7 @@ class IndicatorsConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
 
     def package(self):
