@@ -57,7 +57,7 @@ class IgnitionMathConan(ConanFile):
                 )
             )
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -72,13 +72,13 @@ class IgnitionMathConan(ConanFile):
         self.requires("swig/4.0.2")
 
     def build_requirements(self):
-        if int(tools.scm.Version(self.version).minor) <= 8:
+        if int(Version(self.version).minor) <= 8:
             self.build_requires("ignition-cmake/2.5.0")
         else:
             self.build_requires("ignition-cmake/2.10.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -90,7 +90,7 @@ class IgnitionMathConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -98,16 +98,16 @@ class IgnitionMathConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.scm.Version(self.version))
+            Version(self.version))
         
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
+            files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     @staticmethod
     def _create_cmake_module_variables(module_file, version):
@@ -118,11 +118,11 @@ class IgnitionMathConan(ConanFile):
             set(ignition-math{major}_VERSION_STRING "{major}.{minor}.{patch}")
             set(ignition-math{major}_INCLUDE_DIRS "${{CMAKE_CURRENT_LIST_DIR}}/../../include/ignition/math{major}")
         """.format(major=version.major, minor=version.minor, patch=version.patch))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
 
     def package_info(self):
-        version_major = tools.scm.Version(self.version).major
+        version_major = Version(self.version).major
         lib_name = f"ignition-math{version_major}"
 
         self.cpp_info.names["cmake_find_package"] = lib_name

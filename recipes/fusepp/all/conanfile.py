@@ -33,7 +33,7 @@ class FuseppConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, "11")
         if self.settings.compiler == "gcc":
-            if tools.scm.Version(self.settings.compiler.version) < "6":
+            if Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")
 
     def config_options(self):
@@ -47,7 +47,7 @@ class FuseppConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):

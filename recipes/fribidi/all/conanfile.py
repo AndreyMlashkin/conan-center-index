@@ -54,7 +54,7 @@ class FriBiDiCOnan(ConanFile):
         self.build_requires("meson/0.59.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_meson(self):
         if self._meson:
@@ -62,7 +62,7 @@ class FriBiDiCOnan(ConanFile):
         self._meson = Meson(self)
         self._meson.options["deprecated"] = self.options.with_deprecated
         self._meson.options["docs"] = False
-        if tools.scm.Version(self.version) >= "1.0.10":
+        if Version(self.version) >= "1.0.10":
             self._meson.options["bin"] = False
             self._meson.options["tests"] = False
         self._meson.configure(build_folder=self._build_subfolder, source_folder=self._source_subfolder)
@@ -70,7 +70,7 @@ class FriBiDiCOnan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -85,16 +85,16 @@ class FriBiDiCOnan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             lib_a = os.path.join(self.package_folder, "lib", "libfribidi.a")
             if os.path.isfile(lib_a):
-                tools.files.rename(self, lib_a, os.path.join(self.package_folder, "lib", "fribidi.lib"))
-            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+                files.rename(self, lib_a, os.path.join(self.package_folder, "lib", "fribidi.lib"))
+            files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["fribidi"]
         self.cpp_info.includedirs.append(os.path.join("include", "fribidi"))
         if not self.options.shared:
-            if tools.scm.Version(self.version) >= "1.0.10":
+            if Version(self.version) >= "1.0.10":
                 self.cpp_info.defines.append("FRIBIDI_LIB_STATIC")
             else:
                 self.cpp_info.defines.append("FRIBIDI_STATIC")

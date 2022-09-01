@@ -50,12 +50,12 @@ class BxConan(ConanFile):
             self.output.warn(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('bx-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -74,7 +74,7 @@ class BxConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "bx", "compat"))
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["dl", "pthread", "rt"]

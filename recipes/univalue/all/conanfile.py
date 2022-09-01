@@ -48,7 +48,7 @@ class UnivalueConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -65,12 +65,12 @@ class UnivalueConan(ConanFile):
             conf_args.extend(["--disable-shared", "--enable-static"])
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         if self.settings.compiler == "Visual Studio":
-            tools.files.replace_in_file(self, "libtool", "-Wl,-DLL,-IMPLIB", "-link -DLL -link -DLL -link -IMPLIB")
+            files.replace_in_file(self, "libtool", "-Wl,-DLL,-IMPLIB", "-link -DLL -link -DLL -link -IMPLIB")
         return self._autotools
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @contextmanager
     def _build_context(self):
@@ -92,7 +92,7 @@ class UnivalueConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} --verbose --install --force".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -104,10 +104,10 @@ class UnivalueConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
                          os.path.join(self.package_folder, "lib", "univalue.lib"))
 
     def package_info(self):

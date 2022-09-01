@@ -63,9 +63,9 @@ class LibpqxxConan(ConanFile):
                 .format(self.name,))
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
-        lib_version = tools.scm.Version(self.version)
+        lib_version = Version(self.version)
         lib_version_7_6_0_or_later = lib_version >= "7.6.0"
         minimum_compiler_version = {
             "Visual Studio": "16" if lib_version_7_6_0_or_later else "15",
@@ -86,7 +86,7 @@ class LibpqxxConan(ConanFile):
 
         if self.settings.os == "Macos":
             os_version = self.settings.get_safe("os.version")
-            if os_version and tools.scm.Version(os_version) < self._mac_os_minimum_required_version:
+            if os_version and Version(os_version) < self._mac_os_minimum_required_version:
                 raise ConanInvalidConfiguration(
                     "Macos Mojave (10.14) and earlier cannot to be built because C++ standard library too old.")
 
@@ -94,7 +94,7 @@ class LibpqxxConan(ConanFile):
             tools.build.check_min_cppstd(self, minimum_cpp_standard)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -109,7 +109,7 @@ class LibpqxxConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -119,9 +119,9 @@ class LibpqxxConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libpqxx")

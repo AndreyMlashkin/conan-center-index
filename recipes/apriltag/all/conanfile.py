@@ -46,7 +46,7 @@ class ApriltagConan(ConanFile):
             raise ConanInvalidConfiguration("Apriltag officially supported only on Linux")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -59,7 +59,7 @@ class ApriltagConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -67,9 +67,9 @@ class ApriltagConan(ConanFile):
         self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "apriltag"

@@ -76,7 +76,7 @@ class RapidcheckConan(ConanFile):
             raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires gtest:build_gmock=True`")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -93,7 +93,7 @@ class RapidcheckConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -101,7 +101,7 @@ class RapidcheckConan(ConanFile):
         self.copy(pattern="LICENSE*", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -124,7 +124,7 @@ class RapidcheckConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -136,7 +136,7 @@ class RapidcheckConan(ConanFile):
         self.cpp_info.components["rapidcheck_rapidcheck"].set_property("cmake_target_name", "rapidcheck")
         self.cpp_info.components["rapidcheck_rapidcheck"].libs = ["rapidcheck"]
         version = str(self.version)[4:]
-        if tools.scm.Version(version) < "20201218":
+        if Version(version) < "20201218":
             if self.options.enable_rtti:
                 self.cpp_info.components["rapidcheck_rapidcheck"].defines.append("RC_USE_RTTI")
         else:

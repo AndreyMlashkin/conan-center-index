@@ -28,7 +28,7 @@ class LibconfigConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def configure(self):
         if self.options.shared:
@@ -50,7 +50,7 @@ class LibconfigConan(ConanFile):
 
     def build(self):
         # https://github.com/hyperrealm/libconfig/issues/119
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"), "_STDLIB_H", "")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"), "_STDLIB_H", "")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -59,9 +59,9 @@ class LibconfigConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.components["libconfig_"].names["cmake_find_package"] = "libconfig"

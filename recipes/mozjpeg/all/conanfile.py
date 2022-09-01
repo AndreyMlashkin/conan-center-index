@@ -72,7 +72,7 @@ class MozjpegConan(ConanFile):
 
     @property
     def _use_cmake(self):
-        return self.settings.os == "Windows" or tools.scm.Version(self.version) >= "4.0.0"
+        return self.settings.os == "Windows" or Version(self.version) >= "4.0.0"
 
     def build_requirements(self):
         if not self._use_cmake:
@@ -83,7 +83,7 @@ class MozjpegConan(ConanFile):
             self.build_requires("nasm/2.15.05")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -140,12 +140,12 @@ class MozjpegConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._use_cmake:
             cmake = self._configure_cmake()
             cmake.build()
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")))
             autotools = self._configure_autotools()
             autotools.make()
@@ -155,17 +155,17 @@ class MozjpegConan(ConanFile):
         if self._use_cmake:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+            files.rmdir(self, os.path.join(self.package_folder, "doc"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # remove binaries and pdb files
         for bin_pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
-            tools.files.rm(self, bin_pattern_to_remove, os.path.join(self.package_folder, "bin"))
+            files.rm(self, bin_pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def _lib_name(self, name):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio" and not self.options.shared:

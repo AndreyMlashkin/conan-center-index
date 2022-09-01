@@ -56,7 +56,7 @@ class AwsCrtCpp(ConanFile):
         self.requires("aws-checksums/0.1.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -70,7 +70,7 @@ class AwsCrtCpp(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -78,7 +78,7 @@ class AwsCrtCpp(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-crt-cpp"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-crt-cpp"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-crt-cpp")

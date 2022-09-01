@@ -27,7 +27,7 @@ class SMLConan(ConanFile):
         }
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def validate(self):
@@ -38,14 +38,14 @@ class SMLConan(ConanFile):
         if not minimum_version:
             self.output.warn(
                 "SML requires C++14. Your compiler is unknown. Assuming it supports C++14.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "SML requires C++14, which your compiler does not support.")
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        # tools.files.patch(self, patch_file="patches/0001-fix-clang12-error.patch")
+            files.patch(self, **patch)
+        # files.patch(self, patch_file="patches/0001-fix-clang12-error.patch")
 
     def package(self):
         self.copy(pattern="*", dst="include",

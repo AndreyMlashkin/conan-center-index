@@ -58,7 +58,7 @@ class FltkConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -75,7 +75,7 @@ class FltkConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -84,10 +84,10 @@ class FltkConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "FLTK.framework"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
-        tools.files.rm(self, "fltk-config*", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "FLTK.framework"))
+        files.rmdir(self, os.path.join(self.package_folder, "CMake"))
+        files.rm(self, "fltk-config*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fltk")
@@ -98,7 +98,7 @@ class FltkConan(ConanFile):
 
         if self.options.shared and self.settings.os == "Windows":
             self.cpp_info.defines.append("FL_DLL")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ("Linux", "FreeBSD"):
             if self.options.with_threads:
                 self.cpp_info.system_libs.extend(['pthread', 'dl'])

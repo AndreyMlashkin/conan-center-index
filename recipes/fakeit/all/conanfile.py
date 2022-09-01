@@ -45,7 +45,7 @@ class FakeItConan(ConanFile):
             tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy(pattern="fakeit.hpp", dst="include", src=os.path.join(self._source_subfolder, "single_header", str(self.options.integration)))

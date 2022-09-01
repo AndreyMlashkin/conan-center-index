@@ -51,7 +51,7 @@ class XnnpackConan(ConanFile):
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
         compiler = self.settings.compiler
-        compiler_version = tools.scm.Version(compiler.version)
+        compiler_version = Version(compiler.version)
         if (compiler == "gcc" and compiler_version < "6") or \
            (compiler == "clang" and compiler_version < "5") or \
            (compiler == "Visual Studio" and compiler_version < "16"):
@@ -64,12 +64,12 @@ class XnnpackConan(ConanFile):
         self.requires("pthreadpool/cci.20210218")
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
                               "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
                               "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("XNNPACK-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
         self._patch_sources()

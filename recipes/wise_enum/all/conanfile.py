@@ -35,7 +35,7 @@ class WiseEnumConan(ConanFile):
             tools.build.check_min_cppstd(self, "11")
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         minimal_version = {
            "gcc": "5"
@@ -55,7 +55,7 @@ class WiseEnumConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

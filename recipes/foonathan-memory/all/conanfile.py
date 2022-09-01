@@ -66,7 +66,7 @@ class FoonathanMemory(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -88,7 +88,7 @@ class FoonathanMemory(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
     
     def validate(self):
         # FIXME: jenkins servers throw error with this combination 
@@ -98,7 +98,7 @@ class FoonathanMemory(ConanFile):
             raise ConanInvalidConfiguration("package currently do not support cross build to Macos armv8")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def configure(self):
@@ -118,9 +118,9 @@ class FoonathanMemory(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.files.rmdir(self, self._pkg_cmake)
-        tools.files.rmdir(self, self._pkg_share)
-        tools.files.rm(self, 
+        files.rmdir(self, self._pkg_cmake)
+        files.rmdir(self, self._pkg_share)
+        files.rm(self, 
             directory=os.path.join(self.package_folder, "lib"),
             pattern="*.pdb"
         )
@@ -132,7 +132,7 @@ class FoonathanMemory(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "foonathan_memory"
         self.cpp_info.names["cmake_find_package_multi"] = "foonathan_memory"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.builddirs.append(self._module_subfolder)
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

@@ -113,11 +113,11 @@ class TensorflowLiteConan(ConanFile):
         self.build_requires("ninja/1.10.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -148,7 +148,7 @@ class TensorflowLiteConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """)
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file(self):
@@ -160,7 +160,7 @@ class TensorflowLiteConan(ConanFile):
         self.copy("*", dst="lib", src=os.path.join(self._build_subfolder, "lib"))
         if self.options.shared:
             self.copy("*", dst="bin", src=os.path.join(self._build_subfolder, "bin"))
-            tools.files.rm(self, "*.pdb", self.package_folder)
+            files.rm(self, "*.pdb", self.package_folder)
         self._create_cmake_module_alias_target(os.path.join(self.package_folder, self._module_file))
 
     def package_info(self):
@@ -179,6 +179,6 @@ class TensorflowLiteConan(ConanFile):
             defines.append("TFLITE_WITH_RUY")
 
         self.cpp_info.defines = defines
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("dl")

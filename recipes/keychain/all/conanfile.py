@@ -36,7 +36,7 @@ class KeychainConan(ConanFile):
             self.build_requires("pkgconf/1.7.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -55,7 +55,7 @@ class KeychainConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         if self.settings.os == 'Macos':
             self.cpp_info.frameworks = ['Security', 'CoreFoundation']

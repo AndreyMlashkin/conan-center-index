@@ -73,16 +73,16 @@ class MariadbConnectorcConan(ConanFile):
             raise ConanInvalidConfiguration("gnutls not yet available in CCI")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         root_cmake = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, root_cmake, "${ZLIB_LIBRARY}", "${ZLIB_LIBRARIES}")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, root_cmake, "${ZLIB_LIBRARY}", "${ZLIB_LIBRARIES}")
+        files.replace_in_file(self, 
             root_cmake,
             "SET(SSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})",
             "SET(SSL_LIBRARIES ${OPENSSL_LIBRARIES})"
@@ -121,14 +121,14 @@ class MariadbConnectorcConan(ConanFile):
         self.copy("COPYING.LIB", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "symbols"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "symbols"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libmariadb")
         self.cpp_info.includedirs.append(os.path.join("include", "mariadb"))
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "m", "pthread"]
         elif self.settings.os == "Windows":

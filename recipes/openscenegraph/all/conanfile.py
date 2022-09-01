@@ -150,12 +150,12 @@ class OpenSceneGraphConanFile(ConanFile):
             self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"].get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
             # Prefer conan's find package scripts over osg's
@@ -234,8 +234,8 @@ class OpenSceneGraphConanFile(ConanFile):
 
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         # FindOpenSceneGraph.cmake is shipped with cmake and is a traditional cmake script
@@ -477,13 +477,13 @@ class OpenSceneGraphConanFile(ConanFile):
         if tools.apple.is_apple_os(self):
             setup_plugin("imageio").frameworks = ["Accelerate"]
 
-        if ((self.settings.os == "Macos" and self.settings.os.version and tools.scm.Version(self.settings.os.version) >= "10.8")
-                or (self.settings.os == "iOS" and tools.scm.Version(self.settings.os.version) >= "6.0")):
+        if ((self.settings.os == "Macos" and self.settings.os.version and Version(self.settings.os.version) >= "10.8")
+                or (self.settings.os == "iOS" and Version(self.settings.os.version) >= "6.0")):
             plugin = setup_plugin("avfoundation")
             plugin.requires.append("osgViewer")
             plugin.frameworks = ["AVFoundation", "Cocoa", "CoreVideo", "CoreMedia", "QuartzCore"]
 
-        if self.settings.os == "Macos" and self.settings.os.version and tools.scm.Version(self.settings.os.version) <= "10.6" and self.settings.arch == "x86":
+        if self.settings.os == "Macos" and self.settings.os.version and Version(self.settings.os.version) <= "10.6" and self.settings.arch == "x86":
             setup_plugin("qt").frameworks = ["QuickTime"]
 
         if self.settings.os == "Macos" and self.settings.arch == "x86":

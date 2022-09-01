@@ -76,7 +76,7 @@ class CoinUtilsConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -100,7 +100,7 @@ class CoinUtilsConan(ConanFile):
         self._autotools.libs = []
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
-            if tools.scm.Version(self.settings.compiler.version) >= "12":
+            if Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
         yes_no = lambda v: "yes" if v else "no"
         configure_args = [
@@ -114,7 +114,7 @@ class CoinUtilsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler != "Visual Studio":
             shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                         os.path.join(self._source_subfolder, "config.sub"))
@@ -130,9 +130,9 @@ class CoinUtilsConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install(args=["-j1"])
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         if self.settings.compiler == "Visual Studio":
             os.rename(os.path.join(self.package_folder, "lib", "libCoinUtils.a"),

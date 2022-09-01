@@ -31,14 +31,14 @@ class Libsgp4Conan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         url = self.conan_data["sources"][self.version]["url"]
         extracted_dir = "sgp4-" + os.path.splitext(os.path.basename(url))[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build(target="sgp4")
 
@@ -55,5 +55,5 @@ class Libsgp4Conan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs = ["include", os.path.join("include", "SGP4")]

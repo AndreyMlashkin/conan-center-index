@@ -30,7 +30,7 @@ class Recipe(ConanFile):
     _meson = None
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self.folders.base_source,
                   strip_root=True)
 

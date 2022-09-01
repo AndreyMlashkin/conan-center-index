@@ -122,22 +122,22 @@ class ArrowConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.scm.Version(self.version) < "2.0.0":
+        if Version(self.version) < "2.0.0":
             del self.options.simd_level
             del self.options.runtime_simd_level
-        elif tools.scm.Version(self.version) < "6.0.0":
+        elif Version(self.version) < "6.0.0":
             self.options.simd_level = "sse4_2"
-        if tools.scm.Version(self.version) < "6.0.0":
+        if Version(self.version) < "6.0.0":
             del self.options.with_gcs
-        if tools.scm.Version(self.version) < "7.0.0":
+        if Version(self.version) < "7.0.0":
             del self.options.skyhook
             del self.options.with_flight_sql
             del self.options.with_opentelemetry
-        if tools.scm.Version(self.version) < "8.0.0":
+        if Version(self.version) < "8.0.0":
             del self.options.substrait
 
     def validate(self):
-        if self.settings.compiler == "clang" and self.settings.compiler.version <= tools.scm.Version("3.9"):
+        if self.settings.compiler == "clang" and self.settings.compiler.version <= Version("3.9"):
             raise ConanInvalidConfiguration("This recipe does not support this compiler version")
 
         if self.options.shared:
@@ -181,7 +181,7 @@ class ArrowConan(ConanFile):
             if self.options["jemalloc"].enable_cxx:
                 raise ConanInvalidConfiguration("jemmalloc.enable_cxx of a static jemalloc must be disabled")
 
-        if tools.scm.Version(self.version) < "6.0.0" and self.options.get_safe("simd_level") == "default":
+        if Version(self.version) < "6.0.0" and self.options.get_safe("simd_level") == "default":
             raise ConanInvalidConfiguration("In {}/{}, simd_level options is not supported `default` value.".format(self.name, self.version))
 
     def _compute(self, required=False):
@@ -248,9 +248,9 @@ class ArrowConan(ConanFile):
         if required or self.options.with_boost == "auto":
             if self.options.gandiva:
                 return True
-            version = tools.scm.Version(self.version)
+            version = Version(self.version)
             if version.major == "1":
-                if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < tools.scm.Version("4.9"):
+                if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
                     return True
             elif version.major >= "2":
                 if self.settings.compiler == "Visual Studio":
@@ -320,7 +320,7 @@ class ArrowConan(ConanFile):
             self.requires("lz4/1.9.3")
         if self.options.with_snappy:
             self.requires("snappy/1.1.9")
-        if tools.scm.Version(self.version) >= "6.0.0" and \
+        if Version(self.version) >= "6.0.0" and \
             self.options.get_safe("simd_level") != None or \
             self.options.get_safe("runtime_simd_level") != None:
             self.requires("xsimd/8.1.0")
@@ -336,7 +336,7 @@ class ArrowConan(ConanFile):
             self.requires("libbacktrace/cci.20210118")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -409,7 +409,7 @@ class ArrowConan(ConanFile):
         self._cmake.definitions["ZLIB_SOURCE"] = "SYSTEM"
 
         self._cmake.definitions["ARROW_WITH_ZSTD"] = self.options.with_zstd
-        if tools.scm.Version(self.version) >= "2.0":
+        if Version(self.version) >= "2.0":
             self._cmake.definitions["zstd_SOURCE"] = "SYSTEM"
             self._cmake.definitions["ARROW_SIMD_LEVEL"] = str(self.options.simd_level).upper()
             self._cmake.definitions["ARROW_RUNTIME_SIMD_LEVEL"] = str(self.options.runtime_simd_level).upper()
@@ -455,8 +455,8 @@ class ArrowConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        if tools.scm.Version(self.version) >= "7.0.0":
+            files.patch(self, **patch)
+        if Version(self.version) >= "7.0.0":
             for filename in glob.glob(os.path.join(self._source_subfolder, "cpp", "cmake_modules", "Find*.cmake")):
                 if os.path.basename(filename) not in [
                     "FindArrow.cmake",
@@ -486,9 +486,9 @@ class ArrowConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def _lib_name(self, name):
         if self.settings.compiler == "Visual Studio" and not self.options.shared:
@@ -573,9 +573,9 @@ class ArrowConan(ConanFile):
             if self.options.gandiva:
                 # FIXME: only filesystem component is used
                 self.cpp_info.components["libgandiva"].requires.append("boost::boost")
-            if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < tools.scm.Version("4.9"):
+            if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
                 self.cpp_info.components["libparquet"].requires.append("boost::boost")
-            if tools.scm.Version(self.version) >= "2.0":
+            if Version(self.version) >= "2.0":
                 # FIXME: only headers components is used
                 self.cpp_info.components["libarrow"].requires.append("boost::boost")
         if self._with_openssl():

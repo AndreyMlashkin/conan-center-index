@@ -73,22 +73,22 @@ class GfCompleteConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Don't build tests and examples (and also tools if Visual Studio)
         to_build = ["src"]
         if self.settings.compiler != "Visual Studio":
             to_build.append("tools")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
                               "SUBDIRS = src tools test examples",
                               "SUBDIRS = {}".format(" ".join(to_build)))
         # Honor build type settings and fPIC option
         for subdir in ["src", "tools"]:
             for flag in ["-O3", "-fPIC"]:
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, subdir, "Makefile.am"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, subdir, "Makefile.am"),
                                       flag, "")
 
     @contextlib.contextmanager
@@ -140,7 +140,7 @@ class GfCompleteConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -151,7 +151,7 @@ class GfCompleteConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["gf_complete"]

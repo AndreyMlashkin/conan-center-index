@@ -67,7 +67,7 @@ class XapianCoreConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -106,7 +106,7 @@ class XapianCoreConan(ConanFile):
                 vs_ide_version = self.settings.compiler.version
             else:
                 vs_ide_version = msvc_version_to_vs_ide_version(self.settings.compiler.version)
-            if tools.scm.Version(vs_ide_version) >= "12":
+            if Version(vs_ide_version) >= "12":
                 autotools.flags.append("-FS")
         conf_args = [
             "--datarootdir={}".format(self._datarootdir.replace("\\", "/")),
@@ -121,9 +121,9 @@ class XapianCoreConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Relocatable shared lib on macOS
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               "-install_name \\$rpath/",
                               "-install_name @rpath/")
 
@@ -145,10 +145,10 @@ class XapianCoreConan(ConanFile):
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "bin", "xapian-config")))
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libxapian.la")))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "doc"))
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self._datarootdir, "doc"))
+        files.rmdir(self, os.path.join(self._datarootdir, "man"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path)
         )
@@ -168,7 +168,7 @@ class XapianCoreConan(ConanFile):
                                  ${xapian_LIBRARIES_MINSIZEREL}
                                  ${xapian_LIBRARIES_DEBUG})
         """)
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

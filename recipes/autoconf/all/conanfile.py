@@ -39,7 +39,7 @@ class AutoconfConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -68,7 +68,7 @@ class AutoconfConan(ConanFile):
 
     def _patch_files(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -86,8 +86,8 @@ class AutoconfConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "info"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "info"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

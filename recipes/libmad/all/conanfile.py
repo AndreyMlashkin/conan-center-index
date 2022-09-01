@@ -53,7 +53,7 @@ class LibmadConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -63,13 +63,13 @@ class LibmadConan(ConanFile):
             self._build_autotools()
 
     def _build_msvc(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "msvc++")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "msvc++")):
             # cl : Command line error D8016: '/ZI' and '/Gy-' command-line options are incompatible
-            tools.files.replace_in_file(self, "libmad.dsp", "/ZI ", "")
+            files.replace_in_file(self, "libmad.dsp", "/ZI ", "")
             if self.settings.arch == "x86_64":
-                tools.files.replace_in_file(self, "libmad.dsp", "Win32", "x64")
-                tools.files.replace_in_file(self, "libmad.dsp", "FPM_INTEL", "FPM_DEFAULT")
-                tools.files.replace_in_file(self, "mad.h", "# define FPM_INTEL", "# define FPM_DEFAULT")
+                files.replace_in_file(self, "libmad.dsp", "Win32", "x64")
+                files.replace_in_file(self, "libmad.dsp", "FPM_INTEL", "FPM_DEFAULT")
+                files.replace_in_file(self, "mad.h", "# define FPM_INTEL", "# define FPM_DEFAULT")
             with tools.vcvars(self.settings):
                 self.run("devenv libmad.dsp /upgrade")
             msbuild = MSBuild(self)
@@ -109,7 +109,7 @@ class LibmadConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["libmad" if self._is_msvc else "mad"]

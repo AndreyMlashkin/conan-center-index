@@ -58,7 +58,7 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def validate(self):
         compiler_name = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         # Exclude compiler.cppstd < 17
         min_req_cppstd = "17"
@@ -88,7 +88,7 @@ class TCSBankUriTemplateConan(ConanFile):
                                             ' or "compiler.libcxx=libc++"' % self.name)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         cmake = self._configure_cmake()
@@ -98,11 +98,11 @@ class TCSBankUriTemplateConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "uri-template"
         self.cpp_info.names["cmake_find_package"] = "uri-template"
         self.cpp_info.names["cmake_find_package_multi"] = "uri-template"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

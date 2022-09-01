@@ -68,7 +68,7 @@ class PkgConfConan(ConanFile):
         self.build_requires("meson/0.62.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @property
     def _sharedstatedir(self):
@@ -86,12 +86,12 @@ class PkgConfConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if not self.options.get_safe("shared", False):
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                                   "'-DLIBPKGCONF_EXPORT'",
                                   "'-DPKGCONFIG_IS_STATIC'")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
             "project('pkgconf', 'c',",
             "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
 
@@ -108,20 +108,20 @@ class PkgConfConan(ConanFile):
             meson.install()
 
         if self._is_msvc:
-            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             if self.options.enable_lib and not self.options.shared:
                 os.rename(os.path.join(self.package_folder, "lib", "libpkgconf.a"),
                           os.path.join(self.package_folder, "lib", "pkgconf.lib"),)
         
         if not self.options.enable_lib:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "include"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "include"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
         os.rename(os.path.join(self.package_folder, "share", "aclocal"),
                   os.path.join(self.package_folder, "bin", "aclocal"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_id(self):
         if not self.options.enable_lib:
@@ -130,7 +130,7 @@ class PkgConfConan(ConanFile):
     def package_info(self):
         if self.options.enable_lib:
             self.cpp_info.set_property("pkg_config_name", "libpkgconf")
-            if tools.scm.Version(self.version) >= "1.7.4":
+            if Version(self.version) >= "1.7.4":
                 self.cpp_info.includedirs.append(os.path.join("include", "pkgconf"))
             self.cpp_info.libs = ["pkgconf"]
             if not self.options.shared:

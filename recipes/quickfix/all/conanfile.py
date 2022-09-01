@@ -60,7 +60,7 @@ class QuickfixConan(ConanFile):
             raise ConanInvalidConfiguration("QuickFIX doesn't support ARM compilation")  # See issue: https://github.com/quickfix/quickfix/issues/206
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -73,7 +73,7 @@ class QuickfixConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build(target="quickfix")
@@ -84,10 +84,10 @@ class QuickfixConan(ConanFile):
         self.copy("config.h", dst=os.path.join("include", "quickfix"), src=self._build_subfolder)
         self.copy("Except.h", dst="include", src=os.path.join(self._source_subfolder, "src", "C++"))
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         if self.options.with_ssl:
             self.cpp_info.defines.append("HAVE_SSL=1")

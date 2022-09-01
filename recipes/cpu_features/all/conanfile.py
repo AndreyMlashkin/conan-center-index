@@ -47,16 +47,16 @@ class CpuFeaturesConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
-        if tools.scm.Version(self.version) < "0.7.0":
+        if Version(self.version) < "0.7.0":
             self._cmake.definitions["BUILD_PIC"] = self.options.get_safe("fPIC", True)
-        if tools.scm.Version(self.version) >= "0.7.0":
+        if Version(self.version) >= "0.7.0":
             self._cmake.definitions["BUILD_TESTING"] = False
         # TODO: should be handled by CMake helper
         if tools.apple.is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
@@ -66,7 +66,7 @@ class CpuFeaturesConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -74,7 +74,7 @@ class CpuFeaturesConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CpuFeatures")

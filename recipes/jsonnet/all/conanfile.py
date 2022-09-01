@@ -45,12 +45,12 @@ class JsonnetConan(ConanFile):
             # or the c4core functions that rapidyaml depends on will not be able to be found.
             # This seems to be a issue of rapidyaml.
             # https://github.com/conan-io/conan-center-index/pull/9786#discussion_r829887879
-            if tools.scm.Version(self.version) >= "0.18.0":
+            if Version(self.version) >= "0.18.0":
                 self.options["rapidyaml"].shared = True
 
     def requirements(self):
         self.requires("nlohmann_json/3.10.5")
-        if tools.scm.Version(self.version) >= "0.18.0":
+        if Version(self.version) >= "0.18.0":
             self.requires("rapidyaml/0.4.1")
 
     def validate(self):
@@ -69,7 +69,7 @@ class JsonnetConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -86,7 +86,7 @@ class JsonnetConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -98,7 +98,7 @@ class JsonnetConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["libjsonnet"].libs = ["jsonnet"]
         self.cpp_info.components["libjsonnet"].requires = ["nlohmann_json::nlohmann_json"]
-        if tools.scm.Version(self.version) >= "0.18.0":
+        if Version(self.version) >= "0.18.0":
             self.cpp_info.components["libjsonnet"].requires.append("rapidyaml::rapidyaml")
 
         if tools.stdcpp_library(self):

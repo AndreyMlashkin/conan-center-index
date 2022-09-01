@@ -66,15 +66,15 @@ class LibUSBConan(ConanFile):
                 self.requires("libudev/system")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_visual_studio(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # Assume we're using the latest Visual Studio and default to libusb_2019.sln
             # (or libusb_2017.sln for libusb < 1.0.24).
             # If we're not using the latest Visual Studio, select an appropriate solution file.
-            solution_msvc_year = 2019 if tools.scm.Version(self.version) >= "1.0.24" else 2017
+            solution_msvc_year = 2019 if Version(self.version) >= "1.0.24" else 2017
 
             solution_msvc_year = {
                 "11": 2012,
@@ -111,11 +111,11 @@ class LibUSBConan(ConanFile):
 
     def build(self):
         if self._is_msvc:
-            if tools.scm.Version(self.version) < "1.0.24":
+            if Version(self.version) < "1.0.24":
                 for vcxproj in ["fxload_2017", "getopt_2017", "hotplugtest_2017", "libusb_dll_2017",
                                 "libusb_static_2017", "listdevs_2017", "stress_2017", "testlibusb_2017", "xusb_2017"]:
                     vcxproj_path = os.path.join(self._source_subfolder, "msvc", "%s.vcxproj" % vcxproj)
-                    tools.files.replace_in_file(self, vcxproj_path, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
+                    files.replace_in_file(self, vcxproj_path, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
             self._build_visual_studio()
         else:
             autotools = self._configure_autotools()
@@ -141,12 +141,12 @@ class LibUSBConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libusb-1.0"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "libusb-1.0"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")

@@ -79,7 +79,7 @@ class LiquidDspConan(ConanFile):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             strip_root=True,
@@ -88,13 +88,13 @@ class LiquidDspConan(ConanFile):
     def _patch_sources(self):
         if self.settings.os == "Windows":
             for patch in self.conan_data["patches"][self.version]:
-                tools.files.patch(self, **patch)
+                files.patch(self, **patch)
 
     def _gen_link_library(self):
         if self.settings.compiler != "Visual Studio" or (not self.options.shared):
             return
         self.run("cmd /c generate_link_library.bat")
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run(
                 "{} /def:libliquid.def /out:libliquid.lib /machine:{}".format(
                     os.getenv("AR"), "X86" if self.settings.arch == "x86" else "X64"
@@ -103,13 +103,13 @@ class LiquidDspConan(ConanFile):
             )
 
     def _rename_libraries(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             if self.settings.os == "Windows" and self.options.shared:
-                tools.files.rename(self, "libliquid.so", "libliquid.dll")
+                files.rename(self, "libliquid.so", "libliquid.dll")
             elif self.settings.os == "Windows" and not self.options.shared:
-                tools.files.rename(self, "libliquid.a", "libliquid.lib")
+                files.rename(self, "libliquid.a", "libliquid.lib")
             elif self.settings.os == "Macos" and not self.options.shared:
-                tools.files.rename(self, "libliquid.ar", "libliquid.a")
+                files.rename(self, "libliquid.ar", "libliquid.a")
 
     @contextmanager
     def _build_context(self):
@@ -156,7 +156,7 @@ class LiquidDspConan(ConanFile):
             configure_args.append("CFLAGS='{}'".format(" ".join(cflags)))
         configure_args_str = " ".join(configure_args)
         with self._build_context():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("./bootstrap.sh", win_bash=tools.os_info.is_windows)
                 self.run(
                     "./configure {}".format(configure_args_str),

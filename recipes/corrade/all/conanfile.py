@@ -65,7 +65,7 @@ class CorradeConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if is_msvc(self) and tools.scm.Version(vs_ide_version(self)) < 14:
+        if is_msvc(self) and Version(vs_ide_version(self)) < 14:
             raise ConanInvalidConfiguration("Corrade requires Visual Studio version 14 or greater")
 
         if not self.options.with_utility and (self.options.with_testsuite or self.options.with_interconnect or self.options.with_pluginmanager):
@@ -76,7 +76,7 @@ class CorradeConan(ConanFile):
             self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -108,7 +108,7 @@ class CorradeConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -122,7 +122,7 @@ class CorradeConan(ConanFile):
         self.copy("UseCorrade.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake"))
         self.copy("CorradeLibSuffix.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake"))
         self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

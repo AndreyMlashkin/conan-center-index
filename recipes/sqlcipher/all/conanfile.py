@@ -82,7 +82,7 @@ class SqlcipherConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -142,11 +142,11 @@ class SqlcipherConan(ConanFile):
         configure = os.path.join(self._source_subfolder, "configure")
         self._chmod_plus_x(configure)
         # relocatable shared libs on macOS
-        tools.files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
+        files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
         # avoid SIP issues on macOS when dependencies are shared
         if tools.apple.is_apple_os(self):
             libpaths = ":".join(self.deps_cpp_info.lib_paths)
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 configure,
                 "#! /bin/sh\n",
                 "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -185,7 +185,7 @@ class SqlcipherConan(ConanFile):
         autotools.configure(configure_dir=self._source_subfolder, args=args, vars=env_vars)
         if self.settings.os == "Windows":
             # sqlcipher will create .exe for the build machine, which we defined to Linux...
-            tools.files.replace_in_file(self, "Makefile", "BEXE = .exe", "BEXE = ")
+            files.replace_in_file(self, "Makefile", "BEXE = .exe", "BEXE = ")
         return autotools
 
     def _use_commoncrypto(self):
@@ -193,7 +193,7 @@ class SqlcipherConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._is_msvc:
             self._build_visual()
         else:
@@ -202,8 +202,8 @@ class SqlcipherConan(ConanFile):
     def _package_unix(self):
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def _package_visual(self):
         self.copy("*.dll", dst="bin", keep_path=False)
@@ -222,7 +222,7 @@ class SqlcipherConan(ConanFile):
         self.cpp_info.libs = ["sqlcipher"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "dl"])
-            if tools.scm.Version(self.version) >= "4.5.0":
+            if Version(self.version) >= "4.5.0":
                 self.cpp_info.system_libs.append("m")
         self.cpp_info.defines = ["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE={}".format(self._temp_store_nmake_value)]
         if self._use_commoncrypto():

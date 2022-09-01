@@ -48,7 +48,7 @@ class LibiglConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
                     self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
         if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime and not self.options.header_only:
@@ -66,10 +66,10 @@ class LibiglConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -111,10 +111,10 @@ class LibiglConan(ConanFile):
         self.copy("LICENSE.GPL", dst="licenses", src=self._source_subfolder)
         self.copy("LICENSE.MPL2", dst="licenses", src=self._source_subfolder)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if not self.options.header_only:
-            tools.files.rm(self, "*.c", self.package_folder)
-            tools.files.rm(self, "*.cpp", self.package_folder)
+            files.rm(self, "*.c", self.package_folder)
+            files.rm(self, "*.cpp", self.package_folder)
 
     def package_id(self):
         if self.options.header_only:

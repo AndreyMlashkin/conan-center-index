@@ -80,7 +80,7 @@ class CoinCbcConan(ConanFile):
             raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @contextmanager
@@ -113,7 +113,7 @@ class CoinCbcConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
             configure_args.append("--enable-msvc={}".format(self.settings.compiler.runtime))
-            if tools.scm.Version(self.settings.compiler.version) >= 12:
+            if Version(self.settings.compiler.version) >= 12:
                 self._autotools.flags.append("-FS")
             if self.options.parallel:
                 configure_args.append("--with-pthreadsw32-lib={}".format(tools.microsoft.unix_path(self, os.path.join(self.deps_cpp_info["pthreads4w"].lib_paths[0], self.deps_cpp_info["pthreads4w"].libs[0] + ".lib"))))
@@ -123,7 +123,7 @@ class CoinCbcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -135,7 +135,7 @@ class CoinCbcConan(ConanFile):
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         # Installation script expects include/coin to already exist
-        tools.files.mkdir(self, os.path.join(self.package_folder, "include", "coin"))
+        files.mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
@@ -146,8 +146,8 @@ class CoinCbcConan(ConanFile):
                 os.rename(os.path.join(self.package_folder, "lib", "lib{}.a").format(l),
                           os.path.join(self.package_folder, "lib", "{}.lib").format(l))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.components["libcbc"].libs = ["CbcSolver", "Cbc"]

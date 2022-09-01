@@ -52,7 +52,7 @@ class AvahiConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -85,10 +85,10 @@ class AvahiConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "Avahi"

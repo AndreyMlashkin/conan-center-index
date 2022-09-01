@@ -65,7 +65,7 @@ class AtSPI2AtkConan(ConanFile):
         self.requires("libxml2/2.9.14")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
@@ -85,10 +85,10 @@ class AtSPI2AtkConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
+        files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs = [os.path.join('include', 'at-spi2-atk', '2.0')]
         self.cpp_info.names['pkg_config'] = 'atk-bridge-2.0'
 

@@ -30,30 +30,30 @@ class TinyAlsaConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build.make()
 
     def package(self):
         self.copy("NOTICE", dst="licenses", src=self._source_subfolder)
 
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build_vars = env_build.vars
             env_build_vars['PREFIX'] = self.package_folder
             env_build.install(vars=env_build_vars)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         if not self.options.with_utils:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+            files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
-        with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+        with files.chdir(self, os.path.join(self.package_folder, "lib")):
             files = os.listdir()
             for f in files:
                 if (self.options.shared and f.endswith(".a")) or (not self.options.shared and not f.endswith(".a")):
@@ -61,7 +61,7 @@ class TinyAlsaConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["tinyalsa"]
-        if tools.scm.Version(self.version) >= "2.0.0":
+        if Version(self.version) >= "2.0.0":
             self.cpp_info.system_libs.append("dl")
         if self.options.with_utils:
             bin_path = os.path.join(self.package_folder, "bin")

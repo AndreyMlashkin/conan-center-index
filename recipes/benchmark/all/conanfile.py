@@ -42,12 +42,12 @@ class BenchmarkConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version.value) <= 12:
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version.value) <= 12:
             raise ConanInvalidConfiguration("{} {} does not support Visual Studio <= 12".format(self.name, self.version))
 
     def configure(self):
@@ -87,9 +87,9 @@ class BenchmarkConan(ConanFile):
         cmake.install()
 
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
-        tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'cmake'))
-        tools.files.rmdir(self, os.path.join(self.package_folder, 'share'))
+        files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
+        files.rmdir(self, os.path.join(self.package_folder, 'lib', 'cmake'))
+        files.rmdir(self, os.path.join(self.package_folder, 'share'))
 
     def package_info(self):
         self.cpp_info.libs = ["benchmark", "benchmark_main"]

@@ -57,14 +57,14 @@ class LibrealsenseConan(ConanFile):
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
-        tools.files.get(self, **sources["source"], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **sources["source"], strip_root=True, destination=self._source_subfolder)
         for firmware in sources["firmware"]:
             filename = os.path.basename(urllib.parse.urlparse(firmware["url"]).path)
-            tools.files.download(self, filename=filename, **firmware)
+            files.download(self, filename=filename, **firmware)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -114,10 +114,10 @@ class LibrealsenseConan(ConanFile):
         cmake.install()
         if self.options.shared:
             postfix = "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""
-            tools.files.rm(self, "libfw{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "librealsense-file{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            files.rm(self, "libfw{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
+            files.rm(self, "librealsense-file{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         postfix = "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""

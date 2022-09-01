@@ -17,14 +17,14 @@ class ReaderWriterQueue(ConanFile):
         return "sources_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("readerwriterqueue-{}".format(self.version),
                   self._source_subfolder)
 
     def package(self):
         self.copy("atomicops.h", src=self._source_subfolder, dst=os.path.join("include", "readerwriterqueue"))
         self.copy("readerwriterqueue.h", src=self._source_subfolder, dst=os.path.join("include", "readerwriterqueue"))
-        if tools.scm.Version(self.version) >= "1.0.5":
+        if Version(self.version) >= "1.0.5":
             self.copy("readerwritercircularbuffer.h", src=self._source_subfolder, dst=os.path.join("include", "readerwriterqueue"))
 
         self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")

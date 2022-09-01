@@ -57,7 +57,7 @@ class DjinniSuppotLib(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -76,7 +76,7 @@ class DjinniSuppotLib(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -86,7 +86,7 @@ class DjinniSuppotLib(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         # these should not be here, but to support old generated files ....
         if self.objc_support:
             self.cpp_info.includedirs.append(os.path.join("include", "djinni", "objc"))

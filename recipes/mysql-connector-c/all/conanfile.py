@@ -37,7 +37,7 @@ class MysqlConnectorCConan(ConanFile):
             raise ConanInvalidConfiguration("Cross compilation not yet supported by the recipe. contributions are welcome.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -67,11 +67,11 @@ class MysqlConnectorCConan(ConanFile):
         sources_cmake = os.path.join(self._source_subfolder, "CMakeLists.txt")
         sources_cmake_orig = os.path.join(self._source_subfolder, "CMakeListsOriginal.txt")
 
-        tools.files.rename(self, sources_cmake, sources_cmake_orig)
-        tools.files.rename(self, "CMakeLists.txt", sources_cmake)
+        files.rename(self, sources_cmake, sources_cmake_orig)
+        files.rename(self, "CMakeLists.txt", sources_cmake)
 
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -81,12 +81,12 @@ class MysqlConnectorCConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.mkdir(self, os.path.join(self.package_folder, "licenses"))
-        tools.files.rename(self, os.path.join(self.package_folder, "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING"))
-        tools.files.rename(self, os.path.join(self.package_folder, "COPYING-debug"), os.path.join(self.package_folder, "licenses", "COPYING-debug"))
-        tools.files.rm(self, "README*", self.package_folder)
-        tools.files.rm(self, "*.pdb", self.package_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "docs"))
+        files.mkdir(self, os.path.join(self.package_folder, "licenses"))
+        files.rename(self, os.path.join(self.package_folder, "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING"))
+        files.rename(self, os.path.join(self.package_folder, "COPYING-debug"), os.path.join(self.package_folder, "licenses", "COPYING-debug"))
+        files.rm(self, "README*", self.package_folder)
+        files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "docs"))
 
     def package_info(self):
         self.cpp_info.libs = ["libmysql" if self.options.shared and self.settings.os == "Windows" else "mysqlclient"]

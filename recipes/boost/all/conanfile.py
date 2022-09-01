@@ -1,6 +1,6 @@
 from conan.tools.build import cross_building
 from conan.tools.files import rename, rmdir, get
-from conan.tools.files.patches import apply_conandata_patches
+from conan.files.patches import apply_conandata_patches
 from conan.tools.microsoft import msvc_runtime_flag
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
@@ -790,7 +790,7 @@ class BoostConan(ConanFile):
     def _build_bcp(self):
         folder = os.path.join(self.source_folder, self._source_subfolder, "tools", "bcp")
         with tools.vcvars(self.settings) if self._is_msvc else tools.no_op():
-            with tools.files.chdir(self, folder):
+            with files.chdir(self, folder):
                 command = f"{self._b2_exe} -j{tools.cpu_count(self, )} --abbreviate-paths toolset={self._toolset}"
                 command += " -d%d" % self.options.debug_level
                 self.output.warn(command)
@@ -798,7 +798,7 @@ class BoostConan(ConanFile):
 
     def _run_bcp(self):
         with tools.vcvars(self.settings) if self._is_msvc or self._is_clang_cl else tools.no_op():
-            with tools.files.chdir(self, self.source_folder):
+            with files.chdir(self, self.source_folder):
                 os.mkdir(self._bcp_dir)
                 namespace = f"--namespace={self.options.namespace}"
                 alias = "--namespace-alias" if self.options.namespace_alias else ""
@@ -818,28 +818,28 @@ class BoostConan(ConanFile):
     def build(self):
         if cross_building(self, skip_x64_x86=True):
             # When cross building, do not attempt to run the test-executable (assume they work)
-            tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "libs", "stacktrace", "build", "Jamfile.v2"),
+            files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "libs", "stacktrace", "build", "Jamfile.v2"),
                                   "$(>) > $(<)",
                                   "echo \"\" > $(<)", strict=False)
         # Older clang releases require a thread_local variable to be initialized by a constant value
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                               "/* thread_local */", "thread_local", strict=False)
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                               "/* static __thread */", "static __thread", strict=False)
         if self.settings.compiler == "apple-clang" or (self.settings.compiler == "clang" and Version(self.settings.compiler.version) < 6):
-            tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
+            files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                                   "thread_local", "/* thread_local */")
-            tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
+            files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                                   "static __thread", "/* static __thread */")
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "tools", "build", "src", "tools", "gcc.jam"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "tools", "build", "src", "tools", "gcc.jam"),
                               "local generic-os = [ set.difference $(all-os) : aix darwin vxworks solaris osf hpux ] ;",
                               "local generic-os = [ set.difference $(all-os) : aix darwin vxworks solaris osf hpux iphone appletv ] ;",
                               strict=False)
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "tools", "build", "src", "tools", "gcc.jam"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "tools", "build", "src", "tools", "gcc.jam"),
                               "local no-threading = android beos haiku sgi darwin vxworks ;",
                               "local no-threading = android beos haiku sgi darwin vxworks iphone appletv ;",
                               strict=False)
-        tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "libs", "fiber", "build", "Jamfile.v2"),
+        files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "libs", "fiber", "build", "Jamfile.v2"),
                               "    <conditional>@numa",
                               "    <link>shared:<library>.//boost_fiber : <conditional>@numa",
                               strict=False)
@@ -869,7 +869,7 @@ class BoostConan(ConanFile):
         # interferes with the compiler selection.
         use_vcvars = self._is_msvc and not self.settings.compiler.get_safe("toolset", default="")
         with tools.vcvars(self.settings) if use_vcvars else tools.no_op():
-            with tools.files.chdir(self, sources):
+            with files.chdir(self, sources):
                 # To show the libraries *1
                 # self.run("%s --show-libraries" % b2_exe)
                 self.run(full_command, run_environment=True)
@@ -1276,7 +1276,7 @@ class BoostConan(ConanFile):
 
         self.output.warn(contents)
         filename = f"{folder}/user-config.jam"
-        tools.files.save(self, filename,  contents)
+        files.save(self, filename,  contents)
 
     @property
     def _toolset_version(self):
@@ -1358,7 +1358,7 @@ class BoostConan(ConanFile):
 
         if self._is_msvc and self._shared:
             # Some boost releases contain both static and shared variants of some libraries (if shared=True)
-            all_libs = set(tools.files.collect_libs(self, self, "lib"))
+            all_libs = set(files.collect_libs(self, self, "lib"))
             static_libs = set(l for l in all_libs if l.startswith("lib"))
             shared_libs = all_libs.difference(static_libs)
             static_libs = set(l[3:] for l in static_libs)
@@ -1371,11 +1371,11 @@ class BoostConan(ConanFile):
         dll_pdbs = glob.glob(os.path.join(self.package_folder, "lib", "*.dll")) + \
                     glob.glob(os.path.join(self.package_folder, "lib", "*.pdb"))
         if dll_pdbs:
-            tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+            files.mkdir(self, os.path.join(self.package_folder, "bin"))
             for bin_file in dll_pdbs:
                 rename(self, bin_file, os.path.join(self.package_folder, "bin", os.path.basename(bin_file)))
 
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def _create_emscripten_libs(self):
         # Boost Build doesn't create the libraries, but it gets close,
@@ -1578,7 +1578,7 @@ class BoostConan(ConanFile):
                     libprefix = "lib"
                 return libprefix + n
 
-            all_detected_libraries = set(l[:-4] if l.endswith(".dll") else l for l in tools.files.collect_libs(self, self))
+            all_detected_libraries = set(l[:-4] if l.endswith(".dll") else l for l in files.collect_libs(self, self))
             all_expected_libraries = set()
             incomplete_components = []
 

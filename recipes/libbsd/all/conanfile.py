@@ -43,7 +43,7 @@ class LibBsdConan(ConanFile):
             raise ConanInvalidConfiguration("libbsd is only available for GNU-like operating systems (e.g. Linux)")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -63,8 +63,8 @@ class LibBsdConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("autoreconf -fiv")
         autotools = self._configure_autotools()
         autotools.make()
@@ -75,8 +75,8 @@ class LibBsdConan(ConanFile):
         autotools.install()
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libbsd.la")))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.components["bsd"].libs = ["bsd"]

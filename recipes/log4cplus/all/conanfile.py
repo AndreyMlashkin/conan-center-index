@@ -87,7 +87,7 @@ class Log4cplusConan(ConanFile):
 
     def _patch_sources(self):
         # don't force PIC
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def build(self):
@@ -102,7 +102,7 @@ class Log4cplusConan(ConanFile):
         files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.options.unicode:
             self.cpp_info.defines = ["UNICODE", "_UNICODE"]
         if self.settings.os == "Linux":

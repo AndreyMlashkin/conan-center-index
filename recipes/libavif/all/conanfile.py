@@ -56,7 +56,7 @@ class LibAVIFConan(ConanFile):
     def source(self):
         root = self._source_subfolder
         get_args = self.conan_data["sources"][self.version]
-        tools.files.get(self, **get_args, destination=root, strip_root=True)
+        files.get(self, **get_args, destination=root, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -70,7 +70,7 @@ class LibAVIFConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         self._configure_cmake().build()
 
     @property
@@ -80,8 +80,8 @@ class LibAVIFConan(ConanFile):
     def package(self):
         self.copy("LICENSE", "licenses", self._source_subfolder)
         self._configure_cmake().install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: remove in conan v2
         alias = os.path.join(self.package_folder, self._alias_path)
@@ -94,7 +94,7 @@ class LibAVIFConan(ConanFile):
                 )
             endif()
         """)
-        tools.files.save(self, alias, content)
+        files.save(self, alias, content)
 
     def package_info(self):
         self.cpp_info.requires = ["libyuv::libyuv", "libaom-av1::libaom-av1"]

@@ -51,7 +51,7 @@ class FlacConan(ConanFile):
             self.build_requires("nasm/2.15.05")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -66,7 +66,7 @@ class FlacConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -77,7 +77,7 @@ class FlacConan(ConanFile):
         self.copy(pattern="*.h", dst=os.path.join("include", "share"), src=os.path.join(self._source_subfolder, "include", "share"), keep_path=False)
         self.copy(pattern="*.h", dst=os.path.join("include", "share", "grabbag"),
                   src=os.path.join(self._source_subfolder, "include", "share", "grabbag"), keep_path=False)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "flac")

@@ -61,14 +61,14 @@ class ConanXqilla(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
        
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
                 self.run(self._make_cmd)
 
     def package(self):
@@ -76,10 +76,10 @@ class ConanXqilla(ConanFile):
         self.copy("GPLv2", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
         self.copy("FLOSSE", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
 
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run(self._make_install_cmd)
         
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

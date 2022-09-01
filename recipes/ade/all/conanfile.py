@@ -43,7 +43,7 @@ class AdeConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -54,7 +54,7 @@ class AdeConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "    if(UNIX)", "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "    if(UNIX)", "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -62,7 +62,7 @@ class AdeConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {"ade": "ade::ade"}
@@ -78,7 +78,7 @@ class AdeConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

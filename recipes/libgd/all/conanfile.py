@@ -65,18 +65,18 @@ class LibgdConan(ConanFile):
             self.requires("freetype/2.11.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}", "${CMAKE_CURRENT_SOURCE_DIR}")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}", "${CMAKE_CURRENT_SOURCE_DIR}")
+        files.replace_in_file(self, cmakelists,
                               "SET(CMAKE_MODULE_PATH \"${GD_SOURCE_DIR}/cmake/modules\")",
                               "LIST(APPEND CMAKE_MODULE_PATH \"${GD_SOURCE_DIR}/cmake/modules\")")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                               "RUNTIME DESTINATION bin",
                               "RUNTIME DESTINATION bin BUNDLE DESTINATION bin")
 
@@ -85,7 +85,7 @@ class LibgdConan(ConanFile):
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["BUILD_STATIC_LIBS"] = not self.options.shared
-        if tools.scm.Version(self.version) >= "2.3.0":
+        if Version(self.version) >= "2.3.0":
             self._cmake.definitions["ENABLE_GD_FORMATS"] = True
         self._cmake.definitions["ENABLE_PNG"] = self.options.with_png
         self._cmake.definitions["ENABLE_LIQ"] = False
@@ -96,10 +96,10 @@ class LibgdConan(ConanFile):
         self._cmake.definitions["ENABLE_FREETYPE"] = self.options.with_freetype
         self._cmake.definitions["ENABLE_FONTCONFIG"] = False
         self._cmake.definitions["ENABLE_WEBP"] = False
-        if tools.scm.Version(self.version) >= "2.3.2":
+        if Version(self.version) >= "2.3.2":
             self._cmake.definitions["ENABLE_HEIF"] = False
             self._cmake.definitions["ENABLE_AVIF"] = False
-        if tools.scm.Version(self.version) >= "2.3.0":
+        if Version(self.version) >= "2.3.0":
             self._cmake.definitions["ENABLE_RAQM"] = False
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -113,12 +113,12 @@ class LibgdConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"]= "gdlib"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows" and not self.options.shared:
             self.cpp_info.defines.append("BGD_NONDLL")
             self.cpp_info.defines.append("BGDWIN32")

@@ -64,11 +64,11 @@ class XZUtils(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _apply_patches(self):
-        if tools.scm.Version(self.version) == "5.2.4" and self._is_msvc:
+        if Version(self.version) == "5.2.4" and self._is_msvc:
             # Relax Windows SDK restriction
             # Workaround is required only for 5.2.4 because since 5.2.5 WindowsTargetPlatformVersion is dropped from vcproj file
             #
@@ -80,16 +80,16 @@ class XZUtils(ConanFile):
                 windows_target_platform_version_new = "<WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>"
             else:
                 windows_target_platform_version_new = "<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>"
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "windows", "vs2017", "liblzma.vcxproj"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "windows", "vs2017", "liblzma.vcxproj"),
                                   windows_target_platform_version_old,
                                   windows_target_platform_version_new)
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "windows", "vs2017", "liblzma_dll.vcxproj"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "windows", "vs2017", "liblzma_dll.vcxproj"),
                                   windows_target_platform_version_old,
                                   windows_target_platform_version_new)
 
         # Allow to install relocatable shared lib on macOS
         if tools.apple.is_apple_os(self):
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "configure"),
                 "-install_name \\$rpath/",
                 "-install_name @rpath/",
@@ -98,7 +98,7 @@ class XZUtils(ConanFile):
     def _build_msvc(self):
         # windows\INSTALL-MSVC.txt
         msvc_version = "vs2017" if Version(self.settings.compiler.version) >= "15" else "vs2013"
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "windows", msvc_version)):
+        with files.chdir(self, os.path.join(self._source_subfolder, "windows", msvc_version)):
             target = "liblzma_dll" if self.options.shared else "liblzma"
             msbuild = MSBuild(self)
             msbuild.build(
@@ -145,18 +145,18 @@ class XZUtils(ConanFile):
             self.copy(pattern="*.lib", dst="lib", src=bin_dir, keep_path=False)
             if self.options.shared:
                 self.copy(pattern="*.dll", dst="bin", src=bin_dir, keep_path=False)
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "liblzma.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "liblzma.lib"),
                          os.path.join(self.package_folder, "lib", "lzma.lib"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.scm.Version(self.version)
+            Version(self.version)
         )
 
     @staticmethod
@@ -177,7 +177,7 @@ class XZUtils(ConanFile):
             set(LIBLZMA_VERSION_PATCH {patch})
             set(LIBLZMA_VERSION_STRING "{major}.{minor}.{patch}")
         """.format(major=version.major, minor=version.minor, patch=version.patch))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -193,7 +193,7 @@ class XZUtils(ConanFile):
             self.cpp_info.defines.append("LZMA_API_STATIC")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "LibLZMA"

@@ -53,7 +53,7 @@ class ExpatConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        tools.files.get(self,
+        files.get(self,
             **self.conan_data["sources"][self.version],
             destination=self.source_folder,
             strip_root=True

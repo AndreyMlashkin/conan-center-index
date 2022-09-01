@@ -32,7 +32,7 @@ class libxftConan(ConanFile):
         self.build_requires("libtool/2.4.6")
     
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def configure(self):
@@ -53,19 +53,19 @@ class libxftConan(ConanFile):
         return autotools
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.install(args=["-j1"])
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names['pkg_config'] = "Xft"

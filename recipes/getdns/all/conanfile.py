@@ -90,7 +90,7 @@ class GetDnsConan(ConanFile):
         self.build_requires("pkgconf/1.7.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("getdns-{}".format(self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -113,7 +113,7 @@ class GetDnsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Use FindOpenSSL.cmake to let check_function_exists succeed
         # Remove other cmake modules as they use FindPkgConfig
         for fn in glob.glob("Find*cmake"):
@@ -127,9 +127,9 @@ class GetDnsConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.options.stub_only = self._stub_only

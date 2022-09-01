@@ -48,7 +48,7 @@ class MosquittoConan(ConanFile):
             self.requires("libwebsockets/4.1.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name.replace("-", ".") + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -68,19 +68,19 @@ class MosquittoConan(ConanFile):
     def _patch_sources(self):
         if self.settings.os == "Windows":
             if self.options.with_tls:
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
                                     "set (LIBRARIES ${LIBRARIES} ws2_32)",
                                     "set (LIBRARIES ${LIBRARIES} ws2_32 crypt32)")
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                                     "set (MOSQ_LIBS ${MOSQ_LIBS} ws2_32)",
                                     "set (MOSQ_LIBS ${MOSQ_LIBS} ws2_32 crypt32)")
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                                     "target_link_libraries(mosquitto_passwd ${OPENSSL_LIBRARIES})",
                                     "target_link_libraries(mosquitto_passwd ${OPENSSL_LIBRARIES} ws2_32 crypt32)")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
                                 "install(TARGETS libmosquitto RUNTIME DESTINATION \"${CMAKE_INSTALL_BINDIR}\" LIBRARY DESTINATION \"${CMAKE_INSTALL_LIBDIR}\")",
                                 "install(TARGETS libmosquitto RUNTIME DESTINATION \"${CMAKE_INSTALL_BINDIR}\" LIBRARY DESTINATION \"${CMAKE_INSTALL_LIBDIR}\" ARCHIVE DESTINATION \"${CMAKE_INSTALL_LIBDIR}\")")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "cpp", "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "cpp", "CMakeLists.txt"),
                                 "install(TARGETS mosquittopp RUNTIME DESTINATION \"${CMAKE_INSTALL_BINDIR}\" LIBRARY DESTINATION \"${CMAKE_INSTALL_LIBDIR}\")",
                                 "install(TARGETS mosquittopp RUNTIME DESTINATION \"${CMAKE_INSTALL_BINDIR}\" LIBRARY DESTINATION \"${CMAKE_INSTALL_LIBDIR}\" ARCHIVE DESTINATION \"${CMAKE_INSTALL_LIBDIR}\")")
 
@@ -96,12 +96,12 @@ class MosquittoConan(ConanFile):
         self.copy(pattern="mosquitto.conf", src=self._source_subfolder, dst="res")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
         if not self.options.shared:
-            tools.files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "*.dll*", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "*.dylib", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.dll*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.dylib", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         lib_suffix = "_static" if not self.options.shared else ""

@@ -89,7 +89,7 @@ class PulseAudioConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -119,11 +119,11 @@ class PulseAudioConan(ConanFile):
         with tools.run_environment(self):
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", self.package_folder)
 
     def package_info(self):
         self.cpp_info.components["pulse"].names["pkg_config"] = "libpulse"

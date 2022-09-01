@@ -48,7 +48,7 @@ class RabbitmqcConan(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -75,8 +75,8 @@ class RabbitmqcConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         rabbitmq_target = "rabbitmq" if self.options.shared else "rabbitmq-static"

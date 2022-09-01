@@ -70,7 +70,7 @@ class DracoConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -78,7 +78,7 @@ class DracoConan(ConanFile):
         cmake = CMake(self)
 
         # use different cmake definitions based on package version
-        if tools.scm.Version(self.version) < "1.4.0":
+        if Version(self.version) < "1.4.0":
             cmake.definitions["ENABLE_POINT_CLOUD_COMPRESSION"] = self.options.enable_point_cloud_compression
             cmake.definitions["ENABLE_MESH_COMPRESSION"] = self.options.enable_mesh_compression
             if self.options.enable_mesh_compression:
@@ -138,7 +138,7 @@ class DracoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -146,13 +146,13 @@ class DracoConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if tools.scm.Version(self.version) < "1.4.0":
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "draco"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        if Version(self.version) < "1.4.0":
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "draco"))
         else:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
             if self.options.shared:
-                tools.files.rm(self, 
+                files.rm(self, 
                     os.path.join(self.package_folder, "lib"),
                     "*draco.a",
                 )

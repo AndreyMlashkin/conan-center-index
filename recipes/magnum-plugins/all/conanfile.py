@@ -96,23 +96,23 @@ class MagnumConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
                               "")
         assimp_importer_cmake_file = os.path.join(self._source_subfolder, "src", "MagnumPlugins", "AssimpImporter", "CMakeLists.txt")
-        tools.files.replace_in_file(self, assimp_importer_cmake_file,
+        files.replace_in_file(self, assimp_importer_cmake_file,
                               "find_package(Assimp REQUIRED)",
                               "find_package(assimp REQUIRED)")
-        tools.files.replace_in_file(self, assimp_importer_cmake_file,
+        files.replace_in_file(self, assimp_importer_cmake_file,
                               "Assimp::Assimp",
                               "assimp::assimp")
 
         harfbuzz_cmake_file = os.path.join(self._source_subfolder, "src", "MagnumPlugins", "HarfBuzzFont", "CMakeLists.txt")
-        tools.files.replace_in_file(self, harfbuzz_cmake_file,
+        files.replace_in_file(self, harfbuzz_cmake_file,
                               "find_package(HarfBuzz REQUIRED)",
                               "find_package(harfbuzz REQUIRED)")
-        tools.files.replace_in_file(self, harfbuzz_cmake_file,
+        files.replace_in_file(self, harfbuzz_cmake_file,
                               "HarfBuzz::HarfBuzz",
                               "harfbuzz::harfbuzz")
 
@@ -215,7 +215,7 @@ class MagnumConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -242,7 +242,7 @@ class MagnumConan(ConanFile):
                         endif()
                     """.format(target=target, library=library)))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 

@@ -57,7 +57,7 @@ class opengvConan(ConanFile):
             raise ConanInvalidConfiguration("Shared builds not supported with gcc since CCI errors out due to excessive memory usage.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -86,13 +86,13 @@ class opengvConan(ConanFile):
             find_package(Eigen3 REQUIRED)
             set(ADDITIONAL_INCLUDE_DIRS ${Eigen3_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIR}/unsupported)"""
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                             textwrap.dedent(old),
                             textwrap.dedent(new)
         )
 
         # Use conan's pybind11
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "python", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "python", "CMakeLists.txt"),
                             "add_subdirectory(pybind11)",
                             "find_package(pybind11 REQUIRED)"
         )
@@ -106,7 +106,7 @@ class opengvConan(ConanFile):
             IF(1)
               #set(BUILD_SHARED_LIBS OFF)"""
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                             textwrap.dedent(old),
                             textwrap.dedent(new)
         )
@@ -120,7 +120,7 @@ class opengvConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -138,7 +138,7 @@ class opengvConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -147,7 +147,7 @@ class opengvConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "opengv")
         self.cpp_info.set_property("cmake_target_name", "opengv")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.options.with_python_bindings:
             opengv_dist_packages = os.path.join(self.package_folder, "lib", "python3", "dist-packages")
             self.runenv_info.prepend_path("PYTHONPATH", opengv_dist_packages)

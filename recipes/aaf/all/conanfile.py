@@ -43,7 +43,7 @@ class AafConan(ConanFile):
             raise ConanInvalidConfiguration("ARM v8 not supported")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         apply_conandata_patches(self)
@@ -72,7 +72,7 @@ class AafConan(ConanFile):
         self.copy("LEGAL/AAFSDKPSL.TXT", dst="licenses", src=self._source_subfolder, keep_path=False)
 
         if tools.apple.is_apple_os(self):
-            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+            with files.chdir(self, os.path.join(self.package_folder, "lib")):
                 for dylib in glob.glob("*.dylib"):
                     command = "install_name_tool -id {0} {1}".format(os.path.basename(dylib), dylib)
                     self.output.info(command)

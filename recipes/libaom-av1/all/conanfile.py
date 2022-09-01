@@ -67,7 +67,7 @@ class LibaomAv1Conan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
         # Check compiler version
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version.value)
+        compiler_version = Version(self.settings.compiler.version.value)
 
         minimal_version = {
             "Visual Studio": "15",
@@ -82,9 +82,9 @@ class LibaomAv1Conan(ConanFile):
             raise ConanInvalidConfiguration("{} requires a {} version >= {}".format(self.name, compiler, compiler_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder,
-                  strip_root=tools.scm.Version(self.version) >= "3.3.0")
+                  strip_root=Version(self.version) >= "3.3.0")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -107,7 +107,7 @@ class LibaomAv1Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -115,7 +115,7 @@ class LibaomAv1Conan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "aom")

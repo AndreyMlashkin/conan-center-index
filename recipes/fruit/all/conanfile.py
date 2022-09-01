@@ -69,7 +69,7 @@ class FruitConan(ConanFile):
     def _get_source(self):
         if Version(self.version) == "3.4.0":
             filename = os.path.basename(self.conan_data["sources"][self.version]["url"])
-            tools.files.download(self, filename=filename, **self.conan_data["sources"][self.version])
+            files.download(self, filename=filename, **self.conan_data["sources"][self.version])
 
             with tarfile.TarFile.open(filename, 'r:*') as tarredgzippedFile:
                 # NOTE: In fruit v3.4.0, The archive file contains the file names
@@ -82,7 +82,7 @@ class FruitConan(ConanFile):
                                     tarredgzippedFile.getmembers()))
                 tarredgzippedFile.extractall(".", members=members)
         else:
-            tools.files.get(self, **self.conan_data["sources"][self.version])
+            files.get(self, **self.conan_data["sources"][self.version])
 
     def source(self):
         self._get_source()
@@ -103,7 +103,7 @@ class FruitConan(ConanFile):
     def _patch_files(self):
         if self.version in self.conan_data["patches"]:
             for patch in self.conan_data["patches"][self.version]:
-                tools.files.patch(self, **patch)
+                files.patch(self, **patch)
 
     def build(self):
         self._patch_files()
@@ -118,6 +118,6 @@ class FruitConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

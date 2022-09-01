@@ -41,11 +41,11 @@ class I2cConan(ConanFile):
             raise ConanInvalidConfiguration("i2c-tools only support Linux")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"),
                               "SRCDIRS	:= include lib eeprom stub tools $(EXTRA)",
                               "SRCDIRS	:= include lib $(EXTRA)")
 
@@ -62,7 +62,7 @@ class I2cConan(ConanFile):
         self._patch_sources()
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.make(args=self._make_args)
 
     def package(self):
@@ -70,9 +70,9 @@ class I2cConan(ConanFile):
         self.copy("COPYING.LGPL", src=self._source_subfolder, dst="licenses")
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.install(args=self._make_args)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["i2c"]

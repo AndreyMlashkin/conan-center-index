@@ -38,13 +38,13 @@ class ImplotConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        if tools.scm.Version(self.version) >= "0.13":
+        if Version(self.version) >= "0.13":
             self.requires("imgui/1.87")
         else:
             self.requires("imgui/1.86")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     functools.lru_cache(1)

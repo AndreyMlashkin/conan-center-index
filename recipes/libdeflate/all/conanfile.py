@@ -54,11 +54,11 @@ class LibdeflateConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_msvc(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     target = "libdeflate.dll" if self.options.shared else "libdeflatestatic.lib"
@@ -66,12 +66,12 @@ class LibdeflateConan(ConanFile):
 
     def _build_make(self):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.make()
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if is_msvc(self) or self._is_clangcl:
             self._build_msvc()
         else:
@@ -87,11 +87,11 @@ class LibdeflateConan(ConanFile):
 
     def _package_make(self):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.install(args=["PREFIX={}".format(self.package_folder)])
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, 
+        files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, 
             os.path.join(self.package_folder, "lib"),
             "*.a" if self.options.shared else "*.[so|dylib]*",
         )

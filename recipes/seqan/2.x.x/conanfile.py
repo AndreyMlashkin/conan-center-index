@@ -36,14 +36,14 @@ SeqAn is easy to use and simplifies the development of new software tools with a
             tools.build.check_min_cppstd(self, 14)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("seqan requires C++14, which your compiler does not fully support.")
         else:
             self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "seqan-seqan-v" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

@@ -52,7 +52,7 @@ class LibxcryptConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -68,13 +68,13 @@ class LibxcryptConan(ConanFile):
         ]
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         if self.settings.os == "Windows":
-            tools.files.replace_in_file(self, "libtool", "-DPIC", "")
+            files.replace_in_file(self, "libtool", "-DPIC", "")
         return self._autotools
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.am"),
                               "\nlibcrypt_la_LDFLAGS = ", "\nlibcrypt_la_LDFLAGS = -no-undefined ")
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         autotools = self._configure_autotools()
         autotools.make()
@@ -84,9 +84,9 @@ class LibxcryptConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libxcrypt"

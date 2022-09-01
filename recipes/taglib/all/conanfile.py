@@ -49,18 +49,18 @@ class TaglibConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # relocatable shared libs on macOS
         for cmakelists in [
             os.path.join(self._source_subfolder, "taglib", "CMakeLists.txt"),
             os.path.join(self._source_subfolder, "bindings", "c", "CMakeLists.txt"),
         ]:
-            tools.files.replace_in_file(self, cmakelists, "INSTALL_NAME_DIR ${LIB_INSTALL_DIR}", "")
+            files.replace_in_file(self, cmakelists, "INSTALL_NAME_DIR ${LIB_INSTALL_DIR}", "")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -82,8 +82,8 @@ class TaglibConan(ConanFile):
         self.copy("COPYING.*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rm(self, "taglib-config", os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "taglib-config", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "taglib_full_package") # unofficial, to avoid conflicts in pkg_config generator

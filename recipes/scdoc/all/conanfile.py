@@ -30,7 +30,7 @@ class ScdocInstallerConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     @staticmethod
@@ -46,16 +46,16 @@ class ScdocInstallerConan(ConanFile):
 
     def build(self):
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.make()
 
     def package(self):
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools.install(args=[f"PREFIX={self.package_folder}"])
         self.copy(pattern="COPYING", dst="licenses",
                   src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

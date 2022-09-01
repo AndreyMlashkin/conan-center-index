@@ -54,7 +54,7 @@ class Z3Conan(ConanFile):
         self.requires("mpir/3.0.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -73,8 +73,8 @@ class Z3Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.save(self, os.path.join(self._build_subfolder, "gmp.h"), textwrap.dedent("""\
+            files.patch(self, **patch)
+        files.save(self, os.path.join(self._build_subfolder, "gmp.h"), textwrap.dedent("""\
             #pragma once
             #include <mpir.h>
             """))
@@ -86,7 +86,7 @@ class Z3Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Z3")

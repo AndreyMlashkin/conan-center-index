@@ -22,8 +22,8 @@ class CtreConan(ConanFile):
 
     def validate(self):
         compiler = self.settings.compiler
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
-        ctre_version = tools.scm.Version(self.version)
+        compiler_version = Version(self.settings.compiler.version)
+        ctre_version = Version(self.version)
 
         min_gcc = "7.4" if ctre_version < "3" else "8"
         if self.settings.compiler.get_safe("cppstd"):
@@ -50,7 +50,7 @@ class CtreConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))

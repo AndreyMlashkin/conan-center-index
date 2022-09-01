@@ -65,12 +65,12 @@ class FreexlConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self._is_msvc:
             self._build_msvc()
@@ -80,7 +80,7 @@ class FreexlConan(ConanFile):
             shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
                     os.path.join(self._source_subfolder, "config.guess"))
             # relocatable shared lib on macOS
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "-install_name \\$rpath/",
                                   "-install_name @rpath/")
             autotools = self._configure_autotools()
@@ -88,7 +88,7 @@ class FreexlConan(ConanFile):
 
     def _build_msvc(self):
         args = "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             with tools.vcvars(self.settings):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     self.run("nmake -f makefile.vc {}".format(args))
@@ -113,8 +113,8 @@ class FreexlConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "freexl")

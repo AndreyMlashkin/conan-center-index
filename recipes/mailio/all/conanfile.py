@@ -71,7 +71,7 @@ class mailioConan(ConanFile):
             tools.build.check_min_cppstd(self, "17")
         try:
             minimum_required_compiler_version = self._compiler_required_cpp17[str(self.settings.compiler)]
-            if tools.scm.Version(self.settings.compiler.version) < minimum_required_compiler_version:
+            if Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration("This package requires c++17 support. The current compiler does not support it.")
         except KeyError:
             self.output.warn("This recipe has no support for the current compiler. Please consider adding it.")
@@ -81,12 +81,12 @@ class mailioConan(ConanFile):
         self.build_requires("cmake/3.23.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -94,7 +94,7 @@ class mailioConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["mailio"]

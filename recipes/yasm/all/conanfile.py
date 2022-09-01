@@ -37,9 +37,9 @@ class YASMConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version][0],
+        files.get(self, **self.conan_data["sources"][self.version][0],
                   destination=self._source_subfolder, strip_root=True)
-        tools.files.download(self, **self.conan_data["sources"][self.version][1],
+        files.download(self, **self.conan_data["sources"][self.version][1],
                        filename=os.path.join(self._source_subfolder, "YASM-VERSION-GEN.bat"))
 
     @property
@@ -47,7 +47,7 @@ class YASMConan(ConanFile):
         return os.path.join(self._source_subfolder, "Mkfiles", "vc10")
 
     def _build_vs(self):
-        with tools.files.chdir(self, self._msvc_subfolder):
+        with files.chdir(self, self._msvc_subfolder):
             msbuild = MSBuild(self)
             if self.settings.arch == "x86":
                 msbuild.build_env.link_flags.append("/MACHINE:X86")
@@ -85,7 +85,7 @@ class YASMConan(ConanFile):
                 "x86": "Win32",
                 "x86_64": "x64",
             }[str(self.settings.arch)]
-            tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+            files.mkdir(self, os.path.join(self.package_folder, "bin"))
             build_type = "Debug" if self.settings.build_type == "Debug" else "Release"
             shutil.copy(os.path.join(self._msvc_subfolder, arch, build_type, "yasm.exe"),
                         os.path.join(self.package_folder, "bin", "yasm.exe"))
@@ -93,7 +93,7 @@ class YASMConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

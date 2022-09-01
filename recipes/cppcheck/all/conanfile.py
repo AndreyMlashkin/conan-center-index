@@ -29,8 +29,8 @@ class CppcheckConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cli", "CMakeLists.txt"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cli", "CMakeLists.txt"),
                               "RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}",
                               "DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}")
 
@@ -41,7 +41,7 @@ class CppcheckConan(ConanFile):
             self.requires("pcre/8.45")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -65,7 +65,7 @@ class CppcheckConan(ConanFile):
         self.copy("cppcheck-htmlreport", dst=os.path.join("bin"), src=os.path.join(self._source_subfolder,"htmlreport"))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_folder = os.path.join(self.package_folder, "bin")

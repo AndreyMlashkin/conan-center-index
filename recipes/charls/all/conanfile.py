@@ -59,22 +59,22 @@ class CharlsConan(ConanFile):
             tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
         # brace initialization issue for gcc < 5
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("CharLS can't be compiled by {0} {1}".format(self.settings.compiler,
                                                                                          self.settings.compiler.version))
 
         # name lookup issue for gcc == 5 in charls/2.2.0
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) == "5" and tools.scm.Version(self.version) >= "2.2.0":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) == "5" and Version(self.version) >= "2.2.0":
             raise ConanInvalidConfiguration("CharLS can't be compiled by {0} {1}".format(self.settings.compiler,
                                                                                          self.settings.compiler.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -96,14 +96,14 @@ class CharlsConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {"charls": "charls::charls"}
@@ -122,6 +122,6 @@ class CharlsConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "charls"
         self.cpp_info.names["cmake_find_package_multi"] = "charls"
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.defines.append("CHARLS_STATIC")

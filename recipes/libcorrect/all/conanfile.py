@@ -45,15 +45,15 @@ class LibaecConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "-fPIC", "")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "-fsanitize=address", "")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "-fPIC", "")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "-fsanitize=address", "")
 
     def _configure_cmake(self):
         if self._cmake:

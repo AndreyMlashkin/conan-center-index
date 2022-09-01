@@ -31,13 +31,13 @@ class LupleConan(ConanFile):
             self.output.warn(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        files.get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
+        files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def package(self):
         self.copy("LICENSE", dst="licenses")

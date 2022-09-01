@@ -62,11 +62,11 @@ class FlatccConan(ConanFile):
             if self.settings.compiler == "Visual Studio" and self.options.shared:
                 #Building flatcc shared libs with Visual Studio is broken
                 raise ConanInvalidConfiguration("Building flatcc libraries shared is not supported")
-            if tools.scm.Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
+            if Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
                 raise ConanInvalidConfiguration("Building flatcc with MinGW is not supported")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)

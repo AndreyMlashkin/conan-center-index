@@ -56,7 +56,7 @@ class TinyDnnConan(ConanFile):
             tools.build.check_min_cppstd(self, self._min_cppstd)
 
         compiler = str(self.settings.compiler)
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if compiler in self._min_compilers_version and version < self._min_compilers_version[compiler]:
             raise ConanInvalidConfiguration(
                 "{} requires a compiler that supports at least C++{}".format(
@@ -68,11 +68,11 @@ class TinyDnnConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "tiny_dnn", "util", "image.h"),
             "third_party/", "",
         )
@@ -84,7 +84,7 @@ class TinyDnnConan(ConanFile):
         cmake.definitions["USE_GEMMLOWP"] = False
         cmake.configure()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinydnn")

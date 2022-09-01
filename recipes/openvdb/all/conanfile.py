@@ -91,7 +91,7 @@ class OpenVDBConan(ConanFile):
 
     def _check_compilier_version(self):
         compiler = str(self.settings.compiler)
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         minimum_version = self._compilers_min_version.get(compiler, False)
         if minimum_version and version < minimum_version:
             raise ConanInvalidConfiguration(f"{self.name} requires a {compiler} version greater than {minimum_version}")
@@ -105,13 +105,13 @@ class OpenVDBConan(ConanFile):
         self._check_compilier_version()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Remove FindXXX files from OpenVDB. Let Conan do the job
-        tools.files.rm(self, "Find*", os.path.join(self._source_subfolder, "cmake"))
+        files.rm(self, "Find*", os.path.join(self._source_subfolder, "cmake"))
         with open("FindBlosc.cmake", "w") as f:
             f.write(
                 """find_package(c-blosc)

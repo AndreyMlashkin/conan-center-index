@@ -78,7 +78,7 @@ class FastDDSConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if min_version and tools.scm.Version(self.settings.compiler.version) < min_version:
+        if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
                 "{} requires C++{} support. {} {} does not support it.".format(
                     self.name, self._minimum_cpp_standard,
@@ -91,7 +91,7 @@ class FastDDSConan(ConanFile):
             raise ConanInvalidConfiguration("Mixing a dll {} library with a static runtime is a bad idea".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -107,24 +107,24 @@ class FastDDSConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.files.rename(self, 
+        files.rename(self, 
             src=os.path.join(self.package_folder, "tools"),
             dst=os.path.join(os.path.join(self.package_folder, "bin", "tools"))
         )
-        tools.files.rm(self, 
+        files.rm(self, 
             directory=os.path.join(self.package_folder, "lib"),
             pattern="*.pdb"
         )
-        tools.files.rm(self, 
+        files.rm(self, 
             directory=os.path.join(self.package_folder, "bin"),
             pattern="*.pdb"
         )
@@ -143,7 +143,7 @@ class FastDDSConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -154,7 +154,7 @@ class FastDDSConan(ConanFile):
 
         # component fastrtps
         self.cpp_info.components["fastrtps"].set_property("cmake_target_name", "fastrtps")
-        self.cpp_info.components["fastrtps"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["fastrtps"].libs = files.collect_libs(self, self)
         self.cpp_info.components["fastrtps"].requires = [
             "fast-cdr::fast-cdr",
             "asio::asio",

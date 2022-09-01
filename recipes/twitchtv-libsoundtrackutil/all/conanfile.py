@@ -49,13 +49,13 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17".format(self.name))
         else:
             self.output.warn("unknown compiler, assuming C++17 support")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format("libsoundtrackutil", self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -74,7 +74,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -82,7 +82,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["libsoundtrackutil"]

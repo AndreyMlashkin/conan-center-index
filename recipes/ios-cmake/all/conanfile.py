@@ -67,7 +67,7 @@ class IosCMakeConan(ConanFile):
 
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("ios-cmake-{}".format(self.version), self._source_subfolder)
 
     def build(self):
@@ -83,7 +83,7 @@ class IosCMakeConan(ConanFile):
 
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder, keep_path=False)
         # satisfy KB-H014 (header_only recipes require headers)
-        tools.files.save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
+        files.save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
         if self.settings.os == "Macos":

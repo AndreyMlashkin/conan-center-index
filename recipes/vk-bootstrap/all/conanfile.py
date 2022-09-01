@@ -80,23 +80,23 @@ class VkBootstrapConan(ConanFile):
             raise ConanInvalidConfiguration("vk-boostrap shared not supported with Visual Studio")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["VK_BOOTSTRAP_TEST"] = False
-        if tools.scm.Version(self.version) >= "0.3.0":
+        if Version(self.version) >= "0.3.0":
             cmake.definitions["VK_BOOTSTRAP_VULKAN_HEADER_DIR"] = ";".join(self.deps_cpp_info["vulkan-headers"].include_paths)
-        if tools.scm.Version(self.version) >= "0.4.0":
+        if Version(self.version) >= "0.4.0":
             cmake.definitions["VK_BOOTSTRAP_WERROR"] = False
         cmake.configure()
         return cmake
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

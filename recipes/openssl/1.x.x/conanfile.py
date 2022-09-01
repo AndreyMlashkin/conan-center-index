@@ -450,7 +450,7 @@ class OpenSSLConan(ConanFile):
         # since _patch_makefile_org will replace binutils variables
         # use a more restricted regular expresion to prevent that Configure script trying to do it again
         configure = os.path.join(self._source_subfolder, "Configure")
-        tools.files.replace_in_file(self, configure, r"s/^AR=\s*ar/AR= $ar/;", r"s/^AR=\s*ar\b/AR= $ar/;")
+        files.replace_in_file(self, configure, r"s/^AR=\s*ar/AR= $ar/;", r"s/^AR=\s*ar\b/AR= $ar/;")
 
     def _adjust_path(self, path):
         return path.replace("\\", "/") if self._settings_build.os == "Windows" else path
@@ -463,18 +463,18 @@ class OpenSSLConan(ConanFile):
         with tools.environment_append(env_build.vars):
             if not "CROSS_COMPILE" in os.environ:
                 cc = os.environ.get("CC", "cc")
-                tools.files.replace_in_file(self, makefile_org, "CC= cc\n", "CC= %s %s\n" % (self._adjust_path(cc), os.environ["CFLAGS"]))
+                files.replace_in_file(self, makefile_org, "CC= cc\n", "CC= %s %s\n" % (self._adjust_path(cc), os.environ["CFLAGS"]))
                 if "AR" in os.environ:
-                    tools.files.replace_in_file(self, makefile_org, "AR=ar $(ARFLAGS) r\n", "AR=%s $(ARFLAGS) r\n" % self._adjust_path(os.environ["AR"]))
+                    files.replace_in_file(self, makefile_org, "AR=ar $(ARFLAGS) r\n", "AR=%s $(ARFLAGS) r\n" % self._adjust_path(os.environ["AR"]))
                 if "RANLIB" in os.environ:
-                    tools.files.replace_in_file(self, makefile_org, "RANLIB= ranlib\n", "RANLIB= %s\n" % self._adjust_path(os.environ["RANLIB"]))
+                    files.replace_in_file(self, makefile_org, "RANLIB= ranlib\n", "RANLIB= %s\n" % self._adjust_path(os.environ["RANLIB"]))
                 rc = os.environ.get("WINDRES", os.environ.get("RC"))
                 if rc:
-                    tools.files.replace_in_file(self, makefile_org, "RC= windres\n", "RC= %s\n" % self._adjust_path(rc))
+                    files.replace_in_file(self, makefile_org, "RC= windres\n", "RC= %s\n" % self._adjust_path(rc))
                 if "NM" in os.environ:
-                    tools.files.replace_in_file(self, makefile_org, "NM= nm\n", "NM= %s\n" % self._adjust_path(os.environ["NM"]))
+                    files.replace_in_file(self, makefile_org, "NM= nm\n", "NM= %s\n" % self._adjust_path(os.environ["NM"]))
                 if "AS" in os.environ:
-                    tools.files.replace_in_file(self, makefile_org, "AS=$(CC) -c\n", "AS=%s\n" % self._adjust_path(os.environ["AS"]))
+                    files.replace_in_file(self, makefile_org, "AS=$(CC) -c\n", "AS=%s\n" % self._adjust_path(os.environ["AS"]))
 
     def _get_env_build(self):
         if not self._env_build:
@@ -636,7 +636,7 @@ class OpenSSLConan(ConanFile):
         self.output.info("using target: %s -> %s" % (self._target, self._ancestor_target))
         self.output.info(config)
 
-        tools.files.save(self, os.path.join(self._source_subfolder, "Configurations", "20-conan.conf"), config)
+        files.save(self, os.path.join(self._source_subfolder, "Configurations", "20-conan.conf"), config)
 
     def _run_make(self, targets=None, makefile=None, parallel=True):
         command = [self._make_program]
@@ -672,10 +672,10 @@ class OpenSSLConan(ConanFile):
         return r"ms\ntdll.mak" if self.options.shared else r"ms\nt.mak"
 
     def _make(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # workaround for clang-cl not producing .pdb files
             if self._is_clangcl:
-                tools.files.save(self, "ossl_static.pdb", "")
+                files.save(self, "ossl_static.pdb", "")
             args = " ".join(self._configure_args)
             self.output.info(self._configure_args)
 
@@ -695,15 +695,15 @@ class OpenSSLConan(ConanFile):
                 self._replace_runtime_in_file(os.path.join("ms", "nt.mak"))
                 self._replace_runtime_in_file(os.path.join("ms", "ntdll.mak"))
                 if self.settings.arch == "x86":
-                    tools.files.replace_in_file(self, os.path.join("ms", "nt.mak"), "-WX", "")
-                    tools.files.replace_in_file(self, os.path.join("ms", "ntdll.mak"), "-WX", "")
+                    files.replace_in_file(self, os.path.join("ms", "nt.mak"), "-WX", "")
+                    files.replace_in_file(self, os.path.join("ms", "ntdll.mak"), "-WX", "")
 
                 self._run_make(makefile=self._nmake_makefile)
             else:
                 self._run_make()
 
     def _make_install(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # workaround for MinGW (https://github.com/openssl/openssl/issues/7653)
             if not os.path.isdir(os.path.join(self.package_folder, "bin")):
                 os.makedirs(os.path.join(self.package_folder, "bin"))
@@ -743,7 +743,7 @@ class OpenSSLConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with tools.vcvars(self.settings) if self._use_nmake else tools.no_op():
             env_vars = {"PERL": self._perl}
             if self._full_version < "1.1.0":
@@ -778,13 +778,13 @@ class OpenSSLConan(ConanFile):
             new_str = '-install_name @rpath/'
 
             makefile = "Makefile" if self._full_version >= "1.1.1" else "Makefile.shared"
-            tools.files.replace_in_file(self, makefile, old_str, new_str, strict=self.in_local_cache)
+            files.replace_in_file(self, makefile, old_str, new_str, strict=self.in_local_cache)
 
     def _replace_runtime_in_file(self, filename):
         runtime = msvc_runtime_flag(self)
         for e in ["MDd", "MTd", "MD", "MT"]:
-            tools.files.replace_in_file(self, filename, "/{} ".format(e), "/{} ".format(runtime), strict=False)
-            tools.files.replace_in_file(self, filename, "/{}\"".format(e), "/{}\"".format(runtime), strict=False)
+            files.replace_in_file(self, filename, "/{} ".format(e), "/{} ".format(runtime), strict=False)
+            files.replace_in_file(self, filename, "/{}\"".format(e), "/{}\"".format(runtime), strict=False)
 
     def package(self):
         self.copy(src=self._source_subfolder, pattern="*LICENSE", dst="licenses")
@@ -796,13 +796,13 @@ class OpenSSLConan(ConanFile):
                     os.unlink(os.path.join(self.package_folder, root, filename))
         if self._use_nmake:
             if self.settings.build_type == 'Debug' and self._full_version >= "1.1.0":
-                with tools.files.chdir(self, os.path.join(self.package_folder, 'lib')):
+                with files.chdir(self, os.path.join(self.package_folder, 'lib')):
                     rename(self, "libssl.lib", "libssld.lib")
                     rename(self, "libcrypto.lib", "libcryptod.lib")
         # Old OpenSSL version family has issues with permissions.
         # See https://github.com/conan-io/conan/issues/5831
         if self._full_version < "1.1.0" and self.options.shared and self.settings.os in ("Android", "FreeBSD", "Linux"):
-            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+            with files.chdir(self, os.path.join(self.package_folder, "lib")):
                 os.chmod("libssl.so.1.0.0", 0o755)
                 os.chmod("libcrypto.so.1.0.0", 0o755)
 
@@ -850,7 +850,7 @@ class OpenSSLConan(ConanFile):
                 set(OPENSSL_VERSION ${OpenSSL_VERSION})
             endif()
         """)
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

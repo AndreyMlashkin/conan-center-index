@@ -56,20 +56,20 @@ class NngConan(ConanFile):
 
     def requirements(self):
         if self.options.tls:
-            if tools.scm.Version(self.version) < "1.5.2":
+            if Version(self.version) < "1.5.2":
                 self.requires("mbedtls/2.25.0")
             else:
                 self.requires("mbedtls/3.0.0")
 
     def validate(self):
         if self.settings.compiler == "Visual Studio" and \
-                tools.scm.Version(self.settings.compiler.version) < 14:
+                Version(self.settings.compiler.version) < 14:
             raise ConanInvalidConfiguration("MSVC < 14 is not supported")
         if not self.options.max_taskq_threads.value.isdigit():
             raise ConanInvalidConfiguration("max_taskq_threads must be an integral number")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -89,7 +89,7 @@ class NngConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -99,7 +99,7 @@ class NngConan(ConanFile):
                   src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "nng"

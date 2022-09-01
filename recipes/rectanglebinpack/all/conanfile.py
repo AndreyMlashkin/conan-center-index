@@ -48,13 +48,13 @@ class RectangleBinPackConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version][0],
+        files.get(self, **self.conan_data["sources"][self.version][0],
                   strip_root=True, destination=self._source_subfolder)
-        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

@@ -74,12 +74,12 @@ class ZbarConan(ConanFile):
             self.requires("gtk/4.7.0")
         if self.options.with_qt:
             self.requires("qt/5.15.5")
-        if tools.scm.Version(self.version) >= "0.22":
+        if Version(self.version) >= "0.22":
             self.requires("libiconv/1.17")
 
     def build_requirements(self):
         self.build_requires("gnu-config/cci.20210814")
-        if tools.scm.Version(self.version) >= "0.22":
+        if Version(self.version) >= "0.22":
             self.build_requires("automake/1.16.5")
             self.build_requires("gettext/0.21")
             self.build_requires("pkgconf/1.7.4")
@@ -92,17 +92,17 @@ class ZbarConan(ConanFile):
             raise ConanInvalidConfiguration("Zbar can't be built static on macOS")
         if self.options.with_xv:            #TODO add when available
             self.output.warn("There is no Xvideo package available on Conan (yet). This recipe will use the one present on the system (if available).")
-        if tools.scm.Version(self.version) >= "0.22" and cross_building(self):
+        if Version(self.version) >= "0.22" and cross_building(self):
             raise ConanInvalidConfiguration("{} can't be built on cross building environment currently because autopoint(part of gettext) doesn't execute correctly.".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if not self._autotools:
-            if tools.scm.Version(self.version) >= "0.22":
-                with tools.files.chdir(self, self._source_subfolder):
+            if Version(self.version) >= "0.22":
+                with files.chdir(self, self._source_subfolder):
                     self.run("autoreconf -fiv")
             self._autotools = AutoToolsBuildEnvironment(self)
             yes_no = lambda v: "yes" if v else "no"
@@ -136,20 +136,20 @@ class ZbarConan(ConanFile):
         autotools.make()
 
     def package(self):
-        if tools.scm.Version(self.version) < "0.23":
+        if Version(self.version) < "0.23":
             self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         else:
             self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "zbar"
         self.cpp_info.set_property("pkg_config_name", "zbar")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ("FreeBSD", "Linux") and self.options.enable_pthread:
             self.cpp_info.system_libs = ["pthread"]
         if tools.apple.is_apple_os(self):

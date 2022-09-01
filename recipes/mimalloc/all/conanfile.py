@@ -122,11 +122,11 @@ class MimallocConan(ConanFile):
 
         if not minimum_version:
             self.output.warn("mimalloc requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("mimalloc requires a compiler that supports at least C++17")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -140,14 +140,14 @@ class MimallocConan(ConanFile):
         cmake.definitions["MI_BUILD_OBJECT"] = self.options.get_safe("single_object", False)
         cmake.definitions["MI_OVERRIDE"] = "ON" if self.options.override else "OFF"
         cmake.definitions["MI_SECURE"] = "ON" if self.options.secure else "OFF"
-        if tools.scm.Version(self.version) >= "1.7.0":
+        if Version(self.version) >= "1.7.0":
             cmake.definitions["MI_INSTALL_TOPLEVEL"] = "ON"
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if microsoft.is_msvc(self) and self.settings.arch == "x86":
             tools.replace_path_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                        "mimalloc-redirect.lib", "mimalloc-redirect32.lib")
@@ -161,11 +161,11 @@ class MimallocConan(ConanFile):
             cmake = self._configure_cmake()
             cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         if self.options.get_safe("single_object"):
-            tools.files.rm(self, "lib", os.path.join(self.package_folder),
+            files.rm(self, "lib", os.path.join(self.package_folder),
                                        "*.a")
             shutil.move(os.path.join(self.package_folder, self._obj_name + ".o"),
                         os.path.join(self.package_folder, "lib"))
@@ -180,7 +180,7 @@ class MimallocConan(ConanFile):
                 self.copy("mimalloc-redirect32.dll", src=os.path.join(self._source_subfolder, "bin"),
                           dst="bin")
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         cmake_target = "mimalloc" if self.options.shared else "mimalloc-static"
         self._create_cmake_module_alias_targets(
@@ -198,7 +198,7 @@ class MimallocConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -255,7 +255,7 @@ class MimallocConan(ConanFile):
             self.cpp_info.libdirs = []
             self.cpp_info.bindirs = []
         else:
-            self.cpp_info.libs = tools.files.collect_libs(self, self)
+            self.cpp_info.libs = files.collect_libs(self, self)
 
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")

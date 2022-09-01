@@ -53,7 +53,7 @@ class LibUnistringConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -79,7 +79,7 @@ class LibUnistringConan(ConanFile):
         autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libunistring.la"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["unistring"]

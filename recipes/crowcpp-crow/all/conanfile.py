@@ -37,7 +37,7 @@ class CrowConan(ConanFile):
             self.requires("openssl/1.1.1l")
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder
@@ -45,7 +45,7 @@ class CrowConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self.options.amalgamation:
             cmake = CMake(self)

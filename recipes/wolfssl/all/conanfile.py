@@ -79,7 +79,7 @@ class WolfSSLConan(ConanFile):
             raise ConanInvalidConfiguration("The option 'opensslall' requires 'opensslextra=True'")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -131,12 +131,12 @@ class WolfSSLConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
-            if self.settings.compiler == "Visual Studio" and (tools.scm.Version(self.version) < "4.7" or self.version == "5.0.0"):
-                tools.files.replace_in_file(self, "libtool",
+            if self.settings.compiler == "Visual Studio" and (Version(self.version) < "4.7" or self.version == "5.0.0"):
+                files.replace_in_file(self, "libtool",
                                       "AR_FLAGS=\"Ucru\"", "AR_FLAGS=\"cru\"")
             autotools.make()
 
@@ -146,11 +146,11 @@ class WolfSSLConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
         os.unlink(os.path.join(self.package_folder, "bin", "wolfssl-config"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "wolfssl.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "wolfssl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "wolfssl.lib"))
 
     def package_info(self):

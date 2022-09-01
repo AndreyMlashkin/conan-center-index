@@ -57,7 +57,7 @@ class DlibConan(ConanFile):
 
     @property
     def _has_with_webp_option(self):
-        return tools.scm.Version(self.version) >= "19.24"
+        return Version(self.version) >= "19.24"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -94,37 +94,37 @@ class DlibConan(ConanFile):
             raise ConanInvalidConfiguration("dlib doesn't support macOS M1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         dlib_cmakelists = os.path.join(self._source_subfolder, "dlib", "CMakeLists.txt")
         # robust giflib injection
-        tools.files.replace_in_file(self, dlib_cmakelists, "${GIF_LIBRARY}", "GIF::GIF")
+        files.replace_in_file(self, dlib_cmakelists, "${GIF_LIBRARY}", "GIF::GIF")
         # robust libjpeg injection
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libjpeg.cmake"),
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libjpeg", "CMakeLists.txt"),
         ]:
-            tools.files.replace_in_file(self, cmake_file, "${JPEG_LIBRARY}", "JPEG::JPEG")
+            files.replace_in_file(self, cmake_file, "${JPEG_LIBRARY}", "JPEG::JPEG")
         # robust libpng injection
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libpng.cmake"),
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libpng", "CMakeLists.txt"),
         ]:
-            tools.files.replace_in_file(self, cmake_file, "${PNG_LIBRARIES}", "PNG::PNG")
+            files.replace_in_file(self, cmake_file, "${PNG_LIBRARIES}", "PNG::PNG")
         # robust sqlite3 injection
-        tools.files.replace_in_file(self, dlib_cmakelists, "find_library(sqlite sqlite3)", "find_package(SQLite3 REQUIRED)")
-        tools.files.replace_in_file(self, dlib_cmakelists, "find_path(sqlite_path sqlite3.h)", "")
-        tools.files.replace_in_file(self, dlib_cmakelists, "if (sqlite AND sqlite_path)", "if(1)")
-        tools.files.replace_in_file(self, dlib_cmakelists, "${sqlite}", "SQLite::SQLite3")
+        files.replace_in_file(self, dlib_cmakelists, "find_library(sqlite sqlite3)", "find_package(SQLite3 REQUIRED)")
+        files.replace_in_file(self, dlib_cmakelists, "find_path(sqlite_path sqlite3.h)", "")
+        files.replace_in_file(self, dlib_cmakelists, "if (sqlite AND sqlite_path)", "if(1)")
+        files.replace_in_file(self, dlib_cmakelists, "${sqlite}", "SQLite::SQLite3")
         # robust libwebp injection
         if self._has_with_webp_option:
-            tools.files.replace_in_file(self, dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)")
-            tools.files.replace_in_file(self, dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
-            tools.files.replace_in_file(self, dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
+            files.replace_in_file(self, dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)")
+            files.replace_in_file(self, dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
+            files.replace_in_file(self, dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -179,13 +179,13 @@ class DlibConan(ConanFile):
             os.path.join("include", "dlib", "cmake_utils"),
             os.path.join("include", "dlib", "external", "pybind11", "tools")
         ]:
-            tools.files.rmdir(self, os.path.join(self.package_folder, dir_to_remove))
+            files.rmdir(self, os.path.join(self.package_folder, dir_to_remove))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "dlib")
         self.cpp_info.set_property("cmake_target_name", "dlib::dlib")
         self.cpp_info.set_property("pkg_config_name", "dlib-1")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
         elif self.settings.os == "Windows":

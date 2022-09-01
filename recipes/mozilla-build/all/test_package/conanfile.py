@@ -5,7 +5,7 @@ import os
 class TestPackageConan(ConanFile):
 
     def test(self):
-        tools.files.save(self, "file.txt", "some text")
+        files.save(self, "file.txt", "some text")
         assert not os.path.isdir("destionation")
         self.run("nsinstall -D destination")
         assert os.path.isdir("destination")

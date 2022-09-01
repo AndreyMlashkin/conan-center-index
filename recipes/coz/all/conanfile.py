@@ -25,7 +25,7 @@ class CozConan(ConanFile):
 
     def validate(self):
         compiler = self.settings.compiler
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if self.settings.os == "Macos" or compiler == "Visual Studio" or (
                 compiler == "gcc" and compiler_version < "5.0"):
             raise ConanInvalidConfiguration(
@@ -35,7 +35,7 @@ class CozConan(ConanFile):
             tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     _cmake = None
@@ -54,7 +54,7 @@ class CozConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"

@@ -61,7 +61,7 @@ class LibIdn(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -87,7 +87,7 @@ class LibIdn(ConanFile):
         if not self.options.shared:
             self._autotools.defines.append("IDN2_STATIC")
         if self.settings.compiler == "Visual Studio":
-            if tools.scm.Version(self.settings.compiler.version) >= "12":
+            if Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
             self._autotools.link_flags.extend("-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.lib_paths)
         yes_no = lambda v: "yes" if v else "no"
@@ -103,7 +103,7 @@ class LibIdn(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -116,8 +116,8 @@ class LibIdn(ConanFile):
 
         os.unlink(os.path.join(self.package_folder, "lib", "libidn2.la"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["idn2"]

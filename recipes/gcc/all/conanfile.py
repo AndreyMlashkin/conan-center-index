@@ -76,7 +76,7 @@ class GccConan(ConanFile):
             raise ConanInvalidConfiguration("no cross-building support (yet), sorry")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "gcc-%s" % self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -89,12 +89,12 @@ class GccConan(ConanFile):
     def build(self):
         # If building on x86_64, change the default directory name for 64-bit libraries to "lib":
         libdir = "%s/lib/gcc/%s" % (self.package_folder, self.version)
-        tools.files.replace_in_file(self, os.path.join(self.source_folder,
+        files.replace_in_file(self, os.path.join(self.source_folder,
                                            self._source_subfolder, "gcc", "config", "i386", "t-linux64"),
                               "m64=../lib64", "m64=../lib", strict=False)
         # Ensure correct install names when linking against libgcc_s;
         # see discussion in https://github.com/Homebrew/legacy-homebrew/pull/34303
-        tools.files.replace_in_file(self, os.path.join(self.source_folder,
+        files.replace_in_file(self, os.path.join(self.source_folder,
                                            self._source_subfolder, "libgcc", "config", "t-slibgcc-darwin"),
                               "@shlib_slibdir@", libdir, strict=False)
         autotools = self._configure_autotools()
@@ -109,8 +109,8 @@ class GccConan(ConanFile):
             autotools.install(args=self._make_args)
         else:
             autotools.make(args=["install-strip"] + self._make_args)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.la", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", self.package_folder)
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):

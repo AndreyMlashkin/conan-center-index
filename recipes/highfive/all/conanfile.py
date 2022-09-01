@@ -50,15 +50,15 @@ class HighFiveConan(ConanFile):
             self.requires("opencv/4.5.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMake", "HighFiveTargetDeps.cmake"),
             "find_package(Eigen3 NO_MODULE)",
             "find_package(Eigen3 REQUIRED)",
         )
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMake", "HighFiveTargetDeps.cmake"),
             "EIGEN3_INCLUDE_DIRS",
             "Eigen3_INCLUDE_DIRS",
@@ -89,7 +89,7 @@ class HighFiveConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "HighFive"

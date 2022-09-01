@@ -56,7 +56,7 @@ class OpenblasConan(ConanFile):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder
@@ -88,7 +88,7 @@ class OpenblasConan(ConanFile):
         return cmake
 
     def build(self):
-        if tools.scm.Version(self.version) >= "0.3.12":
+        if Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
             replace = (
                 """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
@@ -105,7 +105,7 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "cmake", "f_check.cmake"),
             search,
             replace,
@@ -117,8 +117,8 @@ endif()"""
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         # CMake config file:
@@ -133,7 +133,7 @@ endif()"""
         self.cpp_info.components["openblas_component"].includedirs.append(
             os.path.join("include", "openblas")
         )
-        self.cpp_info.components["openblas_component"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["openblas_component"].libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
             if self.options.use_thread:

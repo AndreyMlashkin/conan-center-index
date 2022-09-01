@@ -236,12 +236,12 @@ class LibwebsocketsConan(ConanFile):
             self.requires("wolfssl/4.8.1")
 
     def validate(self):
-        if self.options.shared and self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.options.shared and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             # https://github.com/conan-io/conan-center-index/pull/5321#issuecomment-826367276
             raise ConanInvalidConfiguration("{}/{} shared=True with gcc<5 does not build. Please submit a PR with a fix.".format(self.name, self.version))
-        if tools.scm.Version(self.version) <= "4.0.15" and self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) >= "12":
+        if Version(self.version) <= "4.0.15" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "12":
             raise ConanInvalidConfiguration("{}/{} with apple-clang>=12 does not build. Please submit a PR with a fix.".format(self.name, self.version))
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < 16 and tools.scm.Version(self.version) >= "4.3.2":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < 16 and Version(self.version) >= "4.3.2":
             raise ConanInvalidConfiguration ("{}/{} requires at least Visual Studio 2019".format(self.name, self.version))
 
         if self.options.with_hubbub:
@@ -249,7 +249,7 @@ class LibwebsocketsConan(ConanFile):
             # TODO - Add hubbub package when available.
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _get_library_extension(self, dep):
@@ -427,13 +427,13 @@ class LibwebsocketsConan(ConanFile):
         self._cmake.definitions["LWS_WITH_ALSA"] = False
         self._cmake.definitions["LWS_WITH_GTK"] = False
 
-        if tools.scm.Version(self.version) >= "4.1.0":
+        if Version(self.version) >= "4.1.0":
             self._cmake.definitions["LWS_WITH_SYS_SMD"] = self.settings.os != "Windows"
             self._cmake.definitions["DISABLE_WERROR"] = True
 
         # Temporary override Windows 10 SDK for Visual Studio 2019, see issue #4450
         # CCI worker has 10.0.17763.0 SDK installed alongside with 10.0.20348 but only 20348 can be used with Visual Studio 2019
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) == 16:
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) == 16:
             self._cmake.definitions["CMAKE_SYSTEM_VERSION"] = "10.0.20348"
 
         self._cmake.configure()
@@ -441,21 +441,21 @@ class LibwebsocketsConan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             cmakelists,
             "SET(CMAKE_INSTALL_NAME_DIR \"${CMAKE_INSTALL_PREFIX}/${LWS_INSTALL_LIB_DIR}${LIB_SUFFIX}\")",
             "",
         )
-        if tools.scm.Version(self.version) == "4.0.15" and self.options.with_ssl:
-            tools.files.replace_in_file(self, 
+        if Version(self.version) == "4.0.15" and self.options.with_ssl:
+            files.replace_in_file(self, 
                 cmakelists,
                 "list(APPEND LIB_LIST ws2_32.lib userenv.lib psapi.lib iphlpapi.lib)",
                 "list(APPEND LIB_LIST ws2_32.lib userenv.lib psapi.lib iphlpapi.lib crypt32.lib)"
             )
-        if tools.scm.Version(self.version) < "4.1.0":
-            tools.files.replace_in_file(self, cmakelists, "-Werror", "")
-        if tools.scm.Version(self.version) >= "4.1.4":
-            tools.files.replace_in_file(self, cmakelists, "add_compile_options(/W3 /WX)", "add_compile_options(/W3)")
+        if Version(self.version) < "4.1.0":
+            files.replace_in_file(self, cmakelists, "-Werror", "")
+        if Version(self.version) >= "4.1.4":
+            files.replace_in_file(self, cmakelists, "add_compile_options(/W3 /WX)", "add_compile_options(/W3)")
 
     def build(self):
         self._patch_sources()
@@ -466,10 +466,10 @@ class LibwebsocketsConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -487,7 +487,7 @@ class LibwebsocketsConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -503,7 +503,7 @@ class LibwebsocketsConan(ConanFile):
         pkgconfig_name = "libwebsockets" if self.options.shared else "libwebsockets_static"
         self.cpp_info.set_property("pkg_config_name", pkgconfig_name)
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_libwebsockets"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["_libwebsockets"].libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.components["_libwebsockets"].system_libs.extend(["ws2_32", "crypt32"])
         elif self.settings.os in ["Linux", "FreeBSD"]:

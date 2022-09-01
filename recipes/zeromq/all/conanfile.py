@@ -74,7 +74,7 @@ class ZeroMQConan(ConanFile):
             )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -102,18 +102,18 @@ class ZeroMQConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         os.unlink(os.path.join(self._source_subfolder, "builds", "cmake", "Modules", "FindSodium.cmake"))
 
         if self.options.encryption == "libsodium":
             os.rename("Findlibsodium.cmake", "FindSodium.cmake")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                        "SODIUM_FOUND",
                                        "libsodium_FOUND")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                        "SODIUM_INCLUDE_DIRS",
                                        "libsodium_INCLUDE_DIRS")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                        "SODIUM_LIBRARIES",
                                        "libsodium_LIBRARIES")
 
@@ -127,10 +127,10 @@ class ZeroMQConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "CMake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -148,7 +148,7 @@ class ZeroMQConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -164,7 +164,7 @@ class ZeroMQConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libzmq")
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libzmq"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["libzmq"].libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.components["libzmq"].system_libs = ["iphlpapi", "ws2_32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:

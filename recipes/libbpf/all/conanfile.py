@@ -65,15 +65,15 @@ class LibbpfConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools, make_args = self._configure_autotools()
             autotools.make(args=make_args)
 
     def package(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools, make_args = self._configure_autotools()
             autotools.install(args=make_args)
 
@@ -83,7 +83,7 @@ class LibbpfConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("LICENSE.BSD-2-Clause", dst="licenses", src=self._source_subfolder)
         self.copy("LICENSE.LGPL-2.1", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libbpf"

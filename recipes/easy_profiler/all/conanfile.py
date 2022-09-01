@@ -46,19 +46,19 @@ class EasyProfilerConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "Visual Studio" and self.settings.compiler.runtime == "MTd" and \
-           self.options.shared and tools.scm.Version(self.settings.compiler.version) >= "15":
+           self.options.shared and Version(self.settings.compiler.version) >= "15":
             raise ConanInvalidConfiguration(
                 "{} {} with MTd runtime not supported".format(self.settings.compiler,
                                                               self.settings.compiler.version)
             )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -78,12 +78,12 @@ class EasyProfilerConan(ConanFile):
         self.copy("LICENSE.APACHE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         os.remove(os.path.join(self.package_folder, "LICENSE.MIT"))
         os.remove(os.path.join(self.package_folder, "LICENSE.APACHE"))
         if self.settings.os == "Windows":
             for dll_prefix in ["concrt", "msvcp", "vcruntime"]:
-                tools.files.rm(self, "bin", os.path.join(self.package_folder),
+                files.rm(self, "bin", os.path.join(self.package_folder),
                                            "{}*.dll".format(dll_prefix))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
@@ -100,7 +100,7 @@ class EasyProfilerConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

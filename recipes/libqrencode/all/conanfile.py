@@ -45,7 +45,7 @@ class LibqrencodeConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("libqrencode-{}".format(self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -57,7 +57,7 @@ class LibqrencodeConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -69,8 +69,8 @@ class LibqrencodeConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         lib = "qrencode"

@@ -63,7 +63,7 @@ class MpfrConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -100,7 +100,7 @@ class MpfrConan(ConanFile):
         return self._cmake
 
     def _extract_makefile_variable(self, makefile, variable):
-        makefile_contents = tools.files.load(self, makefile)
+        makefile_contents = files.load(self, makefile)
         match = re.search("{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\"))*)*)\n".format(variable), makefile_contents)
         if not match:
             raise ConanException("Cannot extract variable {} from {}".format(variable, makefile_contents))
@@ -136,19 +136,19 @@ class MpfrConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.options.exact_int == "mpir":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                        "-lgmp", "-lmpir")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "mpfr.h"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "mpfr.h"),
                                        "<gmp.h>", "<mpir.h>")
-            tools.files.save(self, "gmp.h", "#pragma once\n#include <mpir.h>\n")
+            files.save(self, "gmp.h", "#pragma once\n#include <mpir.h>\n")
         with self._build_context():
             autotools = self._configure_autotools()
         if self.settings.os == "Windows":
-            cmakelists_in = tools.files.load(self, "CMakeLists.txt.in")
+            cmakelists_in = files.load(self, "CMakeLists.txt.in")
             sources, headers, definitions = self._extract_mpfr_autotools_variables()
-            tools.files.save(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), cmakelists_in.format(
+            files.save(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), cmakelists_in.format(
                 mpfr_sources=" ".join(sources),
                 mpfr_headers=" ".join(headers),
                 definitions=" ".join(definitions),
@@ -167,8 +167,8 @@ class MpfrConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
             os.unlink(os.path.join(self.package_folder, "lib", "libmpfr.la"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["mpfr"]

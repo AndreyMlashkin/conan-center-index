@@ -56,13 +56,13 @@ class SubunitConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Cannot build shared subunit libraries on Windows")
-        if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "10":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "10":
             # Complete error is:
             # make[2]: *** No rule to make target `/Applications/Xcode-9.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/config.h', needed by `Makefile'.  Stop.
             raise ConanInvalidConfiguration("Due to weird make error involving missing config.h file in sysroot")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -105,7 +105,7 @@ class SubunitConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -126,15 +126,15 @@ class SubunitConan(ConanFile):
             ]
             autotools.install(args=install_args)
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rm(self, "*.pod", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.pod", os.path.join(self.package_folder, "lib"))
         for d in glob.glob(os.path.join(self.package_folder, "lib", "python*")):
-            tools.files.rmdir(self, d)
+            files.rmdir(self, d)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "*")):
             if os.path.isdir(d):
-                tools.files.rmdir(self, d)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "Library"))
+                files.rmdir(self, d)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "Library"))
 
     def package_info(self):
         self.cpp_info.components["libsubunit"].libs = ["subunit"]

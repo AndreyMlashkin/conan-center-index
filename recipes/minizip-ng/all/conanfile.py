@@ -95,7 +95,7 @@ class MinizipNgConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -117,7 +117,7 @@ class MinizipNgConan(ConanFile):
         return cmake
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
                               "")
 
@@ -130,8 +130,8 @@ class MinizipNgConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "minizip")
@@ -140,7 +140,7 @@ class MinizipNgConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         prefix = "lib" if is_msvc(self) or self._is_clang_cl else ""
-        suffix = "" if tools.scm.Version(self.version) < "3.0.5" or self.options.mz_compatibility else "-ng"
+        suffix = "" if Version(self.version) < "3.0.5" or self.options.mz_compatibility else "-ng"
         self.cpp_info.components["minizip"].libs = [f"{prefix}minizip{suffix}"]
         if self.options.with_lzma:
             self.cpp_info.components["minizip"].defines.append("HAVE_LZMA")

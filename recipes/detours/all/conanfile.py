@@ -42,7 +42,7 @@ class DetoursConan(ConanFile):
             raise ConanInvalidConfiguration("Unsupported architecture")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def export_sources(self):
@@ -50,7 +50,7 @@ class DetoursConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @property
     def _target_processor(self):
@@ -69,14 +69,14 @@ class DetoursConan(ConanFile):
 
     def _patch_sources(self):
         if is_msvc(self):
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Makefile"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Makefile"),
                                   "/MT ", f"/{self.settings.compiler.runtime} ")
 
     def build(self):
         self._patch_sources()
         if is_msvc(self):
             with tools.vcvars(self):
-                with tools.files.chdir(self, os.path.join(self._source_subfolder, "src")):
+                with files.chdir(self, os.path.join(self._source_subfolder, "src")):
                     self.run(f"nmake DETOURS_TARGET_PROCESSOR={self._target_processor}")
         else:
             cmake = self._configure_cmake()

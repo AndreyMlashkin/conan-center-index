@@ -30,7 +30,7 @@ class InversifyCppConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
         else:
             self.output.warn("{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
@@ -40,7 +40,7 @@ class InversifyCppConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-       tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+       files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

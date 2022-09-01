@@ -73,15 +73,15 @@ class LibdbConan(ConanFile):
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             # FIXME: it used to work with previous versions of Visual Studio 2019 in CI of CCI.
-            if tools.scm.Version(self.settings.compiler.version) == "16":
+            if Version(self.settings.compiler.version) == "16":
                 raise ConanInvalidConfiguration("Visual Studio 2019 not supported.")
 
         if self.options.get_safe("with_cxx"):
             if self.settings.compiler == "clang":
-                if tools.scm.Version(self.settings.compiler.version) <= "5":
+                if Version(self.settings.compiler.version) <= "5":
                     raise ConanInvalidConfiguration("This compiler version is unsupported")
             if self.settings.compiler == "apple-clang":
-                if tools.scm.Version(self.settings.compiler.version) < "10":
+                if Version(self.settings.compiler.version) < "10":
                     raise ConanInvalidConfiguration("This compiler version is unsupported")
 
     def build_requirements(self):
@@ -91,12 +91,12 @@ class LibdbConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self.settings.compiler != "Visual Studio":
             for subdir in [
@@ -111,13 +111,13 @@ class LibdbConan(ConanFile):
                             os.path.join(self._source_subfolder, subdir, "config.guess"))
 
         for file in glob.glob(os.path.join(self._source_subfolder, "build_windows", "VS10", "*.vcxproj")):
-            tools.files.replace_in_file(self, file,
+            files.replace_in_file(self, file,
                                   "<PropertyGroup Label=\"Globals\">",
                                   "<PropertyGroup Label=\"Globals\"><WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>")
 
         dist_configure = os.path.join(self._source_subfolder, "dist", "configure")
-        tools.files.replace_in_file(self, dist_configure, "../$sqlite_dir", "$sqlite_dir")
-        tools.files.replace_in_file(self, dist_configure,
+        files.replace_in_file(self, dist_configure, "../$sqlite_dir", "$sqlite_dir")
+        files.replace_in_file(self, dist_configure,
                               "\n    --disable-option-checking)",
                               "\n    --datarootdir=*)"
                               "\n      ;;"
@@ -127,7 +127,7 @@ class LibdbConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-Wno-error=implicit-function-declaration")
         conf_args = [
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
@@ -148,10 +148,10 @@ class LibdbConan(ConanFile):
             conf_args.append("--with-tcl={}".format(tools.microsoft.unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))))
         self._autotools.configure(configure_dir=os.path.join(self.source_folder, self._source_subfolder, "dist"), args=conf_args)
         if self.settings.os == "Windows" and self.options.shared:
-            tools.files.replace_in_file(self, os.path.join(self.build_folder, "libtool"),
+            files.replace_in_file(self, os.path.join(self.build_folder, "libtool"),
                                   "\ndeplibs_check_method=",
                                   "\ndeplibs_check_method=pass_all\n#deplibs_check_method=")
-            tools.files.replace_in_file(self, os.path.join(self.build_folder, "Makefile"),
+            files.replace_in_file(self, os.path.join(self.build_folder, "Makefile"),
                                   ".a",
                                   ".dll.a")
         return self._autotools
@@ -209,7 +209,7 @@ class LibdbConan(ConanFile):
 
             msvc_libs = [_lib_to_msvc_lib(lib) for lib in self._libs]
             for lib, msvc_lib in zip(self._libs, msvc_libs):
-                tools.files.rename(self, os.path.join(libdir, "{}.lib".format(msvc_lib)),
+                files.rename(self, os.path.join(libdir, "{}.lib".format(msvc_lib)),
                              os.path.join(libdir, "{}.lib".format(lib)))
         else:
             autotools = self._configure_autotools()
@@ -218,7 +218,7 @@ class LibdbConan(ConanFile):
             if self.settings.os == "Windows":
                 for fn in os.listdir(libdir):
                     if fn.endswith(".dll"):
-                        tools.files.rename(self, os.path.join(libdir, fn), os.path.join(bindir, fn))
+                        files.rename(self, os.path.join(libdir, fn), os.path.join(bindir, fn))
                 for fn in os.listdir(bindir):
                     if not fn.endswith(".dll"):
                         binpath = os.path.join(bindir, fn)
@@ -232,13 +232,13 @@ class LibdbConan(ConanFile):
                             os.remove(os.path.join(bindir, fn))
 
                 if not os.listdir(bindir):
-                    tools.files.rmdir(self, bindir)
+                    files.rmdir(self, bindir)
 
-            tools.files.rmdir(self, os.path.join(self.package_folder, "docs"))
-            tools.files.rm(self, "*.la", libdir)
+            files.rmdir(self, os.path.join(self.package_folder, "docs"))
+            files.rm(self, "*.la", libdir)
             if not self.options.shared:
                 # autotools installs the static libraries twice as libXXX.a and libXXX-5.3.a ==> remove libXXX-5.3.a
-                tools.files.rm(self, "*-{}.a".format(".".join(self._major_minor_version)), libdir)
+                files.rm(self, "*-{}.a".format(".".join(self._major_minor_version)), libdir)
 
     @property
     def _major_minor_version(self):

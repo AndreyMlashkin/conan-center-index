@@ -60,36 +60,36 @@ class LcmsConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if (self.settings.compiler == "Visual Studio" and compiler_version >= "14") or \
            str(self.settings.compiler) == "msvc":
             # since VS2015 vsnprintf is built-in
             path = os.path.join(self._source_subfolder, "src", "lcms2_internal.h")
-            tools.files.replace_in_file(self, path, "#       define vsnprintf  _vsnprintf", "")
+            files.replace_in_file(self, path, "#       define vsnprintf  _vsnprintf", "")
         if (self.settings.compiler == "Visual Studio" and compiler_version >= "16") or \
            (str(self.settings.compiler) == "msvc" and compiler_version >= "192"):
             # since VS2019, don't need to specify the WindowsTargetPlatformVersion
             path = os.path.join(self._source_subfolder, "Projects", "VC2015", "lcms2_static", "lcms2_static.vcxproj")
-            tools.files.replace_in_file(self, path, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
+            files.replace_in_file(self, path, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
         if self.settings.os == "Android" and self._settings_build.os == "Windows":
             # remove escape for quotation marks, to make ndk on windows happy
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "s/[	 `~#$^&*(){}\\\\|;'\\\''\"<>?]/\\\\&/g",
                                   "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g")
 
     def _build_visual_studio(self):
-        if tools.scm.Version(self.version) <= "2.11":
+        if Version(self.version) <= "2.11":
             vc_sln_subdir = "VC2013"
         else:
             vc_sln_subdir = "VC2015"
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "Projects", vc_sln_subdir )):
+        with files.chdir(self, os.path.join(self._source_subfolder, "Projects", vc_sln_subdir )):
             target = "lcms2_DLL" if self.options.shared else "lcms2_static"
             if self.settings.compiler == "Visual Studio" and \
-               tools.scm.Version(self.settings.compiler.version) <= "12":
+               Version(self.settings.compiler.version) <= "12":
                 upgrade_project = False
             else:
                 upgrade_project = True
@@ -145,14 +145,14 @@ class LcmsConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             # remove utilities
             if self.settings.os == "Windows" and self.options.shared:
-                tools.files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
+                files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
             else:
-                tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+                files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "lcms2")

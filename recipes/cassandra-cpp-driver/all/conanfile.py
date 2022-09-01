@@ -85,13 +85,13 @@ class CassandraCppDriverConan(ConanFile):
                 "Kerberos is not supported at the moment")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\"",
                               "\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\" OR \"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"AppleClang\"")
 
@@ -147,7 +147,7 @@ class CassandraCppDriverConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["iphlpapi", "psapi", "wsock32",

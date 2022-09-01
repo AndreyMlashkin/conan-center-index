@@ -51,7 +51,7 @@ class RtMidiConan(ConanFile):
             self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -64,7 +64,7 @@ class RtMidiConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -72,11 +72,11 @@ class RtMidiConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        if tools.scm.Version(self.version) >= "5.0.0":
+        if Version(self.version) >= "5.0.0":
             self.cpp_info.components["librtmidi"].includedirs = [os.path.join("include", "rtmidi")]
 
         self.cpp_info.set_property("cmake_file_name", "RtMidi")

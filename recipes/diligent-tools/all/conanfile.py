@@ -31,7 +31,7 @@ class DiligentToolsConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package_id(self):
         if self.settings.compiler == "Visual Studio":
@@ -50,7 +50,7 @@ class DiligentToolsConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -116,11 +116,11 @@ class DiligentToolsConan(ConanFile):
         self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.a", src=self._build_subfolder, dst="lib", keep_path=False)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "Licenses"))
+        files.rmdir(self, os.path.join(self.package_folder, "Licenses"))
         self.copy("License.txt", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools"))
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
 

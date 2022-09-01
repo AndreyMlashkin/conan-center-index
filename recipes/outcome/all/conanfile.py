@@ -28,14 +28,14 @@ class OutcomeConan(ConanFile):
                 "Unknown compiler {} {}. Assuming compiler supports C++14."
                 .format(self.settings.compiler, self.settings.compiler.version))
         else:
-            version = tools.scm.Version(self.settings.compiler.version)
+            version = Version(self.settings.compiler.version)
             if version < minimum_version:
                 raise errors.ConanInvalidConfiguration(
                     "The compiler {} {} does not support C++14."
                     .format(self.settings.compiler, self.settings.compiler.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

@@ -50,7 +50,7 @@ class LibgpiodConan(ConanFile):
         self.build_requires("linux-headers-generic/5.13.9")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -67,7 +67,7 @@ class LibgpiodConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
         autotools = self._configure_autotools()
         autotools.make()
@@ -76,8 +76,8 @@ class LibgpiodConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rm(self, "*.la", self.package_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["gpiod"].libs = ["gpiod"]

@@ -90,7 +90,7 @@ class ThriftConan(ConanFile):
             self.build_requires("bison/3.7.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -123,7 +123,7 @@ class ThriftConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         for f in ["Findflex.cmake", "Findbison.cmake"]:
             if os.path.isfile(f):
                 os.unlink(f)
@@ -137,8 +137,8 @@ class ThriftConan(ConanFile):
         # Copy generated headers from build tree
         build_source_dir = os.path.join(self._build_subfolder, self._source_subfolder)
         self.copy(pattern="*.h", dst="include", src=build_source_dir, keep_path=True)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         targets = {}
@@ -163,7 +163,7 @@ class ThriftConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -185,7 +185,7 @@ class ThriftConan(ConanFile):
         self.cpp_info.components["libthrift"].libs = ["thrift" + libsuffix]
         if self.settings.os == "Windows":
             self.cpp_info.components["libthrift"].defines.append("NOMINMAX")
-            if tools.scm.Version(self.version) >= "0.15.0":
+            if Version(self.version) >= "0.15.0":
                 self.cpp_info.components["libthrift"].system_libs.append("shlwapi")
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libthrift"].system_libs.extend(["m", "pthread"])

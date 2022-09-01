@@ -96,18 +96,18 @@ class ITKConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
                     self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
 
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -253,9 +253,9 @@ class ITKConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, self._cmake_module_dir, "Modules"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, self._cmake_module_dir, "Modules"))
         # Do not remove UseITK.cmake and *.h.in files
         for cmake_file in glob.glob(os.path.join(self.package_folder, self._cmake_module_dir, "*.cmake")):
             if os.path.basename(cmake_file) != "UseITK.cmake":
@@ -276,7 +276,7 @@ class ITKConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -288,7 +288,7 @@ class ITKConan(ConanFile):
 
     @property
     def _itk_subdir(self):
-        v = tools.scm.Version(self.version)
+        v = Version(self.version)
         return "ITK-{}.{}".format(v.major, v.minor)
 
     @property
@@ -482,7 +482,7 @@ class ITKConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ITK")
         self.cpp_info.set_property("cmake_build_modules", [os.path.join(self._cmake_module_dir, "UseITK.cmake")])
 
-        itk_version = tools.scm.Version(self.version)
+        itk_version = Version(self.version)
         lib_suffix = "-{}.{}".format(itk_version.major, itk_version.minor)
 
         for name, values in self._itk_components.items():

@@ -47,7 +47,7 @@ class CcacheConan(ConanFile):
             "gcc": "6",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15.7" if tools.scm.Version(self.version) < "4.6" else "16.2",
+            "Visual Studio": "15.7" if Version(self.version) < "4.6" else "16.2",
         }
 
     def export_sources(self):
@@ -85,7 +85,7 @@ class CcacheConan(ConanFile):
             self.build_requires("cmake/3.22.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -99,7 +99,7 @@ class CcacheConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

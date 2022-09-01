@@ -79,7 +79,7 @@ class CspiceConan(ConanFile):
     def build(self):
         self._get_sources()
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -91,13 +91,13 @@ class CspiceConan(ConanFile):
         url = data["url"]
         if url.endswith(".tar.Z"): # Python doesn't have any module to uncompress .Z files
             filename = os.path.basename(url)
-            tools.files.download(self, url, filename, sha256=data["sha256"])
+            files.download(self, url, filename, sha256=data["sha256"])
             command = "zcat {} | tar -xf -".format(filename)
             self.run(command=command)
             os.remove(filename)
         else:
-            tools.files.get(self, **data)
-        tools.files.rename(self, self.name, self._source_subfolder)
+            files.get(self, **data)
+        files.rename(self, self.name, self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -108,12 +108,12 @@ class CspiceConan(ConanFile):
         return self._cmake
 
     def package(self):
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = self._configure_cmake()
         cmake.install()
 
     def _extract_license(self):
-        spiceusr_header = tools.files.load(self, os.path.join(self._source_subfolder, "include", "SpiceUsr.h"))
+        spiceusr_header = files.load(self, os.path.join(self._source_subfolder, "include", "SpiceUsr.h"))
         begin = spiceusr_header.find("-Disclaimer")
         end = spiceusr_header.find("-Required_Reading", begin)
         return spiceusr_header[begin:end]

@@ -55,22 +55,22 @@ class PixmanConan(ConanFile):
             raise ConanInvalidConfiguration("pixman can only be built as a static library on Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.win32.common"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.win32.common"),
                                   "-MDd ", "-{} ".format(str(self.settings.compiler.runtime)))
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.win32.common"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.win32.common"),
                                   "-MD ", "-{} ".format(str(self.settings.compiler.runtime)))
         if tools.apple.is_apple_os(self):
             # https://lists.freedesktop.org/archives/pixman/2014-November/003461.html
             test_makefile = os.path.join(self._source_subfolder, "test", "Makefile.in")
-            tools.files.replace_in_file(self, test_makefile,
+            files.replace_in_file(self, test_makefile,
                                   "region_test_OBJECTS = region-test.$(OBJEXT)",
                                   "region_test_OBJECTS = region-test.$(OBJEXT) utils.$(OBJEXT)")
-            tools.files.replace_in_file(self, test_makefile,
+            files.replace_in_file(self, test_makefile,
                                   "scaling_helpers_test_OBJECTS = scaling-helpers-test.$(OBJEXT)",
                                   "scaling_helpers_test_OBJECTS = scaling-helpers-test.$(OBJEXT) utils.$(OBJEXT)")
 
@@ -114,11 +114,11 @@ class PixmanConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(self._includedir)
         self.cpp_info.names["pkg_config"] = "pixman-1"
         if self.settings.os in ("FreeBSD", "Linux"):

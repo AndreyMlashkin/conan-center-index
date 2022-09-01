@@ -106,7 +106,7 @@ class NCursesConan(ConanFile):
                 raise ConanInvalidConfiguration("ticlib cannot be built separately as a shared library on Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -155,7 +155,7 @@ class NCursesConan(ConanFile):
                 "ac_cv_func_setvbuf_reversed=no",
             ])
             autotools.cxx_flags.append("-EHsc")
-            if tools.scm.Version(self.settings.compiler.version) >= 12:
+            if Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
         if (self.settings.os, self.settings.compiler) == ("Windows", "gcc"):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
@@ -170,7 +170,7 @@ class NCursesConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -199,11 +199,11 @@ class NCursesConan(ConanFile):
 
     @property
     def _major_version(self):
-        return tools.scm.Version(self.version).major
+        return Version(self.version).major
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file):
-        tools.files.save(self, module_file, textwrap.dedent("""\
+        files.save(self, module_file, textwrap.dedent("""\
             set(CURSES_FOUND ON)
             set(CURSES_INCLUDE_DIRS ${ncurses_libcurses_INCLUDE_DIRS})
             set(CURSES_LIBRARIES ${ncurses_libcurses_LINK_LIBS})

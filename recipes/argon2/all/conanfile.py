@@ -39,7 +39,7 @@ class Argon2Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -63,21 +63,21 @@ class Argon2Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         vcxproj = os.path.join(self._source_subfolder, "vs2015", "Argon2OptDll", "Argon2OptDll.vcxproj")
         argon2_header = os.path.join(self._source_subfolder, "include", "argon2.h")
         if not self.options.shared:
-            tools.files.replace_in_file(self, argon2_header, "__declspec(dllexport)", "")
-            tools.files.replace_in_file(self, vcxproj, "DynamicLibrary", "StaticLibrary")
-        tools.files.replace_in_file(self, vcxproj, "<ClCompile>", "<ClCompile><AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>")
-        tools.files.replace_in_file(self, vcxproj, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
+            files.replace_in_file(self, argon2_header, "__declspec(dllexport)", "")
+            files.replace_in_file(self, vcxproj, "DynamicLibrary", "StaticLibrary")
+        files.replace_in_file(self, vcxproj, "<ClCompile>", "<ClCompile><AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>")
+        files.replace_in_file(self, vcxproj, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
         if self.settings.compiler == "Visual Studio":
             msbuild = MSBuild(self)
             msbuild.build(os.path.join(self._source_subfolder, "Argon2.sln"), targets=("Argon2OptDll",))#, platforms={"x86": "Win32"})
             if self.options.shared:
-                tools.files.replace_in_file(self, argon2_header, "__declspec(dllexport)", "__declspec(dllimport)")
+                files.replace_in_file(self, argon2_header, "__declspec(dllexport)", "__declspec(dllimport)")
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
                 with tools.environment_append(autotools.vars):
                     autotools.make(args=self._make_args, target="libs")
@@ -92,27 +92,27 @@ class Argon2Conan(ConanFile):
                       os.path.join(self.package_folder, "lib", "argon2.lib"))
         else:
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 with tools.environment_append(autotools.vars):
                     autotools.install(args=self._make_args)
             # drop unneeded dirs
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "bin"))
             if self.settings.os == "Windows" and self.options.shared:
                 os.unlink(os.path.join(self.package_folder, "lib", "libargon2.a"))
                 self.copy("libargon2.dll.a", src=self._source_subfolder, dst="lib")
-                tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+                files.mkdir(self, os.path.join(self.package_folder, "bin"))
                 os.rename(os.path.join(self.package_folder, "lib", "libargon2.dll"),
                           os.path.join(self.package_folder, "bin", "libargon2.dll"))
             # drop unneeded libs
             if self.options.shared:
                 if self.settings.os != "Windows":
-                    tools.files.rm(self, "*.a*", os.path.join(self.package_folder, "lib"))
+                    files.rm(self, "*.a*", os.path.join(self.package_folder, "lib"))
             else:
-                tools.files.rm(self, "*.dll", os.path.join(self.package_folder, "lib"))
-                tools.files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
-                tools.files.rm(self, "*.so.*", os.path.join(self.package_folder, "lib"))
-                tools.files.rm(self, "*.dylib", os.path.join(self.package_folder, "lib"))
+                files.rm(self, "*.dll", os.path.join(self.package_folder, "lib"))
+                files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
+                files.rm(self, "*.so.*", os.path.join(self.package_folder, "lib"))
+                files.rm(self, "*.dylib", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libargon2"

@@ -40,7 +40,7 @@ class PExportsConan(ConanFile):
 
     def source(self):
         filename = "pexports.tar.xz"
-        tools.files.get(self, **self.conan_data["sources"][self.version], filename=filename,
+        files.get(self, **self.conan_data["sources"][self.version], filename=filename,
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -73,8 +73,8 @@ class PExportsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()

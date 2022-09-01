@@ -84,7 +84,7 @@ class MsixConan(ConanFile):
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
-        elif tools.scm.Version(self.settings.compiler.version) < min_version:
+        elif Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17 support. The current compiler {} {} does not support it.".format(
                     self.name, self.settings.compiler, self.settings.compiler.version))
 
@@ -133,11 +133,11 @@ class MsixConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -147,7 +147,7 @@ class MsixConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["runtimeobject"]
             if self.settings.compiler == "Visual Studio":

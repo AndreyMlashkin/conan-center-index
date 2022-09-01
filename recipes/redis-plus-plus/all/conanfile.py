@@ -64,15 +64,15 @@ class RedisPlusPlusConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            if tools.scm.Version(self.version) >= "1.3.0":
+            if Version(self.version) >= "1.3.0":
                 tools.build.check_min_cppstd(self, 17)
             else:
                 tools.build.check_min_cppstd(self, 11)
 
-        if tools.scm.Version(self.version) >= "1.3.0":
+        if Version(self.version) >= "1.3.0":
             minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
             if minimum_version:
-                if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+                if Version(self.settings.compiler.version) < minimum_version:
                     raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
             else:
                 self.output.warn("{0} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
@@ -81,7 +81,7 @@ class RedisPlusPlusConan(ConanFile):
             raise ConanInvalidConfiguration("with_tls must match hiredis.with_ssl option")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -94,16 +94,16 @@ class RedisPlusPlusConan(ConanFile):
             self._cmake.definitions["REDIS_PLUS_PLUS_BUILD_TEST"] = False
             self._cmake.definitions["REDIS_PLUS_PLUS_BUILD_STATIC"] = not self.options.shared
             self._cmake.definitions["REDIS_PLUS_PLUS_BUILD_SHARED"] = self.options.shared
-            if tools.scm.Version(self.version) >= "1.2.3":
+            if Version(self.version) >= "1.2.3":
                 self._cmake.definitions["REDIS_PLUS_PLUS_BUILD_STATIC_WITH_PIC"] = self.options.shared
             self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        if tools.scm.Version(self.version) < "1.2.3":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.patch(self, **patch)
+        if Version(self.version) < "1.2.3":
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "set_target_properties(${STATIC_LIB} PROPERTIES POSITION_INDEPENDENT_CODE ON)",
                                   "")
 
@@ -116,8 +116,8 @@ class RedisPlusPlusConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "redis++")

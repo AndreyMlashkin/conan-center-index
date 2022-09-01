@@ -45,7 +45,7 @@ class TermcapConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _extract_sources(self):
         makefile_text = open(os.path.join(self._source_subfolder, "Makefile.in")).read()
@@ -70,7 +70,7 @@ class TermcapConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self.settings.os == "Windows":
             for src in self._extract_sources()[0]:
@@ -94,7 +94,7 @@ class TermcapConan(ConanFile):
         return os.path.join(self.package_folder, "bin", "etc", "termcap")
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.options.shared:
             self.cpp_info.defines = ["TERMCAP_SHARED"]
 

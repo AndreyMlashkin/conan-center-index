@@ -35,7 +35,7 @@ class SshtConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob('ssht-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 

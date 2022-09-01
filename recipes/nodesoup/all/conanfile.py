@@ -48,11 +48,11 @@ class NodesoupConan(ConanFile):
         if self.settings.compiler.cppstd:
             tools.build.check_min_cppstd(self, 14)
         if self.settings.compiler == "clang":
-            if tools.scm.Version(self.settings.compiler.version) < "5.0" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
+            if Version(self.settings.compiler.version) < "5.0" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
                 raise ConanInvalidConfiguration("The version of libstdc++(11) of the current compiler does not support building nodesoup")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -64,7 +64,7 @@ class NodesoupConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -73,7 +73,7 @@ class NodesoupConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "nodesoup"))

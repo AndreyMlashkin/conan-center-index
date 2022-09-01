@@ -69,7 +69,7 @@ class CoinOsiConan(ConanFile):
             raise ConanInvalidConfiguration("coin-osi shared not supported yet when cross-building")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -101,14 +101,14 @@ class CoinOsiConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
             configure_args.append("--enable-msvc={}".format(self.settings.compiler.runtime))
-            if tools.scm.Version(self.settings.compiler.version) >= 12:
+            if Version(self.settings.compiler.version) >= 12:
                 self._autotools.flags.append("-FS")
         self._autotools.configure(configure_dir=self._source_subfolder, args=configure_args)
         return self._autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -123,15 +123,15 @@ class CoinOsiConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install(args=["-j1"]) # due to configure generated with old autotools version
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
         if self.settings.compiler == "Visual Studio":
             for l in ("Osi", "OsiCommonTests"):
                 os.rename(os.path.join(self.package_folder, "lib", "lib{}.lib").format(l),
                           os.path.join(self.package_folder, "lib", "{}.lib").format(l))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.components["libosi"].libs = ["Osi"]

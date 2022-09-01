@@ -31,7 +31,7 @@ class Cc65Conan(ConanFile):
             self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -57,7 +57,7 @@ class Cc65Conan(ConanFile):
                       build_type="Debug" if self.settings.build_type == "Debug" else "Release",
                       arch=arch, platforms=msvc_platforms)
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "libsrc")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "libsrc")):
             autotools.make()
 
     def _configure_autotools(self):
@@ -86,24 +86,24 @@ class Cc65Conan(ConanFile):
 
     def _build_autotools(self):
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             autotools.make(args=self._make_args)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, "src")):
+            with files.chdir(self, os.path.join(self._source_subfolder, "src")):
                 for fn in os.listdir("."):
                     if not fn.endswith(".vcxproj"):
                         continue
-                    tools.files.replace_in_file(self, fn, "v141", tools.msvs_toolset(self))
-                    tools.files.replace_in_file(self, fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
+                    files.replace_in_file(self, fn, "v141", tools.msvs_toolset(self))
+                    files.replace_in_file(self, fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
         if self.settings.os == "Windows":
             # Add ".exe" suffix to calls from cl65 to other utilities
             for fn, var in (("cc65", "CC65"), ("ca65", "CA65"), ("co65", "CO65"), ("ld65", "LD65"), ("grc65", "GRC")):
                 v = "{},".format(var).ljust(5)
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
                                       "CmdInit (&{v} CmdPath, \"{n}\");".format(v=v, n=fn),
                                       "CmdInit (&{v} CmdPath, \"{n}.exe\");".format(v=v, n=fn))
 
@@ -121,11 +121,11 @@ class Cc65Conan(ConanFile):
 
     def _package_autotools(self):
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, os.path.join(self.build_folder, self._source_subfolder)):
+        with files.chdir(self, os.path.join(self.build_folder, self._source_subfolder)):
             autotools.install(args=self._make_args)
 
-        tools.files.rmdir(self, self._samplesdir)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, self._samplesdir)
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

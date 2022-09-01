@@ -49,12 +49,12 @@ class PthreadpoolConan(ConanFile):
         self.requires("fxdiv/cci.20200417")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("pthreadpool-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
                               "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
 

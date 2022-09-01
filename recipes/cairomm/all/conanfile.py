@@ -30,7 +30,7 @@ class CairommConan(ConanFile):
     short_paths = True
 
     def _abi_version(self):
-        return "1.16" if tools.scm.Version(self.version) >= "1.16.0" else "1.0"
+        return "1.16" if Version(self.version) >= "1.16.0" else "1.0"
 
     def validate(self):
         if hasattr(self, "settings_build") and tools.build.cross_building(self):
@@ -56,14 +56,14 @@ class CairommConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if is_msvc(self):
             # when using cpp_std=c++11 the /permissive- flag is added which
             # attempts enforcing standard conformant c++ code
             # the problem is that older versions of Windows SDK is not standard
             # conformant! see:
             # https://developercommunity.visualstudio.com/t/error-c2760-in-combaseapih-with-windows-sdk-81-and/185399
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "cpp_std=c++", "cpp_std=vc++")
 
@@ -90,7 +90,7 @@ class CairommConan(ConanFile):
             self.requires("libsigcpp/2.10.8")
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder,
@@ -124,7 +124,7 @@ class CairommConan(ConanFile):
         meson = self._configure_meson()
         meson.install()
         if is_msvc(self):
-            tools.files.rm(self, 
+            files.rm(self, 
                 os.path.join(self.package_folder, "bin"), "*.pdb")
             if not self.options.shared:
                 rename(
@@ -157,7 +157,7 @@ class CairommConan(ConanFile):
             )
 
         for dir_to_remove in ["pkgconfig", f"cairomm-{self._abi_version()}"]:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib",
+            files.rmdir(self, os.path.join(self.package_folder, "lib",
                                      dir_to_remove))
 
     def package_info(self):

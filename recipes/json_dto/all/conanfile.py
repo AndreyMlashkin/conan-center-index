@@ -39,17 +39,17 @@ class JsondtoConan(ConanFile):
                 "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
             self.output.warn(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
-        elif tools.scm.Version(self.settings.compiler.version) < minimal_version[compiler]:
+        elif Version(self.settings.compiler.version) < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
-        if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) >= "11":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "11":
             raise ConanInvalidConfiguration(f"{self.name} requires apple-clang less then version 11")
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -59,7 +59,7 @@ class JsondtoConan(ConanFile):
         cmake.definitions["JSON_DTO_FIND_DEPS"] = False
         cmake.configure(source_folder=os.path.join(self._source_subfolder, "dev", "json_dto"))
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "json-dto")

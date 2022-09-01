@@ -59,12 +59,12 @@ class TgbotConan(ConanFile):
             raise ConanInvalidConfiguration("{0} requires non header-only boost with these components: {1}".format(self.name, ", ".join(self._required_boost_components)))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         # Don't force PIC
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)",
             ""

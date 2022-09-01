@@ -18,7 +18,7 @@ class DbgMacroConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -27,7 +27,7 @@ class DbgMacroConan(ConanFile):
         if self.settings.get_safe("compiler.cppstd"):
             tools.build.check_min_cppstd(self, minimal_cpp_standard)
 
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "dbg-mcro can't be used by {0} {1}".format(
                     self.settings.compiler,

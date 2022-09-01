@@ -27,7 +27,7 @@ class openfx(ConanFile):
     _cmake = None
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             destination="source_subfolder",
             strip_root=True
@@ -59,8 +59,8 @@ class openfx(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         cmake.install()
 

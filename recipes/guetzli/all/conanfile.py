@@ -34,23 +34,23 @@ class GoogleGuetzliConan(ConanFile):
 
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "guetzli-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
         if self._is_msvc:
             msbuild = MSBuild(self)
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 msbuild.build("guetzli.sln", build_type="Release")
         else:
             autotools = AutoToolsBuildEnvironment(self)
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 env_vars = {"PKG_CONFIG_PATH": self.build_folder}
                 env_vars.update(autotools.vars)
                 with tools.environment_append(env_vars):

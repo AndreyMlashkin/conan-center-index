@@ -19,7 +19,7 @@ class Sol2Conan(ConanFile):
     _cmake = None
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -37,7 +37,7 @@ class Sol2Conan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, "14")
         compiler = str(self.settings.compiler)
-        comp_version = tools.scm.Version(self.settings.compiler.version)
+        comp_version = Version(self.settings.compiler.version)
         compilers = {"Visual Studio": "14", "gcc": "5",
                      "clang": "3.2", "apple-clang": "4.3"}
         min_version = compilers.get(compiler)
@@ -58,9 +58,9 @@ class Sol2Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # constains just # , "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         # constains just # , "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

@@ -132,7 +132,7 @@ class grpcConan(ConanFile):
                 self.build_requires('grpc/{}'.format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -221,8 +221,8 @@ class grpcConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # Create one custom module file per executable in order to emulate
         # CMake executables imported targets of grpc
@@ -273,7 +273,7 @@ class grpcConan(ConanFile):
         # Rename it
         dst_file = os.path.join(self.package_folder, self._module_path,
                                 "{}.cmake".format(executable))
-        tools.files.rename(self, os.path.join(self.package_folder, self._module_path, self._grpc_plugin_template),
+        files.rename(self, os.path.join(self.package_folder, self._module_path, self._grpc_plugin_template),
                      dst_file)
 
         # Replace placeholders

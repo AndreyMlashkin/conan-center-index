@@ -58,7 +58,7 @@ class ConanXqilla(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -89,7 +89,7 @@ class ConanXqilla(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "autotools","config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -103,18 +103,18 @@ class ConanXqilla(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("README", dst="licenses/LICENSE.mapm", src=os.path.join(self._source_subfolder, "src", "mapm"))
 
-        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "src", "yajl", "yajl_buf.h"))
+        tmp = files.load(self, os.path.join(self._source_subfolder, "src", "yajl", "yajl_buf.h"))
         license_contents = tmp[2:tmp.find("*/", 1)] 
-        tools.files.save(self, "LICENSE", license_contents)
+        files.save(self, "LICENSE", license_contents)
         self.copy("LICENSE", dst="licenses/LICENSE.yajl",  ignore_case=True, keep_path=False)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libxqilla"
-        self.cpp_info.libs =  tools.files.collect_libs(self, self)
+        self.cpp_info.libs =  files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")
         bin_path = os.path.join(self.package_folder, "bin")

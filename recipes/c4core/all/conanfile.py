@@ -52,14 +52,14 @@ class C4CoreConan(ConanFile):
             tools.build.check_min_cppstd(self, "11")
 
         ## clang with libc++ is not supported. It is already fixed at 2022-01-03.
-        if tools.scm.Version(self.version) <= "0.1.8":
+        if Version(self.version) <= "0.1.8":
             if (self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++"):
                 raise ConanInvalidConfiguration(
                     "{}/{} doesn't support clang with libc++".format(self.name, self.version),
                 )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -70,8 +70,8 @@ class C4CoreConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "c4/ext/fast_float_all.h", "")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "c4", "ext", "fast_float.hpp"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "c4/ext/fast_float_all.h", "")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "c4", "ext", "fast_float.hpp"),
             '#include "c4/ext/fast_float_all.h"',
             '#include "fast_float/fast_float.h"')
 
@@ -82,9 +82,9 @@ class C4CoreConan(ConanFile):
         self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rm(self, "*.natvis", os.path.join(self.package_folder, "include"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rm(self, "*.natvis", os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "c4core")

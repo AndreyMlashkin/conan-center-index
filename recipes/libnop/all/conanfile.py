@@ -28,13 +28,13 @@ class LibnopConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, 14)
         compiler = self.settings.compiler
-        compiler_version = tools.scm.Version(compiler.version)
+        compiler_version = Version(compiler.version)
         if (compiler == "gcc" and compiler_version < "5") or \
            (compiler == "Visual Studio" and compiler_version < "15"):
             raise ConanInvalidConfiguration("libnop doesn't support {} {}".format(str(compiler), compiler.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

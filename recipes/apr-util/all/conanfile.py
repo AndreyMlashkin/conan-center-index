@@ -107,7 +107,7 @@ class AprUtilConan(ConanFile):
             self.requires("libpq/13.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def validate(self):
@@ -159,7 +159,7 @@ class AprUtilConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -179,9 +179,9 @@ class AprUtilConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib", "apr-util-1"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib", "apr-util-1"))
             os.unlink(os.path.join(self.package_folder, "lib", "libaprutil-1.la"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "apr-util-1"

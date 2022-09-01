@@ -32,7 +32,7 @@ class MuparserxConan(ConanFile):
             raise ConanInvalidConfiguration("Muparserx does not support windows dll library!")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -45,7 +45,7 @@ class MuparserxConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "set_property(TARGET muparserx PROPERTY POSITION_INDEPENDENT_CODE TRUE)", "")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "set_property(TARGET muparserx PROPERTY POSITION_INDEPENDENT_CODE TRUE)", "")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -53,11 +53,11 @@ class MuparserxConan(ConanFile):
         self.copy(pattern="License.txt", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

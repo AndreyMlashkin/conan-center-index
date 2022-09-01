@@ -29,14 +29,14 @@ class IrrXMLConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_folder = self.name + "-" + self.version
         os.rename(extracted_folder, self._source_subfolder)
 
     def _extract_license(self):
-        header = tools.files.load(self, os.path.join(self.package_folder, "include", "irrXML.h"))
+        header = files.load(self, os.path.join(self.package_folder, "include", "irrXML.h"))
         license_contents = header[header.find(r"\section license License")+25:header.find(r"\section history", 1)]
-        tools.files.save(self, "LICENSE", license_contents)
+        files.save(self, "LICENSE", license_contents)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -45,7 +45,7 @@ class IrrXMLConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -56,6 +56,6 @@ class IrrXMLConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

@@ -22,7 +22,7 @@ class RagelConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
                   strip_root=True)
 
     def _configure_autotools(self):
@@ -40,7 +40,7 @@ class RagelConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self.settings.os == "Windows":
             cmake = self._configure_cmake()
@@ -58,7 +58,7 @@ class RagelConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         del self.info.settings.compiler

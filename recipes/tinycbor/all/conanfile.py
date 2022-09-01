@@ -39,7 +39,7 @@ class tinycborConan(ConanFile):
             raise ConanInvalidConfiguration("Shared library only supported on Linux platform")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if not self._env_build:
@@ -55,29 +55,29 @@ class tinycborConan(ConanFile):
         return self._env_build, self._env_vars
 
     def _build_nmake(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             vcvars_command = tools.vcvars_command(self.settings)
             self.run("%s && nmake -f Makefile.nmake" % vcvars_command)
 
     def _build_make(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             env_build, env_vars = self._configure_autotools()
             env_build.make(vars=env_vars)
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
             self._build_nmake()
         else:
             self._build_make()
 
     def _package_unix(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             env_build, env_vars = self._configure_autotools()
             env_build.install(vars=env_vars)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def _package_visual(self):
         self.copy("tinycbor.lib", src=os.path.join(self._source_subfolder, "lib"), dst="lib")
@@ -92,7 +92,7 @@ class tinycborConan(ConanFile):
             self._package_unix()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
         self.cpp_info.includedirs = ["include", os.path.join("include","tinycbor")]

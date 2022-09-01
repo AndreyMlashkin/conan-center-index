@@ -76,21 +76,21 @@ class FlatbuffersConan(ConanFile):
         del self.info.options.options_from_context
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # Prefer manual injection of current version in build(), otherwise it tries to call git
-        tools.files.replace_in_file(self, cmakelists, "include(CMake/Version.cmake)", "")
+        files.replace_in_file(self, cmakelists, "include(CMake/Version.cmake)", "")
         # No warnings as errors
-        tools.files.replace_in_file(self, cmakelists, "/WX", "")
-        tools.files.replace_in_file(self, cmakelists, "-Werror ", "")
+        files.replace_in_file(self, cmakelists, "/WX", "")
+        files.replace_in_file(self, cmakelists, "-Werror ", "")
         # Install dll to bin folder
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}",
                               "RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
 
@@ -108,7 +108,7 @@ class FlatbuffersConan(ConanFile):
         # Honor conan profile
         self._cmake.definitions["FLATBUFFERS_LIBCXX_WITH_CLANG"] = False
         # Mimic upstream CMake/Version.cmake removed in _patch_sources()
-        version = tools.scm.Version(self.version)
+        version = Version(self.version)
         self._cmake.definitions["VERSION_MAJOR"] = version.major
         self._cmake.definitions["VERSION_MINOR"] = version.minor
         self._cmake.definitions["VERSION_PATCH"] = version.patch
@@ -130,8 +130,8 @@ class FlatbuffersConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self.copy(pattern="FlatcTargets.cmake",
                   dst=self._module_path,
                   src="cmake")
@@ -155,7 +155,7 @@ class FlatbuffersConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if not self.options.header_only:
-            self.cpp_info.components["libflatbuffers"].libs = tools.files.collect_libs(self, self)
+            self.cpp_info.components["libflatbuffers"].libs = files.collect_libs(self, self)
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libflatbuffers"].system_libs.append("m")
 

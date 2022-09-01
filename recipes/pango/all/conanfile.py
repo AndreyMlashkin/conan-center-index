@@ -31,7 +31,7 @@ class PangoConan(ConanFile):
         return "build_subfolder"
 
     def validate(self):
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("this recipe does not support GCC before version 5. contributions are welcome")
         if self.options.with_xft and not self.settings.os in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Xft can only be used on Linux and FreeBSD")
@@ -92,7 +92,7 @@ class PangoConan(ConanFile):
         self.requires("fribidi/1.0.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
@@ -111,10 +111,10 @@ class PangoConan(ConanFile):
 
     def build(self):
         meson_build = os.path.join(self._source_subfolder, "meson.build")
-        tools.files.replace_in_file(self, meson_build, "subdir('tests')", "")
-        tools.files.replace_in_file(self, meson_build, "subdir('tools')", "")
-        tools.files.replace_in_file(self, meson_build, "subdir('utils')", "")
-        tools.files.replace_in_file(self, meson_build, "subdir('examples')", "")
+        files.replace_in_file(self, meson_build, "subdir('tests')", "")
+        files.replace_in_file(self, meson_build, "subdir('tools')", "")
+        files.replace_in_file(self, meson_build, "subdir('utils')", "")
+        files.replace_in_file(self, meson_build, "subdir('examples')", "")
         with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else tools.no_op():
             meson = self._configure_meson()
             meson.build()
@@ -125,13 +125,13 @@ class PangoConan(ConanFile):
             meson = self._configure_meson()
             meson.install()
         if is_msvc(self):
-            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+            with files.chdir(self, os.path.join(self.package_folder, "lib")):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
                     shutil.move(filename_old, filename_new)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         self.cpp_info.components['pango_'].libs = ['pango-1.0']

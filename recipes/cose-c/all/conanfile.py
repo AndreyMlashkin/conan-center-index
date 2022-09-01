@@ -54,7 +54,7 @@ class CoseCConan(ConanFile):
             self.requires("openssl/1.1.1h")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(glob.glob("COSE-C-*")[0], self._source_subfolder)
 
     def _configure_cmake(self):
@@ -73,7 +73,7 @@ class CoseCConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -81,10 +81,10 @@ class CoseCConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["ws2_32", "secur32", "crypt32", "bcrypt"])
         if self.settings.os == "Macos":

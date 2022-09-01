@@ -29,9 +29,9 @@ class DawJsonLinkConan(ConanFile):
         return "source_subfolder"
 
     def requirements(self):
-        if tools.scm.Version(self.version) < "2.11.0":
+        if Version(self.version) < "2.11.0":
             self.requires("daw_header_libraries/1.29.7")
-        elif tools.scm.Version(self.version) < "2.12.0":
+        elif Version(self.version) < "2.12.0":
             self.requires("daw_header_libraries/2.5.3")
         else:
             self.requires("daw_header_libraries/2.68.1")
@@ -43,13 +43,13 @@ class DawJsonLinkConan(ConanFile):
 
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
         else:
             self.output.warn("{0} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -63,8 +63,8 @@ class DawJsonLinkConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.header_only()

@@ -28,11 +28,11 @@ class UncrustifyConan(ConanFile):
         return "build_subfolder"
 
     def validate(self):
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "7":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration(f"{self.name} requires GCC >=8")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @functools.lru_cache(1)
@@ -51,7 +51,7 @@ class UncrustifyConan(ConanFile):
         cmake.install()
 
         if self.settings.os == "Windows":
-            tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+            files.mkdir(self, os.path.join(self.package_folder, "bin"))
             rename(self, os.path.join(self.package_folder, "uncrustify.exe"),
                          os.path.join(self.package_folder, "bin", "uncrustify.exe"))
             os.remove(os.path.join(self.package_folder, "AUTHORS"))
@@ -60,10 +60,10 @@ class UncrustifyConan(ConanFile):
             os.remove(os.path.join(self.package_folder, "ChangeLog"))
             os.remove(os.path.join(self.package_folder, "HELP"))
             os.remove(os.path.join(self.package_folder, "README.md"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "cfg"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+            files.rmdir(self, os.path.join(self.package_folder, "cfg"))
+            files.rmdir(self, os.path.join(self.package_folder, "doc"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         del self.info.settings.compiler

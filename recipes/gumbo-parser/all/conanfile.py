@@ -34,13 +34,13 @@ class GumboParserConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_folder = "gumbo-parser-{0}".format(self.version)
         os.rename(extracted_folder, self._source_subfolder)
 
     def _configure_autotools(self):
         if not self._autotools:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             args = []
@@ -59,7 +59,7 @@ class GumboParserConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
+        files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
         os.unlink(os.path.join(self.package_folder, 'lib', 'libgumbo.la'))
 
     def package_info(self):

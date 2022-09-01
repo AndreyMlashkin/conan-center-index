@@ -46,7 +46,7 @@ class WasmtimeCppConan(ConanFile):
             tools.build.check_min_cppstd(self, 17)
         min_version = self._minimum_compilers_version[str(compiler)]
         try:
-            if tools.scm.Version(compiler.version) < min_version:
+            if Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {} !!"
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -59,7 +59,7 @@ class WasmtimeCppConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         shutil.copytree(os.path.join(self.source_folder, "include"),

@@ -14,7 +14,7 @@ class CuteHeadersConan(ConanFile):
 
     def _extract_license(self):
         file = os.path.join(self.package_folder, "include/cute_math2d.h")
-        file_content = tools.files.load(self, file)
+        file_content = files.load(self, file)
         return file_content[file_content.rfind('/*'):]
 
     @property
@@ -22,7 +22,7 @@ class CuteHeadersConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob(self.name + "-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -33,7 +33,7 @@ class CuteHeadersConan(ConanFile):
             src=self._source_subfolder,
             excludes=("examples_cute_*", "test_cute_*")
         )
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
 
     def package_id(self):
         self.info.header_only()

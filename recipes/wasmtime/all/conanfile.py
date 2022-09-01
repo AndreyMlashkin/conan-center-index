@@ -54,7 +54,7 @@ class WasmtimeConan(ConanFile):
         compiler = self.settings.compiler
         min_version = self._minimum_compilers_version[str(compiler)]
         try:
-            if tools.scm.Version(compiler.version) < min_version:
+            if Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C{} features which are not supported by compiler {} {} !!"
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -71,7 +71,7 @@ class WasmtimeConan(ConanFile):
         except KeyError:
             raise ConanInvalidConfiguration("Binaries for this combination of architecture/version/os are not available")
 
-        if tools.scm.Version(self.version) <= "0.29.0":
+        if Version(self.version) <= "0.29.0":
             if (self.settings.compiler, self.settings.os) == ("gcc", "Windows") and self.options.shared:
                 # https://github.com/bytecodealliance/wasmtime/issues/3168
                 raise ConanInvalidConfiguration("Shared mingw is currently not possible")
@@ -83,7 +83,7 @@ class WasmtimeConan(ConanFile):
 
     def build(self):
         # This is packaging binaries so the download needs to be in build
-        tools.files.get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
+        files.get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
                   destination=self.source_folder, strip_root=True)
 
     def package(self):

@@ -32,7 +32,7 @@ class ConanRecipe(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "qpOASES-releases-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -57,4 +57,4 @@ class ConanRecipe(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "qpOASES"
         self.cpp_info.names["cmake_find_package_multi"] = "qpOASES"
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

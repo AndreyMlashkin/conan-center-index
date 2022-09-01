@@ -91,7 +91,7 @@ class LibVertoConan(ConanFile):
             raise ConanInvalidConfiguration("Cannot combine builtin and external backends")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def requirements(self):
@@ -147,8 +147,8 @@ class LibVertoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True, win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -160,8 +160,8 @@ class LibVertoConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_id(self):
         del self.info.options.default

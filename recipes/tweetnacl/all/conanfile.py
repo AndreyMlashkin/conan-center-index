@@ -44,7 +44,7 @@ class TweetnaclConan(ConanFile):
 
     def source(self):
         for url_sha in self.conan_data["sources"][self.version]:
-            tools.files.download(self, url_sha["url"], os.path.basename(url_sha["url"]))
+            files.download(self, url_sha["url"], os.path.basename(url_sha["url"]))
             tools.check_sha256(os.path.basename(url_sha["url"]), url_sha["sha256"])
 
     def _configure_cmake(self):

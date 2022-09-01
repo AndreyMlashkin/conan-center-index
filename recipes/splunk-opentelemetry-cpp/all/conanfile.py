@@ -48,10 +48,10 @@ class SplunkOpentelemetryConan(ConanFile):
         return "build_subfolder"
 
     def _remove_unnecessary_package_files(self):
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder

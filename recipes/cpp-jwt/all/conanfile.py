@@ -25,7 +25,7 @@ class CppJwtConan(ConanFile):
         self.requires("nlohmann_json/3.7.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -49,7 +49,7 @@ class CppJwtConan(ConanFile):
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
 
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
@@ -64,12 +64,12 @@ class CppJwtConan(ConanFile):
         return self._cmake
 
     def package(self):
-        tools.files.patch(self, **self.conan_data["patches"][self.version])
+        files.patch(self, **self.conan_data["patches"][self.version])
         self.copy(pattern="LICENSE*", dst="licenses",
                   src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

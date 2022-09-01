@@ -59,7 +59,7 @@ class CityhashConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -89,16 +89,16 @@ class CityhashConan(ConanFile):
         if self._is_msvc:
             autotools.cxx_flags.append("-EHsc")
             if not (self.settings.compiler == "Visual Studio" and \
-                    tools.scm.Version(self.settings.compiler.version) < "12"):
+                    Version(self.settings.compiler.version) < "12"):
                 autotools.flags.append("-FS")
         autotools.configure(configure_dir=self._source_subfolder, args=args)
         return autotools
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared lib on macOS
-            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -108,8 +108,8 @@ class CityhashConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["cityhash"]

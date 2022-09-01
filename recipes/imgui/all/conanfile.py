@@ -41,7 +41,7 @@ class IMGUIConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -52,7 +52,7 @@ class IMGUIConan(ConanFile):
 
     def _patch_sources(self):
         # Ensure we take into account export_headers
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "imgui.h"),
             "#ifdef IMGUI_USER_CONFIG",
             "#include \"imgui_export_headers.h\"\n\n#ifdef IMGUI_USER_CONFIG"
@@ -66,7 +66,7 @@ class IMGUIConan(ConanFile):
     def package(self):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         m = re.match(r'cci\.\d{8}\+(?P<version>\d+\.\d+)\.docking', str(self.version))
-        version = tools.scm.Version(m.group('version')) if m else tools.scm.Version(self.version)
+        version = Version(m.group('version')) if m else Version(self.version)
         backends_folder = os.path.join(
             self._source_subfolder,
             "backends" if version >= "1.80" else "examples"

@@ -38,7 +38,7 @@ class QuickfastConan(ConanFile):
         return self._cmake
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("quickfast-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -53,7 +53,7 @@ class QuickfastConan(ConanFile):
     def build(self):
         patches = self.conan_data["patches"][self.version]
         for patch in patches:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build(target="quickfast")
@@ -64,7 +64,7 @@ class QuickfastConan(ConanFile):
         self.copy("license.txt", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "quickfast"))
 
         if not self.options.shared:

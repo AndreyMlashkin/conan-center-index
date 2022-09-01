@@ -53,7 +53,7 @@ class CppIPCConan(ConanFile):
 
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
         else:
             self.output.warn("{0} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
@@ -62,7 +62,7 @@ class CppIPCConan(ConanFile):
             raise ConanInvalidConfiguration("{} doesn't support clang with libc++".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):

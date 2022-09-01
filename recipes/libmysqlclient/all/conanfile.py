@@ -41,17 +41,17 @@ class LibMysqlClientCConan(ConanFile):
 
     @property
     def _with_zstd(self):
-        return tools.scm.Version(self.version) > "8.0.17"
+        return Version(self.version) > "8.0.17"
 
     @property
     def _with_lz4(self):
-        return tools.scm.Version(self.version) > "8.0.17"
+        return Version(self.version) > "8.0.17"
 
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16" if tools.scm.Version(self.version) > "8.0.17" else "15",
-            "gcc": "7" if tools.scm.Version(self.version) >= "8.0.27" else "5.3",
+            "Visual Studio": "16" if Version(self.version) > "8.0.17" else "15",
+            "gcc": "7" if Version(self.version) >= "8.0.27" else "5.3",
             "clang": "6",
         }
 
@@ -101,79 +101,79 @@ class LibMysqlClientCConan(ConanFile):
         #             error: expected unqualified-id MYSQL_VERSION_MAJOR=8
         #             error: no member named 'ptrdiff_t' in the global namespace
         if self.version == "8.0.17" and self.settings.compiler == "apple-clang" and \
-           tools.scm.Version(self.settings.compiler.version) >= "12.0":
+           Version(self.settings.compiler.version) >= "12.0":
             raise ConanInvalidConfiguration("libmysqlclient 8.0.17 doesn't support apple-clang >= 12.0")
 
         # mysql>=8.0.17 doesn't support shared library on MacOS.
         # https://github.com/mysql/mysql-server/blob/mysql-8.0.17/cmake/libutils.cmake#L333-L335
-        if tools.scm.Version(self.version) >= "8.0.17" and self.settings.compiler == "apple-clang" and \
+        if Version(self.version) >= "8.0.17" and self.settings.compiler == "apple-clang" and \
            self.options.shared:
             raise ConanInvalidConfiguration("{}/{} doesn't support shared library".format( self.name, self.version))
 
         # mysql < 8.0.29 uses `requires` in source code. It is the reserved keyword in C++20.
         # https://github.com/mysql/mysql-server/blob/mysql-8.0.0/include/mysql/components/services/dynamic_loader.h#L270
-        if self.settings.compiler.get_safe("cppstd") == "20" and tools.scm.Version(self.version) < "8.0.29":
+        if self.settings.compiler.get_safe("cppstd") == "20" and Version(self.version) < "8.0.29":
             raise ConanInvalidConfiguration("{}/{} doesn't support C++20".format(self.name, self.version))
 
     def build_requirements(self):
-        if tools.scm.Version(self.version) >= "8.0.25" and tools.apple.is_apple_os(self):
+        if Version(self.version) >= "8.0.25" and tools.apple.is_apple_os(self):
             # CMake 3.18 or higher is required if Apple, but CI of CCI may run CMake 3.15
             self.build_requires("cmake/3.22.5")
         if self.settings.os == "FreeBSD":
             self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_files(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         libs_to_remove = ["icu", "libevent", "re2", "rapidjson", "protobuf", "libedit"]
         if not self._with_lz4:
             libs_to_remove.append("lz4")
         for lib in libs_to_remove:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 "MYSQL_CHECK_%s()\n" % lib.upper(),
                 "",
                 strict=False)
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 "INCLUDE(%s)\n" % lib,
                 "",
                 strict=False)
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "extra"))
+        files.rmdir(self, os.path.join(self._source_subfolder, "extra"))
         for folder in ["client", "man", "mysql-test", "libbinlogstandalone"]:
-            tools.files.rmdir(self, os.path.join(self._source_subfolder, folder))
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.rmdir(self, os.path.join(self._source_subfolder, folder))
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 "ADD_SUBDIRECTORY(%s)\n" % folder,
                 "",
                 strict=False)
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "storage", "ndb"))
+        files.rmdir(self, os.path.join(self._source_subfolder, "storage", "ndb"))
         for t in ["INCLUDE(cmake/boost.cmake)\n", "MYSQL_CHECK_EDITLINE()\n"]:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 t,
                 "",
                 strict=False)
         if self._with_zstd:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "zstd.cmake"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "zstd.cmake"),
                 "NAMES zstd",
                 "NAMES zstd %s" % self.deps_cpp_info["zstd"].libs[0])
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "ssl.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "ssl.cmake"),
             "NAMES ssl",
             "NAMES ssl %s" % self.deps_cpp_info["openssl"].components["ssl"].libs[0])
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "ssl.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "ssl.cmake"),
             "NAMES crypto",
             "NAMES crypto %s" % self.deps_cpp_info["openssl"].components["crypto"].libs[0])
 
         # Do not copy shared libs of dependencies to package folder
         deps_shared = ["SSL"]
-        if tools.scm.Version(self.version) > "8.0.17":
+        if Version(self.version) > "8.0.17":
             deps_shared.extend(["KERBEROS", "SASL", "LDAP", "PROTOBUF", "CURL"])
         for dep in deps_shared:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "MYSQL_CHECK_{}_DLLS()".format(dep),
                                   "")
 
@@ -182,10 +182,10 @@ class LibMysqlClientCConan(ConanFile):
         rename(self, sources_cmake, sources_cmake_orig)
         rename(self, "CMakeLists.txt", sources_cmake)
         if self.settings.os == "Macos":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "libmysql", "CMakeLists.txt"),
-                "COMMAND %s" % ("$<TARGET_FILE:libmysql_api_test>" if tools.scm.Version(self.version) < "8.0.25" else "libmysql_api_test"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "libmysql", "CMakeLists.txt"),
+                "COMMAND %s" % ("$<TARGET_FILE:libmysql_api_test>" if Version(self.version) < "8.0.25" else "libmysql_api_test"),
                 "COMMAND DYLD_LIBRARY_PATH=%s %s" %(os.path.join(self.build_folder, "library_output_directory"), os.path.join(self.build_folder, "runtime_output_directory", "libmysql_api_test")))
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "install_macros.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "install_macros.cmake"),
             "  INSTALL_DEBUG_SYMBOLS(",
             "  # INSTALL_DEBUG_SYMBOLS(")
 
@@ -230,18 +230,18 @@ class LibMysqlClientCConan(ConanFile):
         os.mkdir(os.path.join(self.package_folder, "licenses"))
         rename(self, os.path.join(self.package_folder, "LICENSE"), os.path.join(self.package_folder, "licenses", "LICENSE"))
         os.remove(os.path.join(self.package_folder, "README"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "docs"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "docs"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.os == "Windows" and self.options.shared:
             self.copy("*.dll", "bin", keep_path=False)
         if self.options.shared:
-            tools.files.rm(self, "*.a", self.package_folder)
+            files.rm(self, "*.a", self.package_folder)
         else:
-            tools.files.rm(self, "*.dll", self.package_folder)
-            tools.files.rm(self, "*.dylib", self.package_folder)
-            tools.files.rm(self, "*.so*", self.package_folder)
+            files.rm(self, "*.dll", self.package_folder)
+            files.rm(self, "*.dylib", self.package_folder)
+            files.rm(self, "*.so*", self.package_folder)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "mysqlclient")
@@ -254,10 +254,10 @@ class LibMysqlClientCConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.append("m")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            if tools.scm.Version(self.version) >= "8.0.25":
+            if Version(self.version) >= "8.0.25":
                 self.cpp_info.system_libs.append("resolv")
         if self.settings.os == "Windows":
-            if tools.scm.Version(self.version) >= "8.0.25":
+            if Version(self.version) >= "8.0.25":
                 self.cpp_info.system_libs.append("dnsapi")
             self.cpp_info.system_libs.append("secur32")
 

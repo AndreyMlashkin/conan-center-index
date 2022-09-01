@@ -73,11 +73,11 @@ class RotorConan(ConanFile):
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
 
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
-        if self.options.shared and tools.scm.Version(self.version) < "0.23":
+        if self.options.shared and Version(self.version) < "0.23":
             raise ConanInvalidConfiguration("shared option is available from v0.23")
 
 
@@ -95,19 +95,19 @@ class RotorConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("license*", src=self._source_subfolder, dst="licenses",  ignore_case=True, keep_path=False)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.components["core"].libs = ["rotor"]

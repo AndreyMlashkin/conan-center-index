@@ -48,7 +48,7 @@ class StructoptConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("structopt: Unsupported compiler: {}-{} "
                                                 "(https://github.com/p-ranav/structopt#compiler-compatibility)."
                                                 .format(self.settings.compiler, self.settings.compiler.version))
@@ -56,7 +56,7 @@ class StructoptConan(ConanFile):
             self.output.warn("{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -65,14 +65,14 @@ class StructoptConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "include", "structopt", "third_party"))
+            files.patch(self, **patch)
+        files.rmdir(self, os.path.join(self._source_subfolder, "include", "structopt", "third_party"))
 
 
     def package(self):
         self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))

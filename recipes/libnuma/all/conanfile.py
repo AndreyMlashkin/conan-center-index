@@ -39,10 +39,10 @@ class LibnumaConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches",{}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("numactl-" + self.version, self._source_subfolder)
 
     def _configure_autotools(self):
@@ -69,10 +69,10 @@ class LibnumaConan(ConanFile):
         self.copy("LICENSE.LGPL2.1", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["numa"]

@@ -84,7 +84,7 @@ class Libx265Conan(ConanFile):
                 self.build_requires("nasm/2.15.05")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -118,16 +118,16 @@ class Libx265Conan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self._source_subfolder, "source", "CMakeLists.txt")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                                 "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",
                                 "if(FALSE)")
         if self.settings.os == "Android":
-            tools.files.replace_in_file(self, cmakelists,
+            files.replace_in_file(self, cmakelists,
                 "list(APPEND PLATFORM_LIBS pthread)", "")
-            tools.files.replace_in_file(self, cmakelists,
+            files.replace_in_file(self, cmakelists,
                 "list(APPEND PLATFORM_LIBS rt)", "")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -152,12 +152,12 @@ class Libx265Conan(ConanFile):
                         os.path.join(self.package_folder, "lib", "x265.lib"))
 
         if self.settings.os != "Windows" or not self.options.shared:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+            files.rmdir(self, os.path.join(self.package_folder, "bin"))
         else:
             for file in os.listdir(os.path.join(self.package_folder, "bin")):
                 if not file.endswith(".dll"):
                     os.unlink(os.path.join(self.package_folder, "bin", file))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "x265")

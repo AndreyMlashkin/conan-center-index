@@ -52,7 +52,7 @@ class ConanRecipe(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -65,7 +65,7 @@ class ConanRecipe(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "install(TARGETS srtp2 DESTINATION lib)",
             (
@@ -85,8 +85,8 @@ class ConanRecipe(ConanFile):
         cmake.install()
 
     def package_info(self):
-        libsrtp_major = tools.scm.Version(self.version).major
+        libsrtp_major = Version(self.version).major
         self.cpp_info.names["pkg_config"] = "libsrtp{}".format(libsrtp_major if int(libsrtp_major) > 1 else "")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]

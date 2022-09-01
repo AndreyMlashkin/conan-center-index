@@ -239,7 +239,7 @@ class MagnumConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, 11)
 
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5.0":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5.0":
             raise ConanInvalidConfiguration("GCC older than 5 is not supported (missing C++11 features)")
 
         if self.options.shared and not self.options["corrade"].shared:
@@ -274,7 +274,7 @@ class MagnumConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -355,9 +355,9 @@ class MagnumConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
                               "")
         # Get rid of cmake_dependent_option, it can activate features when we try to disable them,
@@ -370,24 +370,24 @@ class MagnumConan(ConanFile):
             f.truncate()
 
         # GLFW naming
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "find_package(GLFW)",
                               "find_package(glfw3)")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "GLFW_FOUND",
                               "glfw3_FOUND")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "GLFW::GLFW",
                               "glfw")
 
         # EGL naming
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "find_package(EGL)",
                               "find_package(egl_system)")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "EGL_FOUND",
                               "egl_system_FOUND")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
                               "EGL::EGL",
                               "egl::egl")
 
@@ -433,7 +433,7 @@ class MagnumConan(ConanFile):
                         endif()
                     """.format(target=target, library=library)))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 

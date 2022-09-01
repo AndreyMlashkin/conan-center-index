@@ -68,7 +68,7 @@ class ConcurrencppConan(ConanFile):
             self.output.warn(
                 "concurrencpp requires C++20. Your compiler is unknown. Assuming it supports C++20."
             )
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "concurrencpp requires clang >= 11 or Visual Studio >= 16.8.2 as a compiler!"
             )
@@ -76,7 +76,7 @@ class ConcurrencppConan(ConanFile):
             raise ConanInvalidConfiguration("libc++ required")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -87,14 +87,14 @@ class ConcurrencppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):        
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):

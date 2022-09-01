@@ -87,12 +87,12 @@ class XmlSecConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
     def _msvc_build_environment(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "win32")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "win32")):
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     yield
@@ -102,7 +102,7 @@ class XmlSecConan(ConanFile):
         with self._msvc_build_environment():
             crypto_engines = []
             if self.options.with_openssl:
-                ov = tools.scm.Version(self.deps_cpp_info["openssl"].version)
+                ov = Version(self.deps_cpp_info["openssl"].version)
                 crypto_engines.append("openssl={}{}0".format(ov.major, ov.minor))
             args = [
                 "cscript",
@@ -138,14 +138,14 @@ class XmlSecConan(ConanFile):
                     libs.append(libname)
                 return " ".join(libs)
 
-            tools.files.replace_in_file(self, "Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
-            tools.files.replace_in_file(self, "Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
+            files.replace_in_file(self, "Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
+            files.replace_in_file(self, "Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
             if self.options.with_xslt:
-                tools.files.replace_in_file(self, "Makefile.msvc", "libxslt.lib", format_libs("libxslt"))
-                tools.files.replace_in_file(self, "Makefile.msvc", "libxslt_a.lib", format_libs("libxslt"))
+                files.replace_in_file(self, "Makefile.msvc", "libxslt.lib", format_libs("libxslt"))
+                files.replace_in_file(self, "Makefile.msvc", "libxslt_a.lib", format_libs("libxslt"))
 
             if self.settings.build_type == "Debug":
-                tools.files.replace_in_file(self, "Makefile.msvc", "libcrypto.lib", "libcryptod.lib")
+                files.replace_in_file(self, "Makefile.msvc", "libcrypto.lib", "libcryptod.lib")
 
             self.run("nmake /f Makefile.msvc")
 
@@ -183,10 +183,10 @@ class XmlSecConan(ConanFile):
         if self._is_msvc:
             self._build_msvc()
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True, win_bash=tools.os_info.is_windows)
                 # relocatable shared lib on macOS
-                tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+                files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             autotools = self._configure_autotools()
             autotools.make()
 
@@ -196,30 +196,30 @@ class XmlSecConan(ConanFile):
         if self._is_msvc:
             self._package_msvc()
             if not self.options.shared:
-                tools.files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
-            tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+                files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             os.unlink(os.path.join(self.package_folder, "lib", "libxmlsec-openssl_a.lib" if self.options.shared else "libxmlsec-openssl.lib"))
             os.unlink(os.path.join(self.package_folder, "lib", "libxmlsec_a.lib" if self.options.shared else "libxmlsec.lib"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             os.remove(os.path.join(self.package_folder, "lib", "xmlsec1Conf.sh"))
 
     def package_info(self):
         prefix = "lib" if self._is_msvc else ""
-        infix = "" if self._is_msvc else str(tools.scm.Version(self.version).major)
+        infix = "" if self._is_msvc else str(Version(self.version).major)
         suffix = "_a" if self._is_msvc and not self.options.shared else ""
 
         get_libname = lambda libname: prefix + "xmlsec" + infix + (("-" + libname) if libname else "") + suffix
 
         self.cpp_info.components["libxmlsec"].libs = [get_libname(None)]
-        self.cpp_info.components["libxmlsec"].includedirs.append(os.path.join("include", "xmlsec{}".format(tools.scm.Version(self.version).major)))
+        self.cpp_info.components["libxmlsec"].includedirs.append(os.path.join("include", "xmlsec{}".format(Version(self.version).major)))
         self.cpp_info.components["libxmlsec"].requires = ["libxml2::libxml2"]
         self.cpp_info.components["libxmlsec"].set_property(
-            "pkg_config_name", "xmlsec{}".format(tools.scm.Version(self.version).major)
+            "pkg_config_name", "xmlsec{}".format(Version(self.version).major)
         )
         if not self.options.shared:
             self.cpp_info.components["libxmlsec"].defines.append("XMLSEC_STATIC")
@@ -238,5 +238,5 @@ class XmlSecConan(ConanFile):
             self.cpp_info.components["openssl"].requires = ["libxmlsec", "openssl::openssl"]
             self.cpp_info.components["openssl"].defines = ["XMLSEC_CRYPTO_OPENSSL=1"]
             self.cpp_info.components["openssl"].set_property(
-                "pkg_config_name", "xmlsec{}-openssl".format(tools.scm.Version(self.version).major)
+                "pkg_config_name", "xmlsec{}-openssl".format(Version(self.version).major)
             )

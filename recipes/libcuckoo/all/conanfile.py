@@ -29,7 +29,7 @@ class LibCuckooConan(ConanFile):
             tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -45,7 +45,7 @@ class LibCuckooConan(ConanFile):
         # Copy license files
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         # Remove CMake config files (only files in share)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.header_only()

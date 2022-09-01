@@ -39,7 +39,7 @@ class LibfuseConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -63,11 +63,11 @@ class LibfuseConan(ConanFile):
         self.copy("COPYING*", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rm(self, "*.la", self.package_folder)
+        files.rm(self, "*.la", self.package_folder)
         # remove ulockmgr stuff lib and header file
-        tools.files.rm(self, "*ulockmgr*", self.package_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*ulockmgr*", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
 
     def package_info(self):

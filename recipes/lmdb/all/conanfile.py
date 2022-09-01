@@ -51,10 +51,10 @@ class lmdbConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         root = "openldap-LMDB_{}".format(self.version)
-        tools.files.rename(self, os.path.join(root, "libraries", "liblmdb"), self._source_subfolder)
-        tools.files.rmdir(self, root)
+        files.rename(self, os.path.join(root, "libraries", "liblmdb"), self._source_subfolder)
+        files.rmdir(self, root)
 
     def build(self):
         cmake = self._configure_cmake()

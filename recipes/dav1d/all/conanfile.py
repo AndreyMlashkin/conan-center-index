@@ -49,7 +49,7 @@ class Dav1dConan(ConanFile):
         if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug":
             # debug builds with assembly often causes linker hangs or LNK1000
             self.options.assembly = False
-        if tools.scm.Version(self.version) < "1.0.0":
+        if Version(self.version) < "1.0.0":
             del self.options.with_avx512
 
     def validate(self):
@@ -77,7 +77,7 @@ class Dav1dConan(ConanFile):
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                               "subdir('doc')", "")
 
     def _configure_meson(self):
@@ -86,7 +86,7 @@ class Dav1dConan(ConanFile):
         self._meson = Meson(self)
         self._meson.options["enable_tests"] = False
         self._meson.options["enable_asm"] = self.options.assembly
-        if tools.scm.Version(self.version) < "1.0.0":
+        if Version(self.version) < "1.0.0":
             self._meson.options["enable_avx512"] = self.options.get_safe("with_avx512", False)
         self._meson.options["enable_tools"] = self.options.with_tools
         if self.options.bit_depth == "all":
@@ -106,10 +106,10 @@ class Dav1dConan(ConanFile):
         meson = self._configure_meson()
         meson.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
         if self.settings.compiler == "Visual Studio" and not self.options.shared:
             # https://github.com/mesonbuild/meson/issues/7378

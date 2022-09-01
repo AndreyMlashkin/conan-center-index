@@ -61,7 +61,7 @@ class LibAttrConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -84,24 +84,24 @@ class LibAttrConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.mkdir(self, self._pkg_res)
-        tools.files.rename(self, 
+        files.mkdir(self, self._pkg_res)
+        files.rename(self, 
             os.path.join(self._pkg_etc, "xattr.conf"),
             os.path.join(self._pkg_res, "xattr.conf")
         )
         self.copy("COPYING", dst="licenses", src=self._doc_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder,"lib","pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder,"lib","pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
         
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libattr"

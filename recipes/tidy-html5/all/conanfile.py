@@ -48,7 +48,7 @@ class TidyHtml5Conan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -69,7 +69,7 @@ class TidyHtml5Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -78,11 +78,11 @@ class TidyHtml5Conan(ConanFile):
         self.copy("LICENSE.md", dst="licenses", src=os.path.join(self._source_subfolder, 'README'))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         if self.options.shared:
             to_remove = "*tidy_static*" if self.settings.os == "Windows" else "*.a"
-            tools.files.rm(self, to_remove, os.path.join(self.package_folder, "lib"))
+            files.rm(self, to_remove, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "tidy"

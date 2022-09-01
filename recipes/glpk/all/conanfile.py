@@ -61,7 +61,7 @@ class GlpkConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     @contextmanager
@@ -81,10 +81,10 @@ class GlpkConan(ConanFile):
 
     def _patch_source(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows, run_environment=True)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               r"-install_name \$rpath/",
                               "-install_name @rpath/")
 
@@ -104,7 +104,7 @@ class GlpkConan(ConanFile):
         if is_msvc(self):
             self._autotools.defines.append("__WOE__")
             if self.settings.compiler == "Visual Studio" and \
-               tools.scm.Version(self.settings.compiler.version) >= "12":
+               Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
         self._autotools.configure(args=args, configure_dir=self._source_subfolder)
         return self._autotools
@@ -120,7 +120,7 @@ class GlpkConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
         if is_msvc(self) and self.options.shared:
             pjoin = lambda p: os.path.join(self.package_folder, "lib", p)

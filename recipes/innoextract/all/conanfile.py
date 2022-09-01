@@ -31,12 +31,12 @@ class InnoextractConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         os.remove(os.path.join(self._source_subfolder, 'cmake', 'FindLZMA.cmake'))
         os.remove(os.path.join(self._source_subfolder, 'cmake', 'Findiconv.cmake'))
         cmake = self._configure_cmake()
@@ -57,7 +57,7 @@ class InnoextractConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         del self.info.settings.compiler

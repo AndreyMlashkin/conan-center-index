@@ -75,8 +75,8 @@ class HarfbuzzConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
-        if tools.scm.Version(self.version) >= "4.4.0":
-            if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "7":
+        if Version(self.version) >= "4.4.0":
+            if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
                 raise ConanInvalidConfiguration("New versions of harfbuzz require at least gcc 7")
 
     def requirements(self):
@@ -88,7 +88,7 @@ class HarfbuzzConan(ConanFile):
             self.requires("glib/2.73.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -118,7 +118,7 @@ class HarfbuzzConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -126,7 +126,7 @@ class HarfbuzzConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "harfbuzz"

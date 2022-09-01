@@ -50,7 +50,7 @@ class Libatomic_opsConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -97,12 +97,12 @@ class Libatomic_opsConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
             for lib in ["atomic_ops_gpl", "atomic_ops"]:
-                tools.files.rename(self, os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
+                files.rename(self, os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
                              os.path.join(self.package_folder, "lib", "{}.lib".format(lib)))
 
     def package_info(self):

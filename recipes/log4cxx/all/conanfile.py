@@ -72,7 +72,7 @@ class Log4cxxConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("log4cxx requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("log4cxx requires a compiler that supports at least C++17")
 
     def build_requirements(self):
@@ -83,13 +83,13 @@ class Log4cxxConan(ConanFile):
         #OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
         #'source_subfolder\\src\\test\\resources\\output\\xyz\\:'
         pattern = "*[!:]"
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True,
                   pattern=pattern)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -110,7 +110,7 @@ class Log4cxxConan(ConanFile):
         self.copy("NOTICE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -128,7 +128,7 @@ class Log4cxxConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

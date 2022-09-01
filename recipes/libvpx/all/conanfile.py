@@ -60,7 +60,7 @@ class LibVPXConan(ConanFile):
             raise ConanInvalidConfiguration("Windows shared builds are not supported")
         if str(self.settings.compiler) not in ["Visual Studio", "msvc", "gcc", "clang", "apple-clang"]:
             raise ConanInvalidConfiguration("Unsupported compiler {}.".format(self.settings.compiler))
-        if self.settings.os == "Macos" and self.settings.arch == "armv8" and tools.scm.Version(self.version) < "1.10.0":
+        if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration("M1 only supported since 1.10, please upgrade")
 
     @property
@@ -73,21 +73,21 @@ class LibVPXConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # relocatable shared lib on macOS
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "make", "Makefile"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "make", "Makefile"),
                               "-dynamiclib",
                               "-dynamiclib -install_name @rpath/$$(LIBVPX_SO)")
         # Disable LTO for Visual Studio when CFLAGS doesn't contain -GL
         if self._is_msvc:
             lto = any(re.finditer("(^| )[/-]GL($| )", tools.get_env("CFLAGS", "")))
             if not lto:
-                tools.files.replace_in_file(self, 
+                files.replace_in_file(self, 
                     os.path.join(self._source_subfolder, "build", "make", "gen_msvs_vcxproj.sh"),
                     "tag_content WholeProgramOptimization true",
                     "tag_content WholeProgramOptimization false",
@@ -176,11 +176,11 @@ class LibVPXConan(ConanFile):
         with tools.vcvars(self) if self._is_msvc else tools.no_op():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self._is_msvc:
             # don't trust install target
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib"))
             libdir = os.path.join(
                 "Win32" if self.settings.arch == "x86" else "x64",
                 "Debug" if self.settings.build_type == "Debug" else "Release",

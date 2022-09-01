@@ -36,7 +36,7 @@ class OpenldapConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):
@@ -81,7 +81,7 @@ class OpenldapConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         autotools = self._configure_autotools()
 
         autotools.make(vars=self._configure_vars)
@@ -92,8 +92,8 @@ class OpenldapConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
-            tools.files.rmdir(self, os.path.join(self.package_folder, folder))
-        tools.files.rm(self, 
+            files.rmdir(self, os.path.join(self.package_folder, folder))
+        files.rm(self, 
             os.path.join(
                 self.package_folder,
                 "lib"),

@@ -30,7 +30,7 @@ class CroncppConan(ConanFile):
             tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -43,4 +43,4 @@ class CroncppConan(ConanFile):
         self.copy("LICENSE*", "licenses", self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

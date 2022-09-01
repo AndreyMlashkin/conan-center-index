@@ -54,7 +54,7 @@ class LlhttpParserConan(ConanFile):
         return self._cmake
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             strip_root=True,
@@ -62,7 +62,7 @@ class LlhttpParserConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -74,7 +74,7 @@ class LlhttpParserConan(ConanFile):
         )
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "llhttp")

@@ -81,7 +81,7 @@ class ICUBase(ConanFile):
         del self.info.options.with_unit_tests  # ICU unit testing shouldn't affect the package's ID
         del self.info.options.silent  # Verbosity doesn't affect package's ID
         if self.info.options.dat_package_file:
-            dat_package_file_sha256 = tools.files.check_sha256(self, str(self.info.options.dat_package_file))
+            dat_package_file_sha256 = files.check_sha256(self, str(self.info.options.dat_package_file))
             self.info.options.dat_package_file = dat_package_file_sha256
 
     @property
@@ -96,7 +96,7 @@ class ICUBase(ConanFile):
             self.build_requires("icu/{}".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         self._patch_sources()
@@ -114,11 +114,11 @@ class ICUBase(ConanFile):
             build_env.update({'CC': 'cl', 'CXX': 'cl'})
         with tools.vcvars(self.settings) if self._is_msvc else tools.no_op():
             with tools.environment_append(build_env):
-                with tools.files.chdir(self, build_dir):
+                with files.chdir(self, build_dir):
                     # workaround for https://unicode-org.atlassian.net/browse/ICU-20531
                     os.makedirs(os.path.join("data", "out", "tmp"))
                     # workaround for "No rule to make target 'out/tmp/dirs.timestamp'"
-                    tools.files.save(self, os.path.join("data", "out", "tmp", "dirs.timestamp"), "")
+                    files.save(self, os.path.join("data", "out", "tmp", "dirs.timestamp"), "")
 
                     self.run(self._build_config_cmd, win_bash=tools.os_info.is_windows)
                     command = "{make} {silent} -j {cpu_count}".format(make=self._make_tool,
@@ -132,20 +132,20 @@ class ICUBase(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if tools.os_info.is_windows:
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
             srcdir = os.path.join(self.build_folder, self._source_subfolder, "source")
             makeconv_cpp = os.path.join(srcdir, "tools", "makeconv", "makeconv.cpp")
-            tools.files.replace_in_file(self, makeconv_cpp,
+            files.replace_in_file(self, makeconv_cpp,
                                   "pathBuf.appendPathPart(arg, localError);",
                                   "pathBuf.append(\"/\", localError); pathBuf.append(arg, localError);")
 
         # relocatable shared libs on macOS
         mh_darwin = os.path.join(self._source_subfolder, "source", "config", "mh-darwin")
-        tools.files.replace_in_file(self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
+        files.replace_in_file(self, 
             mh_darwin,
             "-install_name $(notdir $(MIDDLE_SO_TARGET)) $(PKGDATA_TRAILING_SPACE)",
             "-install_name @rpath/$(notdir $(MIDDLE_SO_TARGET))",
@@ -240,7 +240,7 @@ class ICUBase(ConanFile):
         build_dir = os.path.join(self.build_folder, self._source_subfolder, "build")
         with tools.vcvars(self.settings) if self._is_msvc else tools.no_op():
             with tools.environment_append(env_build.vars):
-                with tools.files.chdir(self, build_dir):
+                with files.chdir(self, build_dir):
                     command = "{make} {silent} install".format(make=self._make_tool,
                                                                silent=self._silent)
                     self.run(command, win_bash=tools.os_info.is_windows)
@@ -249,17 +249,17 @@ class ICUBase(ConanFile):
             shutil.move(dll, os.path.join(self.package_folder, "bin"))
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
-            tools.files.mkdir(self, os.path.join(self.package_folder, "res"))
+            files.mkdir(self, os.path.join(self.package_folder, "res"))
             shutil.move(self._data_path, os.path.join(self.package_folder, "res"))
 
         # Copy some files required for cross-compiling
         self.copy("icucross.mk", src=os.path.join(build_dir, "config"), dst="config")
         self.copy("icucross.inc", src=os.path.join(build_dir, "config"), dst="config")
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "icu"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "man"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "icu"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     @property
     def _data_path(self):

@@ -68,14 +68,14 @@ class ZintConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} needs qt:gui=True")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_source(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Don't override CMAKE_OSX_SYSROOT, it can easily break consumers.
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "set(CMAKE_OSX_SYSROOT \"/\")",
             "",
@@ -87,7 +87,7 @@ class ZintConan(ConanFile):
         cmake.definitions["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib")
         cmake.definitions["ZINT_USE_QT"] = self.options.with_qt
         if self.options.with_qt:
-            cmake.definitions["QT_VERSION_MAJOR"] = tools.scm.Version(self.deps_cpp_info["qt"].version).major
+            cmake.definitions["QT_VERSION_MAJOR"] = Version(self.deps_cpp_info["qt"].version).major
         cmake.definitions["ZINT_USE_PNG"] = self.options.with_libpng
         cmake.configure()
         return cmake
@@ -101,7 +101,7 @@ class ZintConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Zint")

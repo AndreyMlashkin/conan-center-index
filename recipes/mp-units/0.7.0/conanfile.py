@@ -46,14 +46,14 @@ class MPUnitsConan(ConanFile):
             check_min_cppstd(self, "20")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
         cmake = CMake(self)
         cmake.configure(source_folder=os.path.join(self._source_subfolder, "src"))
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_id(self):
         self.info.header_only()

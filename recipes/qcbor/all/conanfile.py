@@ -45,7 +45,7 @@ class QCBORConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -56,19 +56,19 @@ class QCBORConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Extract the License/s from README.md to a file
-        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "inc", "qcbor", "qcbor.h"))
+        tmp = files.load(self, os.path.join(self._source_subfolder, "inc", "qcbor", "qcbor.h"))
         license_contents = re.search("( Copyright.*) =====", tmp, re.DOTALL)[1]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package_info(self):
         self.cpp_info.libs = ["qcbor"]

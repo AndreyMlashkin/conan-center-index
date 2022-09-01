@@ -68,12 +68,12 @@ class MpdecimalConan(ConanFile):
                 raise ConanInvalidConfiguration("A shared libmpdec++ is not possible on Windows (due to non-exportable thread local storage)")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _build_msvc(self):
         libmpdec_folder = os.path.join(self.build_folder, self._source_subfolder, "libmpdec")
@@ -88,7 +88,7 @@ class MpdecimalConan(ConanFile):
         autotools = AutoToolsBuildEnvironment(self)
         mpdec_extra_flags = []
         mpdecxx_extra_flags = []
-        if tools.scm.Version(self.version) >= "2.5.1":
+        if Version(self.version) >= "2.5.1":
             if self.options.shared:
                 mpdec_extra_flags = ["-DMPDECIMAL_DLL"]
                 mpdecxx_extra_flags = ["-DLIBMPDECXX_DLL"]
@@ -101,7 +101,7 @@ class MpdecimalConan(ConanFile):
             builds.append([libmpdecpp_folder, mpdecpp_target, mpdecxx_extra_flags])
         with tools.vcvars(self):
             for build_dir, target, extra_flags in builds:
-                with tools.files.chdir(self, build_dir):
+                with files.chdir(self, build_dir):
                     self.run("""nmake /nologo /f Makefile.vc {target} MACHINE={machine} DEBUG={debug} DLL={dll} CONAN_CFLAGS="{cflags}" CONAN_CXXFLAGS="{cxxflags}" CONAN_LDFLAGS="{ldflags}" """.format(
                         target=target,
                         machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],  # FIXME: else, use ansi32 and ansi64
@@ -112,7 +112,7 @@ class MpdecimalConan(ConanFile):
                         ldflags=" ".join(autotools.link_flags),
                     ))
 
-        with tools.files.chdir(self, libmpdec_folder):
+        with files.chdir(self, libmpdec_folder):
             shutil.copy("mpdecimal.h", dist_folder)
             if self.options.shared:
                 shutil.copy("libmpdec-{}.dll".format(self.version), os.path.join(dist_folder, "libmpdec-{}.dll".format(self.version)))
@@ -121,7 +121,7 @@ class MpdecimalConan(ConanFile):
             else:
                 shutil.copy("libmpdec-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)))
         if self.options.cxx:
-            with tools.files.chdir(self, libmpdecpp_folder):
+            with files.chdir(self, libmpdecpp_folder):
                 shutil.copy("decimal.hh", dist_folder)
                 shutil.copy("libmpdec++-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec++-{}.lib".format(self.version)))
 
@@ -159,15 +159,15 @@ class MpdecimalConan(ConanFile):
         if self._is_msvc:
             self._build_msvc()
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("autoreconf -fiv", win_bash=tools.os_info.is_windows)
                 autotools = self._configure_autotools()
-                self.output.info(tools.files.load(self, os.path.join("libmpdec", "Makefile")))
+                self.output.info(files.load(self, os.path.join("libmpdec", "Makefile")))
                 libmpdec, libmpdecpp = self._target_names
-                with tools.files.chdir(self, "libmpdec"):
+                with files.chdir(self, "libmpdec"):
                     autotools.make(target=libmpdec)
                 if self.options.cxx:
-                    with tools.files.chdir(self, "libmpdec++"):
+                    with files.chdir(self, "libmpdec++"):
                         autotools.make(target=libmpdecpp)
 
     def package(self):
@@ -207,7 +207,7 @@ class MpdecimalConan(ConanFile):
         self.cpp_info.components["libmpdecimal"].libs = ["{}mpdec{}".format(*lib_pre_suf)]
         if self.options.shared:
             if self._is_msvc:
-                if tools.scm.Version(self.version) >= "2.5.1":
+                if Version(self.version) >= "2.5.1":
                     self.cpp_info.components["libmpdecimal"].defines = ["MPDECIMAL_DLL"]
                 else:
                     self.cpp_info.components["libmpdecimal"].defines = ["USE_DLL"]
@@ -219,5 +219,5 @@ class MpdecimalConan(ConanFile):
             self.cpp_info.components["libmpdecimal++"].libs = ["{}mpdec++{}".format(*lib_pre_suf)]
             self.cpp_info.components["libmpdecimal++"].requires = ["libmpdecimal"]
             if self.options.shared:
-                if tools.scm.Version(self.version) >= "2.5.1":
+                if Version(self.version) >= "2.5.1":
                     self.cpp_info.components["libmpdecimal"].defines = ["MPDECIMALXX_DLL"]

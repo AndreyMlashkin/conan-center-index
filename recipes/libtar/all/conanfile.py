@@ -52,7 +52,7 @@ class LibTarConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -72,13 +72,13 @@ class LibTarConan(ConanFile):
 
     def _patch_sources(self):
         if self.options.with_zlib:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
                                   "AC_CHECK_LIB([z], [gzread])",
                                   "AC_CHECK_LIB([{}], [gzread])".format(self.deps_cpp_info["zlib"].libs[0]))
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True, win_bash=tools.os_info.is_windows)
         autotools = self._configure_autotools()
         autotools.make()
@@ -89,7 +89,7 @@ class LibTarConan(ConanFile):
         autotools.install()
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libtar.la")))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["tar"]

@@ -41,11 +41,11 @@ class OatppConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("oatpp can not be built as shared library on Windows")
 
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("oatpp requires GCC >=5")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -54,7 +54,7 @@ class OatppConan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.definitions["OATPP_BUILD_TESTS"] = False
         self._cmake.definitions["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        if self.settings.os == "Windows" and tools.scm.Version(self.version) >= "1.3.0":
+        if self.settings.os == "Windows" and Version(self.version) >= "1.3.0":
             self._cmake.definitions["OATPP_MSVC_LINK_STATIC_RUNTIME"] = self.settings.compiler.runtime in ["MT", "MTd"]
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -67,7 +67,7 @@ class OatppConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         include_dir = os.path.join("include", "oatpp-{}".format(self.version), "oatpp")

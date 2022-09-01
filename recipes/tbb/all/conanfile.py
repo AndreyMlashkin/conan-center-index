@@ -72,7 +72,7 @@ class TBBConan(ConanFile):
             if hasattr(self, "settings_build") and tools.build.cross_building(self):
                 # See logs from https://github.com/conan-io/conan-center-index/pull/8454
                 raise ConanInvalidConfiguration("Cross building on Macos is not yet supported. Contributions are welcome")
-            if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "8.0":
+            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration("%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version))
         if not self.options.shared:
             self.output.warn("Intel-TBB strongly discourages usage of static linkage")
@@ -91,7 +91,7 @@ class TBBConan(ConanFile):
                 self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def build(self):
@@ -103,14 +103,14 @@ class TBBConan(ConanFile):
 
         # Get the version of the current compiler instead of gcc
         linux_include = os.path.join(self._source_subfolder, "build", "linux.inc")
-        tools.files.replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
-        tools.files.replace_in_file(self, linux_include, "= gcc", "= $(CC)")
+        files.replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
+        files.replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            tools.files.save(self, 
+            files.save(self, 
                 os.path.join(self._source_subfolder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
                 textwrap.dedent("""\
@@ -203,7 +203,7 @@ class TBBConan(ConanFile):
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")

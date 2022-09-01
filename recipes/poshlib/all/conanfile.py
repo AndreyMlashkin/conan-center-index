@@ -30,7 +30,7 @@ class PoshlibConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('poshlib-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -52,7 +52,7 @@ class PoshlibConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "posh.h"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "posh.h"),
                               "defined _ARM",
                               "defined _ARM || defined __arm64")
         cmake = self._configure_cmake()
@@ -64,6 +64,6 @@ class PoshlibConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == 'Windows' and self.options.shared:
             self.cpp_info.defines.append("POSH_DLL")

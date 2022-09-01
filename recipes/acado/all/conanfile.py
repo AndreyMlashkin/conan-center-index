@@ -42,7 +42,7 @@ class AcadoConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("acado-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -69,7 +69,7 @@ class AcadoConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -90,8 +90,8 @@ class AcadoConan(ConanFile):
         qpoases_sources_from = os.path.join(self.package_folder, "share", "acado", "external_packages", "qpoases")
         self.copy("*", src=qpoases_sources_from, dst=self._qpoases_sources)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         acado_template_paths = os.path.join(self.package_folder, "include", "acado", "code_generation", "templates")

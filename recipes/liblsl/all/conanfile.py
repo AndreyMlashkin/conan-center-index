@@ -51,13 +51,13 @@ class LiblslConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         if not self.options.shared:
             # Do not force PIC
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
                 ""
@@ -84,8 +84,8 @@ class LiblslConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rm(self, "lslver*", os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rm(self, "lslver*", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
@@ -104,7 +104,7 @@ class LiblslConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

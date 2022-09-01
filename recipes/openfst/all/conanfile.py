@@ -79,7 +79,7 @@ class OpenFstConan(ConanFile):
             tools.build.check_min_cppstd(self, 17)
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_compiler:
+            if Version(self.settings.compiler.version) < minimum_compiler:
                 raise ConanInvalidConfiguration(f"{self.name} requires c++17, which your compiler does not support.")
         else:
             self.output.warn(f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17.")
@@ -92,7 +92,7 @@ class OpenFstConan(ConanFile):
                                             ' or "compiler.libcxx=libc++"' % self.name)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -126,7 +126,7 @@ class OpenFstConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -142,11 +142,11 @@ class OpenFstConan(ConanFile):
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
         if os.path.exists(lib_subdir):
             for fn in os.listdir(lib_subdir):
-                tools.files.rename(self, os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
-            tools.files.rmdir(self, lib_subdir)
+                files.rename(self, os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
+            files.rmdir(self, lib_subdir)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.la", lib_dir)
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", lib_dir)
 
     @property
     def _get_const_fsts_libs(self):

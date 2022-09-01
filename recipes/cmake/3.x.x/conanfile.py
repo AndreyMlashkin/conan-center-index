@@ -93,17 +93,17 @@ class CMakeConan(ConanFile):
 
     def build(self):
         if self.options.bootstrap:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run(['./bootstrap', '--prefix={}'.format(self.package_folder), '--parallel={}'.format(tools.cpu_count(self, ))])
                 autotools = AutoToolsBuildEnvironment(self)
                 autotools.make()
         else:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "project(CMake)",
                                   "project(CMake)\ninclude(\"{}/conanbuildinfo.cmake\")\nconan_basic_setup(NO_OUTPUT_DIRS)".format(
                                       self.install_folder.replace("\\", "/")))
             if self.settings.os == "Linux":
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Utilities", "cmcurl", "CMakeLists.txt"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "Utilities", "cmcurl", "CMakeLists.txt"),
                                       "list(APPEND CURL_LIBS ${OPENSSL_LIBRARIES})",
                                       "list(APPEND CURL_LIBS ${OPENSSL_LIBRARIES} ${CMAKE_DL_LIBS} pthread)")
 
@@ -113,7 +113,7 @@ class CMakeConan(ConanFile):
     def package(self):
         self.copy("Copyright.txt", dst="licenses", src=self._source_subfolder)
         if self.options.bootstrap:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 autotools = AutoToolsBuildEnvironment(self)
                 autotools.install()
         else:

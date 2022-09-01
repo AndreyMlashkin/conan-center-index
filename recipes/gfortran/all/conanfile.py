@@ -36,19 +36,19 @@ class GFortranConan(ConanFile):
         for it in url.keys():
             if self.settings.os == "Windows" and it == "Windows":
                 filename = url[it]["filename"]
-                tools.files.download(self, **url[it])
+                files.download(self, **url[it])
                 self.run("7z x {0}".format(filename))
                 os.unlink(filename)
                 os.rename("mingw64", "source_subfolder_Windows")
             elif it != "Windows":
-                tools.files.get(self, **url[it])
+                files.get(self, **url[it])
                 pattern = "gcc-*" if it == "Linux" else "usr"
                 os.rename(glob.glob(pattern)[0], "source_subfolder_{}".format(it))
 
     def _extract_license(self):
-        info = tools.files.load(self, os.path.join(self.source_folder, "source_subfolder_Linux", "share", "info", "gfortran.info"))
+        info = files.load(self, os.path.join(self.source_folder, "source_subfolder_Linux", "share", "info", "gfortran.info"))
         license_contents = info[info.find("Version 3"):info.find("END OF TERMS", 1)]
-        tools.files.save(self, "LICENSE", license_contents)
+        files.save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()

@@ -83,7 +83,7 @@ class MsgpackConan(ConanFile):
             self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "msgpack-c-cpp-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -116,8 +116,8 @@ class MsgpackConan(ConanFile):
         if self.options.c_api:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         else:
             self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
             self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
@@ -127,7 +127,7 @@ class MsgpackConan(ConanFile):
         if self.options.c_api:
             self.cpp_info.components["msgpackc"].names["cmake_find_package"] = "msgpackc"
             self.cpp_info.components["msgpackc"].names["cmake_find_package_multi"] = "msgpackc"
-            self.cpp_info.components["msgpackc"].libs = tools.files.collect_libs(self, self)
+            self.cpp_info.components["msgpackc"].libs = files.collect_libs(self, self)
         if self.options.cpp_api:
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package"] = "msgpackc-cxx"
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package_multi"] = "msgpackc-cxx"

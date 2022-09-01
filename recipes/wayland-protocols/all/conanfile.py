@@ -38,13 +38,13 @@ class WaylandProtocolsConan(ConanFile):
         self.build_requires("meson/0.63.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
-        if tools.scm.Version(self.version) <= 1.23:
+        if Version(self.version) <= 1.23:
             # fixed upstream in https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/113
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                                   "dep_scanner = dependency('wayland-scanner', native: true)",
                                   "#dep_scanner = dependency('wayland-scanner', native: true)")
 
@@ -71,7 +71,7 @@ class WaylandProtocolsConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "res", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "res", "pkgconfig"))
 
     def package_info(self):
         pkgconfig_variables = {

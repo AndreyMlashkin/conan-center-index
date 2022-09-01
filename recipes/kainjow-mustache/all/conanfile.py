@@ -17,7 +17,7 @@ class KainjowMustacheConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(
           "Mustache-{}".format(self.version),
           self._source_subfolder

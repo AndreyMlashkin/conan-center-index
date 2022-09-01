@@ -55,7 +55,7 @@ class MoltenVKConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        return 11 if tools.scm.Version(self.version) < "1.1.9" else 17
+        return 11 if Version(self.version) < "1.1.9" else 17
 
     def export(self):
         self.copy(self._dependencies_filename, src="dependencies", dst="dependencies")
@@ -85,8 +85,8 @@ class MoltenVKConan(ConanFile):
     def package_id(self):
         # MoltenVK >=1.O.42 requires at least XCode 12.0 (11.4 actually) at build
         # time but can be consumed by older compiler versions if shared
-        if tools.scm.Version(self.version) >= "1.0.42" and self.options.shared:
-            if tools.scm.Version(self.settings.compiler.version) < "12.0":
+        if Version(self.version) >= "1.0.42" and self.options.shared:
+            if Version(self.settings.compiler.version) < "12.0":
                 compatible_pkg = self.info.clone()
                 compatible_pkg.settings.compiler.version = "12.0"
                 self.compatible_packages.append(compatible_pkg)
@@ -98,12 +98,12 @@ class MoltenVKConan(ConanFile):
             raise ConanInvalidConfiguration("MoltenVK only supported on MacOS, iOS and tvOS")
         if self.settings.compiler != "apple-clang":
             raise ConanInvalidConfiguration("MoltenVK requires apple-clang")
-        if tools.scm.Version(self.version) >= "1.0.42":
-            if tools.scm.Version(self.settings.compiler.version) < "12.0":
+        if Version(self.version) >= "1.0.42":
+            if Version(self.settings.compiler.version) < "12.0":
                 raise ConanInvalidConfiguration("MoltenVK {} requires XCode 12.0 or higher at build time".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -117,7 +117,7 @@ class MoltenVKConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

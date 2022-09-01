@@ -57,7 +57,7 @@ class OctomapConan(ConanFile):
             raise ConanInvalidConfiguration("shared octomap doesn't support MTd runtime")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -76,26 +76,26 @@ class OctomapConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "octomap", "CMakeLists.txt"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "octomap", "CMakeLists.txt"),
                               "SET( BASE_DIR ${CMAKE_SOURCE_DIR} )",
                               "SET( BASE_DIR ${CMAKE_BINARY_DIR} )")
         compiler_settings = os.path.join(self._source_subfolder, "octomap", "CMakeModules", "CompilerSettings.cmake")
         # Do not force PIC
-        tools.files.replace_in_file(self, compiler_settings, "ADD_DEFINITIONS(-fPIC)", "")
+        files.replace_in_file(self, compiler_settings, "ADD_DEFINITIONS(-fPIC)", "")
         # No -Werror
-        if tools.scm.Version(self.version) >= "1.9.6":
-            tools.files.replace_in_file(self, compiler_settings, "-Werror", "")
+        if Version(self.version) >= "1.9.6":
+            files.replace_in_file(self, compiler_settings, "-Werror", "")
         # we want a clean rpath in installed shared libs
-        tools.files.replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")", "")
-        tools.files.replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        files.replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")", "")
+        files.replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
     def package(self):
         self.copy("LICENSE.txt", dst="licenses", src=os.path.join(self._source_subfolder, "octomap"))
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators are removed
         self._create_cmake_module_alias_targets(
@@ -116,7 +116,7 @@ class OctomapConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

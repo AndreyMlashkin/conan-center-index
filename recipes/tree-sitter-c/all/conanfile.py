@@ -44,7 +44,7 @@ class TreeSitterCConan(ConanFile):
         self.requires("tree-sitter/0.20.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -55,7 +55,7 @@ class TreeSitterCConan(ConanFile):
 
     def _patch_sources(self):
         if not self.options.shared:
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "src", "parser.c"),
                 "__declspec(dllexport)", ""
             )

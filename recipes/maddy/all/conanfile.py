@@ -25,7 +25,7 @@ class MaddyConan(ConanFile):
             tools.build.check_min_cppstd(self, 14)
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             strip_root=True

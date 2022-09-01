@@ -30,8 +30,8 @@ class TestPackageConan(ConanFile):
             not self._is_mingw()
 
     def _build_with_qmake(self):
-        tools.files.mkdir(self, "qmake_folder")
-        with tools.files.chdir(self, "qmake_folder"):
+        files.mkdir(self, "qmake_folder")
+        with files.chdir(self, "qmake_folder"):
             self.output.info("Building with qmake")
 
             with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
@@ -68,7 +68,7 @@ class TestPackageConan(ConanFile):
     def _build_with_meson(self):
         if self._meson_supported():
             self.output.info("Building with Meson")
-            tools.files.mkdir(self, "meson_folder")
+            files.mkdir(self, "meson_folder")
             with tools.environment_append(RunEnvironment(self).vars):
                 meson = Meson(self)
                 try:

@@ -45,11 +45,11 @@ class AwsCS3(ConanFile):
         self.requires("aws-c-io/0.10.20")
         self.requires("aws-c-http/0.6.13")
         self.requires("aws-c-auth/0.6.11")
-        if tools.scm.Version(self.version) >= "0.1.36":
+        if Version(self.version) >= "0.1.36":
             self.requires("aws-checksums/0.1.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -68,7 +68,7 @@ class AwsCS3(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-s3"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-s3"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-s3")
@@ -89,5 +89,5 @@ class AwsCS3(ConanFile):
             "aws-c-http::aws-c-http-lib",
             "aws-c-auth::aws-c-auth-lib"
         ]
-        if tools.scm.Version(self.version) >= "0.1.36":
+        if Version(self.version) >= "0.1.36":
             self.cpp_info.components["aws-c-s3-lib"].requires.append("aws-checksums::aws-checksums-lib")

@@ -36,7 +36,7 @@ class BazelConan(ConanFile):
             url = source["url"]
             filename = url[url.rfind("/") + 1:]
             if filename in ["LICENSE", self._bazel_filename]:
-                tools.files.download(self, url, filename)
+                files.download(self, url, filename)
                 tools.check_sha256(filename, source["sha256"])
 
     def package(self):
@@ -44,7 +44,7 @@ class BazelConan(ConanFile):
         self.copy(pattern=self._bazel_filename, dst="bin")
         old_target_filename = os.path.join(self.package_folder, "bin", self._bazel_filename)
         new_target_filename = os.path.join(self.package_folder, "bin", "bazel" + self._program_suffix)
-        tools.files.rename(self, old_target_filename, new_target_filename)
+        files.rename(self, old_target_filename, new_target_filename)
         self._chmod_plus_x(new_target_filename)
 
     def package_info(self):

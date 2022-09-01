@@ -62,20 +62,20 @@ class CalcephConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         if self._is_msvc:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.vc"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.vc"),
                                   "CFLAGS = /O2 /GR- /MD /nologo /EHs",
                                   "CFLAGS = /nologo /EHs")
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 with self._msvc_build_environment():
                     self.run("nmake -f Makefile.vc {}".format(self._nmake_args))
         else:
             # relocatable shared lib on macOS
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "-install_name \\$rpath/",
                                   "-install_name @rpath/")
             autotools = self._configure_autotools()
@@ -116,16 +116,16 @@ class CalcephConan(ConanFile):
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
         if self._is_msvc:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 with self._msvc_build_environment():
                     self.run("nmake -f Makefile.vc install {}".format(self._nmake_args))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+            files.rmdir(self, os.path.join(self.package_folder, "doc"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "libexec"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "libexec"))
 
     def package_info(self):
         prefix = "lib" if self._is_msvc else ""

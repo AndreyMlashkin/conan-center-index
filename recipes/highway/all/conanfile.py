@@ -51,7 +51,7 @@ class HighwayConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if tools.scm.Version(self.version) < "0.16.0":
+        if Version(self.version) < "0.16.0":
             del self.options.shared
         elif self.options.shared:
             del self.options.fPIC
@@ -65,24 +65,24 @@ class HighwayConan(ConanFile):
             self.output.warn(
                 "{} recipe lacks information about the {} compiler support."
                 .format(self.name, self.settings.compiler))
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "{} requires a {} version >= {}"
                 .format(self.name, self.settings.compiler,
                         self.settings.compiler.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Honor fPIC option
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)", "")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "set_property(TARGET hwy PROPERTY "
                               "POSITION_INDEPENDENT_CODE ON)", "")
 
@@ -103,15 +103,15 @@ class HighwayConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libhwy"
 
         self.cpp_info.libs = ["hwy"]
-        if tools.scm.Version(self.version) >= "0.12.1":
+        if Version(self.version) >= "0.12.1":
             self.cpp_info.libs.append("hwy_contrib")
-        if tools.scm.Version(self.version) >= "0.15.0":
+        if Version(self.version) >= "0.15.0":
             self.cpp_info.libs.append("hwy_test")
-        if tools.scm.Version(self.version) >= "0.16.0":
+        if Version(self.version) >= "0.16.0":
             self.cpp_info.defines.append("HWY_SHARED_DEFINE" if self.options.shared else "HWY_STATIC_DEFINE")

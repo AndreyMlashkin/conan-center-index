@@ -79,7 +79,7 @@ class MagnumExtrasConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -99,9 +99,9 @@ class MagnumExtrasConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
                               "")
 
@@ -109,7 +109,7 @@ class MagnumExtrasConan(ConanFile):
                       os.path.join("src", "player","CMakeLists.txt")]
         app_name = "{}Application".format("XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize())
         for cmakelist in cmakelists:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, cmakelist),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, cmakelist),
                                   "Magnum::Application",
                                   "Magnum::{}".format(app_name))
 
@@ -123,7 +123,7 @@ class MagnumExtrasConan(ConanFile):
         cm = self._configure_cmake()
         cm.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):

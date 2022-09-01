@@ -48,7 +48,7 @@ class LibTomMathConan(ConanFile):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _run_makefile(self, target=None):
@@ -76,7 +76,7 @@ class LibTomMathConan(ConanFile):
         arg_str = " ".join("{}=\"{}\"".format(k, v) for k, v in args.items())
 
         with tools.environment_append(args):
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 if self.settings.compiler == "Visual Studio":
                     if self.options.shared:
                         target = "tommath.dll"
@@ -109,7 +109,7 @@ class LibTomMathConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         self._run_makefile()
 
     def package(self):
@@ -123,8 +123,8 @@ class LibTomMathConan(ConanFile):
         else:
             self._run_makefile("install")
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
             os.rename(os.path.join(self.package_folder, "lib", "tommath.dll.lib"),

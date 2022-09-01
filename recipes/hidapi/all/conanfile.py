@@ -60,10 +60,10 @@ class HidapiConan(ConanFile):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "configure.ac"),
                               "AC_CONFIG_MACRO_DIR", "dnl AC_CONFIG_MACRO_DIR")
 
     @functools.lru_cache(1)
@@ -82,10 +82,10 @@ class HidapiConan(ConanFile):
         if self._is_msvc:
             self._build_msvc()
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
                 # relocatable shared lib on macOS
-                tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+                files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             autotools = self._configure_autotools()
             autotools.make()
 
@@ -103,9 +103,9 @@ class HidapiConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         if self.settings.os in ["Linux", "FreeBSD"]:

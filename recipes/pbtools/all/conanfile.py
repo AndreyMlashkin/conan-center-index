@@ -34,7 +34,7 @@ class PbtoolsConan(ConanFile):
             raise ConanInvalidConfiguration("This library is not compatible with Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

@@ -50,9 +50,9 @@ class LibsystemdConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def build_requirements(self):
-        if tools.scm.Version(self.version) >= "249.5":
+        if Version(self.version) >= "249.5":
             self.build_requires("meson/0.60.2")
-        elif tools.scm.Version(self.version) >= "248.3":
+        elif Version(self.version) >= "248.3":
             # Mason 0.60.0.rc1 introduced a breaking change addressed in 249.5
             # https://github.com/mesonbuild/meson/commit/43302d3296baff6aeaf8e03f5d701b0402e37a6c
             # https://github.com/systemd/systemd-stable/commit/c29537f39e4f413a6cbfe9669fa121bdd6d8b36f
@@ -78,7 +78,7 @@ class LibsystemdConan(ConanFile):
             self.requires("zstd/1.5.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -137,10 +137,10 @@ class LibsystemdConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         meson_build = os.path.join(self._source_subfolder, "meson.build")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             meson_build, """relative_source_path = run_command('realpath',
                                    '--relative-to=@0@'.format(project_build_root),
                                    project_source_root).stdout().strip()""",
@@ -176,5 +176,5 @@ class LibsystemdConan(ConanFile):
         # FIXME: this `.version` should only happen for the `pkg_config`
         #  generator (see https://github.com/conan-io/conan/issues/8202)
         # systemd uses only major version in its .pc file
-        self.cpp_info.version = tools.scm.Version(self.version).major
+        self.cpp_info.version = Version(self.version).major
         self.cpp_info.system_libs = ["rt", "pthread", "dl"]

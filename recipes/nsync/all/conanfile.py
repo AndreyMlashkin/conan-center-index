@@ -37,7 +37,7 @@ class NsyncConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True,
                   destination=self._source_subfolder)
 
@@ -51,9 +51,9 @@ class NsyncConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
@@ -62,7 +62,7 @@ class NsyncConan(ConanFile):
                 "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} " \
                 "COMPONENT Development"
             rt_dest = 'RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"'
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 f"{ar_dest})", f"{ar_dest}\n{rt_dest})")
 

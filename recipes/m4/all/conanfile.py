@@ -38,7 +38,7 @@ class M4Conan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -61,7 +61,7 @@ class M4Conan(ConanFile):
             if self.settings.build_type in ("Debug", "RelWithDebInfo"):
                 autotools.link_flags.append("-PDB")
         elif self.settings.compiler == "clang":
-            if tools.scm.Version(self.version) < "1.4.19":
+            if Version(self.version) < "1.4.19":
                 autotools.flags.extend(["-rtlib=compiler-rt", "-Wno-unused-command-line-argument"])
         if self.settings.os == 'Windows':
             conf_args.extend(["ac_cv_func__set_invalid_parameter_handler=yes"])
@@ -92,11 +92,11 @@ class M4Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
-            tools.files.save(self, "help2man", '#!/usr/bin/env bash\n:')
+        with files.chdir(self, self._source_subfolder):
+            files.save(self, "help2man", '#!/usr/bin/env bash\n:')
             if os.name == 'posix':
                 os.chmod("help2man", os.stat("help2man").st_mode | 0o111)
         self._patch_sources()
@@ -105,7 +105,7 @@ class M4Conan(ConanFile):
             autotools.make()
             if tools.get_env("CONAN_RUN_TESTS", False):
                 self.output.info("Running m4 checks...")
-                with tools.files.chdir(self, "tests"):
+                with files.chdir(self, "tests"):
                     autotools.make(target="check")
 
     def package(self):
@@ -113,7 +113,7 @@ class M4Conan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

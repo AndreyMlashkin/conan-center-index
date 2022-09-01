@@ -40,7 +40,7 @@ class AstcCodecConan(ConanFile):
             tools.build.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("astc-codec-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -67,7 +67,7 @@ class AstcCodecConan(ConanFile):
         self.copy("*.a", src=os.path.join(self._build_subfolder, "lib"), dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bindir))

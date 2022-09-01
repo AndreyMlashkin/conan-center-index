@@ -74,7 +74,7 @@ class CfitsioConan(ConanFile):
             self.requires("libcurl/7.80.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -84,8 +84,8 @@ class CfitsioConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        if tools.scm.Version(self.version) < "4.0.0":
+            files.patch(self, **patch)
+        if Version(self.version) < "4.0.0":
             # Remove embedded zlib files
             for zlib_file in glob.glob(os.path.join(self._source_subfolder, "zlib", "*")):
                 if not zlib_file.endswith(("zcompress.c", "zuncompress.c")):
@@ -95,22 +95,22 @@ class CfitsioConan(ConanFile):
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["USE_PTHREADS"] = self.options.threadsafe
-        if tools.scm.Version(self.version) >= "4.1.0":
+        if Version(self.version) >= "4.1.0":
             cmake.definitions["USE_SSE2"] = self.options.get_safe("simd_intrinsics") == "sse2"
             cmake.definitions["USE_SSSE3"] = self.options.get_safe("simd_intrinsics") == "ssse3"
         else:
             cmake.definitions["CFITSIO_USE_SSE2"] = self.options.get_safe("simd_intrinsics") == "sse2"
             cmake.definitions["CFITSIO_USE_SSSE3"] = self.options.get_safe("simd_intrinsics") == "ssse3"
         if self.settings.os != "Windows":
-            if tools.scm.Version(self.version) >= "4.1.0":
+            if Version(self.version) >= "4.1.0":
                 cmake.definitions["USE_BZIP2"] = self.options.with_bzip2
             else:
                 cmake.definitions["CFITSIO_USE_BZIP2"] = self.options.with_bzip2
-            if tools.scm.Version(self.version) >= "4.0.0":
+            if Version(self.version) >= "4.0.0":
                 cmake.definitions["USE_CURL"] = self.options.with_curl
             else:
                 cmake.definitions["UseCurl"] = self.options.with_curl
-        if tools.scm.Version(self.version) >= "4.0.0":
+        if Version(self.version) >= "4.0.0":
             cmake.definitions["TESTS"] = False
             cmake.definitions["UTILS"] = False
         cmake.configure(build_folder=self._build_subfolder)
@@ -120,7 +120,7 @@ class CfitsioConan(ConanFile):
         self.copy("License.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "cfitsio")

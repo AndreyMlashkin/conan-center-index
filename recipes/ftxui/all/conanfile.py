@@ -48,7 +48,7 @@ class FTXUIConan(ConanFile):
 
     def validate(self):
         compiler = self.settings.compiler
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if compiler == 'gcc' and version < '8':
             raise ConanInvalidConfiguration("gcc 8 required")
         if compiler.get_safe("cppstd"):
@@ -57,7 +57,7 @@ class FTXUIConan(ConanFile):
             raise ConanInvalidConfiguration("shared with static runtime not supported")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -70,7 +70,7 @@ class FTXUIConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            conan.tools.files.patch(self, **patch)
+            conan.files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -79,7 +79,7 @@ class FTXUIConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ftxui")

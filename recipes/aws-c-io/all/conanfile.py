@@ -44,7 +44,7 @@ class AwsCIO(ConanFile):
     def requirements(self):
         # the versions of aws-c-common and aws-c-io are tied since aws-c-common/0.6.12 and aws-c-io/0.10.10
         # Please refer https://github.com/conan-io/conan-center-index/issues/7763
-        if tools.scm.Version(self.version) <= "0.10.9":
+        if Version(self.version) <= "0.10.9":
             self.requires("aws-c-common/0.6.11")
             self.requires("aws-c-cal/0.5.11")
         else:
@@ -55,7 +55,7 @@ class AwsCIO(ConanFile):
             self.requires("s2n/1.3.9")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -74,7 +74,7 @@ class AwsCIO(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-io"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-io"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-io")

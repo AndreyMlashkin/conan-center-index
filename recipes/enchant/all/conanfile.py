@@ -34,7 +34,7 @@ class EnchantConan(ConanFile):
     def source(self):
         root = self._source_subfolder
         get_args = self.conan_data["sources"][self.version]
-        tools.files.get(self, **get_args, destination=root, strip_root=True)
+        files.get(self, **get_args, destination=root, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -45,7 +45,7 @@ class EnchantConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         self._configure_cmake().build()
 
     def package(self):

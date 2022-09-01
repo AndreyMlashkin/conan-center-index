@@ -62,18 +62,18 @@ class EdynConan(ConanFile):
             tools.build.check_min_cppstd(self, 17)
         try:
             minimum_required_compiler_version = self._compiler_required[str(self.settings.compiler)]
-            if tools.scm.Version(self.settings.compiler.version) < minimum_required_compiler_version:
+            if Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration("This package requires C++17 support. The current compiler does not support it.")
         except KeyError:
             self.output.warn("This recipe has no support for the current compiler. Please consider adding it.")
    
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -92,13 +92,13 @@ class EdynConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_module_file_name", "Edyn")

@@ -47,7 +47,7 @@ class OpenALConan(ConanFile):
 
     @property
     def _openal_cxx_backend(self):
-        return tools.scm.Version(self.version) >= "1.20"
+        return Version(self.version) >= "1.20"
 
     def configure(self):
         if self.options.shared:
@@ -65,39 +65,39 @@ class OpenALConan(ConanFile):
     @property
     def _supports_cxx14(self):
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
-            if tools.scm.Version(self.settings.compiler.version) < "9":
+            if Version(self.settings.compiler.version) < "9":
                 return False, "openal on clang {} cannot be built with stdlibc++(11) c++ runtime".format(self.settings.compiler.version)
         min_version = {
             "Visual Studio": "15",
             "gcc": "5",
             "clang": "5",
         }.get(str(self.settings.compiler))
-        if min_version and tools.scm.Version(self.settings.compiler.version) < min_version:
+        if min_version and Version(self.settings.compiler.version) < min_version:
             return False, "This compiler version does not support c++14"
         return True, None
 
     @property
     def _supports_cxx11(self):
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
-            if tools.scm.Version(self.settings.compiler.version) < "9":
+            if Version(self.settings.compiler.version) < "9":
                 return False, "openal on clang {} cannot be built with stdlibc++(11) c++ runtime".format(self.settings.compiler.version)
         min_version = {
             "Visual Studio": "13",
             "gcc": "5",
             "clang": "5",
         }.get(str(self.settings.compiler))
-        if min_version and tools.scm.Version(self.settings.compiler.version) < min_version:
+        if min_version and Version(self.settings.compiler.version) < min_version:
             return False, "This compiler version does not support c++11"
         return True, None
 
     def validate(self):
-        if tools.scm.Version(self.version) >= "1.21":
+        if Version(self.version) >= "1.21":
             ok, msg = self._supports_cxx14
             if not ok:
                 raise ConanInvalidConfiguration(msg)
             if msg:
                 self.output.warn(msg)
-        elif tools.scm.Version(self.version) >= "1.20":
+        elif Version(self.version) >= "1.20":
             ok, msg = self._supports_cxx11
             if not ok:
                 raise ConanInvalidConfiguration(msg)
@@ -105,7 +105,7 @@ class OpenALConan(ConanFile):
                 self.output.warn(msg)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -121,7 +121,7 @@ class OpenALConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -129,9 +129,9 @@ class OpenALConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path)
         )
@@ -152,7 +152,7 @@ class OpenALConan(ConanFile):
                 set(OPENAL_VERSION_STRING ${OpenAL_VERSION})
             endif()
         """)
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -169,7 +169,7 @@ class OpenALConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "OpenAL"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "AL"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])

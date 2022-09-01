@@ -37,9 +37,9 @@ class PciUtilsConan(ConanFile):
             self.requires("systemd/system")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
-        tools.files.rename(self, extracted_dir, self._source_subfolder)
+        files.rename(self, extracted_dir, self._source_subfolder)
 
     def _make(self, targets):
         yes_no = lambda v: "yes" if v else "no"
@@ -54,23 +54,23 @@ class PciUtilsConan(ConanFile):
                        target=" ".join(targets))
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self._make(["all"])
 
     def package(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self._make(["install", "install-pcilib"])
 
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         self.copy("*.h", src=self._source_subfolder, dst="include", keep_path=True)
 
         if self.options.shared:
-            tools.files.rename(self, src=os.path.join(self._source_subfolder, "lib", "libpci.so.3.7.0"),
+            files.rename(self, src=os.path.join(self._source_subfolder, "lib", "libpci.so.3.7.0"),
                 dst=os.path.join(self.package_folder, "lib", "libpci.so"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "sbin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "sbin"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "man"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libpci"

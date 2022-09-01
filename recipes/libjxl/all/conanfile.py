@@ -41,12 +41,12 @@ class LibjxlConan(ConanFile):
         self.requires("lcms/2.11")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -77,12 +77,12 @@ class LibjxlConan(ConanFile):
         cmake.install()
 
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
             libs_dir = os.path.join(self.package_folder, "lib")
-            tools.files.rm(self, "*.a", libs_dir)
-            tools.files.rm(self, "*-static.lib", libs_dir)
+            files.rm(self, "*.a", libs_dir)
+            files.rm(self, "*-static.lib", libs_dir)
 
             if self.settings.os == "Windows":
                 self.copy("jxl_dec.dll", src="bin", dst="bin")

@@ -55,23 +55,23 @@ class SQLiteCppConan(ConanFile):
         self.requires("sqlite3/3.38.5")
 
     def validate(self):
-        if tools.scm.Version(self.version) >= "3.0.0" and self.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) >= "3.0.0" and self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("SQLiteCpp can not be built as shared lib on Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler == "clang" and \
-           tools.scm.Version(self.settings.compiler.version) < "6.0" and \
+           Version(self.settings.compiler.version) < "6.0" and \
            self.settings.compiler.libcxx == "libc++" and \
-           tools.scm.Version(self.version) < "3":
-            tools.files.replace_in_file(self, 
+           Version(self.version) < "3":
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "include", "SQLiteCpp", "Utils.h"),
                 "const nullptr_t nullptr = {};",
                 "")
@@ -99,7 +99,7 @@ class SQLiteCppConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -117,7 +117,7 @@ class SQLiteCppConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

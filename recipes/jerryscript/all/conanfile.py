@@ -108,7 +108,7 @@ class JerryScriptStackConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         # profile and jerry_match default option value depend on version
-        if tools.scm.Version(self.version) < "2.4.0":
+        if Version(self.version) < "2.4.0":
             self.options.profile = "es5.1"
             self.options.jerry_math = True
             if self.settings.compiler == "Visual Studio":
@@ -159,15 +159,15 @@ class JerryScriptStackConan(ConanFile):
 
     def package_id(self):
         if self.options.profile not in self._predefined_profiles:
-            self.info.options.profile = tools.files.load(self, str(self.options.profile))
+            self.info.options.profile = files.load(self, str(self.options.profile))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -175,7 +175,7 @@ class JerryScriptStackConan(ConanFile):
         self._cmake = CMake(self)
         amalgamation_definition = "ENABLE_AMALGAM"
         libmath_definition = "JERRY_MATH"
-        if tools.scm.Version(self.version) < tools.scm.Version("2.4.0"):
+        if Version(self.version) < Version("2.4.0"):
             amalgamation_definition = "ENABLE_ALL_IN_ONE"
             libmath_definition = "JERRY_LIBM"
         self._cmake.definitions["JERRY_CMDLINE"] = self.options.tool_cmdline
@@ -221,20 +221,20 @@ class JerryScriptStackConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["libjerry-port-default"].names["pkg_config"] = ["libjerry-port-default"]
         self.cpp_info.components["libjerry-port-default"].libs = ["jerry-port-default"]
 
         if self._jerry_math:
-            mathlibname = "jerry-libm" if tools.scm.Version(self.version) < "2.4.0" else "jerry-math"
+            mathlibname = "jerry-libm" if Version(self.version) < "2.4.0" else "jerry-math"
             self.cpp_info.components["libjerry-math"].names["pkg_config"] = "lib{}".format(mathlibname)
             self.cpp_info.components["libjerry-math"].libs = [mathlibname]
             self.cpp_info.components["libjerry-math"].requires = ["libjerry-port-default"]
             self.cpp_info.components["libjerry-core"].requires.append("libjerry-math")
 
-        if tools.scm.Version(self.version) < "2.4.0":
+        if Version(self.version) < "2.4.0":
             self.cpp_info.components["libjerry-port-default-minimal"].names["pkg_config"] = ["libjerry-port-default-minimal"]
             self.cpp_info.components["libjerry-port-default-minimal"].libs = ["jerry-port-default-minimal"]
             self.cpp_info.components["libjerry-port-default"].requires.append("libjerry-port-default-minimal")

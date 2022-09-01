@@ -28,7 +28,7 @@ class OzzAnimationConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -45,9 +45,9 @@ class OzzAnimationConan(ConanFile):
 
     def build(self):
         for before, after in [('string(REGEX REPLACE "/MT" "/MD" ${flag} "${${flag}}")', ""), ('string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")', "")]:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"), before, after)
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"), before, after)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"), 
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"), 
                               "if(NOT EMSCRIPTEN)",
                               "if(NOT CMAKE_CROSSCOMPILING)")
 
@@ -64,4 +64,4 @@ class OzzAnimationConan(ConanFile):
         self.copy(pattern="LICENSE.md", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

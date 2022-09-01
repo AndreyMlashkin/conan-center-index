@@ -47,7 +47,7 @@ class KealibConan(ConanFile):
             raise ConanInvalidConfiguration("kealib requires hdf5 with cxx and hl enabled.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{0}-{0}-{1}".format(self.name, self.version), self._source_subfolder)
 
     def _configure_cmake(self):
@@ -62,7 +62,7 @@ class KealibConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -72,4 +72,4 @@ class KealibConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

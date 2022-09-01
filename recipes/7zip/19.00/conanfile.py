@@ -43,7 +43,7 @@ class SevenZipConan(ConanFile):
         url = self.conan_data["sources"][self.version]["url"]
         filename = os.path.basename(urlparse(url).path)
         sha256 = self.conan_data["sources"][self.version]["sha256"]
-        tools.files.download(self, url, filename)
+        files.download(self, url, filename)
         tools.check_sha256(filename, sha256)
         self._uncompress_7z(filename)
         os.unlink(filename)
@@ -57,7 +57,7 @@ class SevenZipConan(ConanFile):
 
     def _build_msvc(self):
         with tools.vcvars(self.settings):
-            with tools.files.chdir(self, os.path.join("CPP", "7zip")):
+            with files.chdir(self, os.path.join("CPP", "7zip")):
                 self.run("nmake /f makefile PLATFORM=%s" % self._msvc_platform)
 
     def _build_autotools(self):
@@ -67,15 +67,15 @@ class SevenZipConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             extra_env["IS_MINGW"] = "1"
         with tools.environment_append(extra_env):
-            with tools.files.chdir(self, os.path.join("CPP", "7zip", "Bundles", "LzmaCon")):
+            with files.chdir(self, os.path.join("CPP", "7zip", "Bundles", "LzmaCon")):
                 autotools.make(args=["-f", "makefile.gcc"], target="all")
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
             fn = os.path.join("CPP", "Build.mak")
             os.chmod(fn, 0o644)
-            tools.files.replace_in_file(self, fn, "-MT", "-{}".format(str(self.settings.compiler.runtime)))
-            tools.files.replace_in_file(self, fn, "-MD", "-{}".format(str(self.settings.compiler.runtime)))
+            files.replace_in_file(self, fn, "-MT", "-{}".format(str(self.settings.compiler.runtime)))
+            files.replace_in_file(self, fn, "-MD", "-{}".format(str(self.settings.compiler.runtime)))
 
     def build(self):
         self._patch_sources()

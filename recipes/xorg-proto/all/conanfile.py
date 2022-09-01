@@ -54,7 +54,7 @@ class XorgProtoConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -79,7 +79,7 @@ class XorgProtoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()

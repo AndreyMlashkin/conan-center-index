@@ -26,7 +26,7 @@ class JsonformoderncppConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "json-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -45,7 +45,7 @@ class JsonformoderncppConan(ConanFile):
         self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
         try:
             os.remove(os.path.join(self.package_folder, "nlohmann_json.natvis"))
         except FileNotFoundError:

@@ -43,7 +43,7 @@ class TarConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -74,9 +74,9 @@ class TarConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "gnu", "faccessat.c"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "gnu", "faccessat.c"),
                                   "_GL_INCLUDING_UNISTD_H", "_GL_INCLUDING_UNISTD_H_NOP")
         autotools = self._configure_autotools()
         autotools.make()
@@ -86,7 +86,7 @@ class TarConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

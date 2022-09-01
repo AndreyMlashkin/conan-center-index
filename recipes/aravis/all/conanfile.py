@@ -90,11 +90,11 @@ class AravisConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_meson(self):
         if self._meson:
@@ -123,11 +123,11 @@ class AravisConan(ConanFile):
     def _fix_library_names(self, path):
         # https://github.com/mesonbuild/meson/issues/1412
         if not self.options.shared and self._is_msvc:
-            with tools.files.chdir(self, path):
+            with files.chdir(self, path):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
-                    tools.files.rename(self, filename_old, filename_new)
+                    files.rename(self, filename_old, filename_new)
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses", keep_path=False)
@@ -138,10 +138,10 @@ class AravisConan(ConanFile):
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         if self.options.gst_plugin:
             self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", self.package_folder)
         if not self.options.tools:
-            tools.files.rm(self, "arv-*", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "arv-*", os.path.join(self.package_folder, "bin"))
 
     def package_id(self):
         self.info.requires["glib"].full_package_mode()

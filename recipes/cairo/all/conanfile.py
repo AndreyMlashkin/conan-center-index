@@ -100,28 +100,28 @@ class CairoConan(ConanFile):
         return self.settings.compiler == "Visual Studio"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
             self._build_configure()
 
     def _build_msvc(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # https://cairographics.org/end_to_end_build_for_win32/
             win32_common = os.path.join("build", "Makefile.win32.common")
-            tools.files.replace_in_file(self, win32_common, "-MD ", "-%s " % self.settings.compiler.runtime)
-            tools.files.replace_in_file(self, win32_common, "-MDd ", "-%s " % self.settings.compiler.runtime)
-            tools.files.replace_in_file(self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib",
+            files.replace_in_file(self, win32_common, "-MD ", "-%s " % self.settings.compiler.runtime)
+            files.replace_in_file(self, win32_common, "-MDd ", "-%s " % self.settings.compiler.runtime)
+            files.replace_in_file(self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib",
                                                 self.deps_cpp_info["zlib"].libs[0] + ".lib")
-            tools.files.replace_in_file(self, win32_common, "$(LIBPNG_PATH)/lib/libpng16.lib",
+            files.replace_in_file(self, win32_common, "$(LIBPNG_PATH)/lib/libpng16.lib",
                                                 self.deps_cpp_info["libpng"].libs[0] + ".lib")
-            tools.files.replace_in_file(self, win32_common, "$(FREETYPE_PATH)/lib/freetype.lib",
+            files.replace_in_file(self, win32_common, "$(FREETYPE_PATH)/lib/freetype.lib",
                                                 self.deps_cpp_info["freetype"].libs[0] + ".lib")
             with tools.vcvars(self.settings):
                 env_msvc = VisualStudioBuildEnvironment(self)
@@ -168,12 +168,12 @@ class CairoConan(ConanFile):
         return self._autotools
 
     def _build_configure(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # disable build of test suite
-            tools.files.replace_in_file(self, os.path.join("test", "Makefile.am"), "noinst_PROGRAMS = cairo-test-suite$(EXEEXT)",
+            files.replace_in_file(self, os.path.join("test", "Makefile.am"), "noinst_PROGRAMS = cairo-test-suite$(EXEEXT)",
                                   "")
             if self.options.with_freetype:
-                tools.files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "src", "cairo-ft-font.c"),
+                files.replace_in_file(self, os.path.join(self.source_folder, self._source_subfolder, "src", "cairo-ft-font.c"),
                                       "#if HAVE_UNISTD_H", "#ifdef HAVE_UNISTD_H")
 
             tools.touch(os.path.join("boilerplate", "Makefile.am.features"))
@@ -195,7 +195,7 @@ class CairoConan(ConanFile):
             src = os.path.join(self._source_subfolder, "src")
             cairo_gobject = os.path.join(self._source_subfolder, "util", "cairo-gobject")
             inc = os.path.join("include", "cairo")
-            self.copy(pattern="cairo-version.h", dst=inc, src=(src if tools.scm.Version(self.version) >= "1.17.4" else self._source_subfolder))
+            self.copy(pattern="cairo-version.h", dst=inc, src=(src if Version(self.version) >= "1.17.4" else self._source_subfolder))
             self.copy(pattern="cairo-features.h", dst=inc, src=src)
             self.copy(pattern="cairo.h", dst=inc, src=src)
             self.copy(pattern="cairo-deprecated.h", dst=inc, src=src)
@@ -219,10 +219,10 @@ class CairoConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rm(self, "*.la", self.package_folder)
+        files.rm(self, "*.la", self.package_folder)
 
         self.copy("COPYING*", src=self._source_subfolder, dst="licenses", keep_path=False)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
 
     def package_info(self):

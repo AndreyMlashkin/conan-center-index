@@ -50,7 +50,7 @@ class AutomakeConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -74,10 +74,10 @@ class AutomakeConan(ConanFile):
 
     def _patch_files(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.os == "Windows":
             # tracing using m4 on Windows returns Windows paths => use cygpath to convert to unix paths
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "bin", "aclocal.in"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "bin", "aclocal.in"),
                                                "          $map_traced_defs{$arg1} = $file;",
                                                "          $file = `cygpath -u $file`;\n"
                                                "          $file =~ s/^\\s+|\\s+$//g;\n"
@@ -92,9 +92,9 @@ class AutomakeConan(ConanFile):
         self.copy("COPYING*", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "info"))
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "man"))
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "doc"))
+        files.rmdir(self, os.path.join(self._datarootdir, "info"))
+        files.rmdir(self, os.path.join(self._datarootdir, "man"))
+        files.rmdir(self, os.path.join(self._datarootdir, "doc"))
 
         if self.settings.os == "Windows":
             binpath = os.path.join(self.package_folder, "bin")

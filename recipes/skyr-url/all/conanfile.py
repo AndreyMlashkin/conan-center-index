@@ -48,7 +48,7 @@ class SkyrUrlConan(ConanFile):
         return {
             "Visual Studio": "16",
             "gcc": "7",
-            "clang": "6" if tools.scm.Version(self.version) <= "1.12.0" else "8",
+            "clang": "6" if Version(self.version) <= "1.12.0" else "8",
             "apple-clang": "10",
         }
 
@@ -73,7 +73,7 @@ class SkyrUrlConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17 support. The current compiler {} {} does not support it.".format(
                     self.name, self.settings.compiler, self.settings.compiler.version))
 
@@ -89,7 +89,7 @@ class SkyrUrlConan(ConanFile):
             self.requires("nlohmann_json/3.10.5")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -107,7 +107,7 @@ class SkyrUrlConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -115,14 +115,14 @@ class SkyrUrlConan(ConanFile):
         self.copy("LICENSE_1_0.txt", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "skyr-url")
         self.cpp_info.set_property("cmake_target_name", "skyr::skyr-url")
 
         self.cpp_info.components["url"].name = "skyr-url"
-        self.cpp_info.components["url"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["url"].libs = files.collect_libs(self, self)
         self.cpp_info.components["url"].requires = ["tl-expected::tl-expected", "range-v3::range-v3"]
         if self.options.with_json:
             self.cpp_info.components["url"].requires.append("nlohmann_json::nlohmann_json")

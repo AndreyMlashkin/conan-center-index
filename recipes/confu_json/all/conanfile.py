@@ -46,7 +46,7 @@ class ConfuJson(ConanFile):
                              "compiler support.".format(
                                  self.name, self.settings.compiler))
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. "
                     "The current compiler {} {} does not support it.".format(
@@ -59,7 +59,7 @@ class ConfuJson(ConanFile):
         self.requires("magic_enum/0.7.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

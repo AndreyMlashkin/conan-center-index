@@ -64,26 +64,26 @@ class LibffiConan(ConanFile):
         self.build_requires("gnu-config/cci.20201022")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Generate rpath friendly shared lib on macOS
         configure_path = os.path.join(self._source_subfolder, "configure")
-        tools.files.replace_in_file(self, configure_path, "-install_name \\$rpath/", "-install_name @rpath/")
+        files.replace_in_file(self, configure_path, "-install_name \\$rpath/", "-install_name @rpath/")
 
-        if tools.scm.Version(self.version) < "3.3":
-            if self.settings.compiler == "clang" and tools.scm.Version(str(self.settings.compiler.version)) >= 7.0:
+        if Version(self.version) < "3.3":
+            if self.settings.compiler == "clang" and Version(str(self.settings.compiler.version)) >= 7.0:
                 # https://android.googlesource.com/platform/external/libffi/+/ca22c3cb49a8cca299828c5ffad6fcfa76fdfa77
                 sysv_s_src = os.path.join(self._source_subfolder, "src", "arm", "sysv.S")
-                tools.files.replace_in_file(self, sysv_s_src, "fldmiad", "vldmia")
-                tools.files.replace_in_file(self, sysv_s_src, "fstmiad", "vstmia")
-                tools.files.replace_in_file(self, sysv_s_src, "fstmfdd\tsp!,", "vpush")
+                files.replace_in_file(self, sysv_s_src, "fldmiad", "vldmia")
+                files.replace_in_file(self, sysv_s_src, "fstmiad", "vstmia")
+                files.replace_in_file(self, sysv_s_src, "fstmfdd\tsp!,", "vpush")
 
                 # https://android.googlesource.com/platform/external/libffi/+/7748bd0e4a8f7d7c67b2867a3afdd92420e95a9f
-                tools.files.replace_in_file(self, sysv_s_src, "stmeqia", "stmiaeq")
+                files.replace_in_file(self, sysv_s_src, "stmeqia", "stmiaeq")
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -174,9 +174,9 @@ class LibffiConan(ConanFile):
                 autotools = self._configure_autotools()
                 autotools.install()
 
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libffi")

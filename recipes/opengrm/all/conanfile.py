@@ -79,7 +79,7 @@ class OpenGrmConan(conan.ConanFile):
                                             ' or "compiler.libcxx=libc++"')
 
     def source(self):
-        conan.tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        conan.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @staticmethod
     def _yes_no(v):
@@ -87,7 +87,7 @@ class OpenGrmConan(conan.ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            conan.tools.files.patch(**patch)
+            conan.files.patch(**patch)
 
     def generate(self):
         tc = AutotoolsDeps(self)
@@ -111,7 +111,7 @@ class OpenGrmConan(conan.ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        conan.tools.files.rmdir(self, Path(self.package_folder) / "share")
+        conan.files.rmdir(self, Path(self.package_folder) / "share")
         remove_files_by_mask(Path(self.package_folder) / "lib", "*.la")
 
     def package_info(self):

@@ -50,7 +50,7 @@ class AwsCCal(ConanFile):
         del self.settings.compiler.libcxx
 
     def requirements(self):
-        if tools.scm.Version(self.version) <= "0.5.11":
+        if Version(self.version) <= "0.5.11":
             self.requires("aws-c-common/0.6.11")
         else:
             self.requires("aws-c-common/0.7.4")
@@ -58,7 +58,7 @@ class AwsCCal(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -72,7 +72,7 @@ class AwsCCal(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -80,7 +80,7 @@ class AwsCCal(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-cal"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-cal"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-cal")
@@ -113,7 +113,7 @@ class AwsCCal(ConanFile):
                 crypto_symbols = [
                     "HMAC_Update", "HMAC_Final", "HMAC_Init_ex",
                 ]
-                if tools.scm.Version(self.deps_cpp_info["openssl"].version) >= "1.1":
+                if Version(self.deps_cpp_info["openssl"].version) >= "1.1":
                     crypto_symbols.extend([
                         "HMAC_CTX_new", "HMAC_CTX_free", "HMAC_CTX_reset",
                     ])

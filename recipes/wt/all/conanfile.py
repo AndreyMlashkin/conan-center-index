@@ -101,7 +101,7 @@ class WtConan(ConanFile):
         return ["program_options", "filesystem", "thread"]
 
     def requirements(self):
-        if tools.scm.Version(self.version) >= "4.6.0":
+        if Version(self.version) >= "4.6.0":
             self.requires("boost/1.78.0")
         else:
             self.requires("boost/1.76.0")
@@ -126,22 +126,22 @@ class WtConan(ConanFile):
             raise ConanInvalidConfiguration("Wt requires these boost components: {}".format(", ".join(self._required_boost_components)))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, cmakelists, "find_package(OpenSSL)", "#find_package(OpenSSL)")
-        tools.files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindMysql.txt)", "#INCLUDE(cmake/WtFindMysql.txt)")
-        tools.files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindPostgresql.txt)", "#INCLUDE(cmake/WtFindPostgresql.txt)")
+        files.replace_in_file(self, cmakelists, "find_package(OpenSSL)", "#find_package(OpenSSL)")
+        files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindMysql.txt)", "#INCLUDE(cmake/WtFindMysql.txt)")
+        files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindPostgresql.txt)", "#INCLUDE(cmake/WtFindPostgresql.txt)")
         if self.settings.os != "Windows":
-            tools.files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)")
+            files.replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)")
 
         # Do not pollute rpath of shared libs of the install tree on macOS please
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             cmakelists,
             "IF(APPLE)\n  SET(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")",
             "if(0)",
@@ -234,9 +234,9 @@ class WtConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         shutil.move(os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "var"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "var"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "wt")

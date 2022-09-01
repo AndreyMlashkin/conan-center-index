@@ -64,7 +64,7 @@ class ApprovalTestsCppConan(ConanFile):
         for source in self.conan_data["sources"][self.version]:
             url = source["url"]
             filename = url[url.rfind("/") + 1:]
-            tools.files.download(self, url, filename)
+            files.download(self, url, filename)
             tools.check_sha256(filename, source["sha256"])
         rename(self, "ApprovalTests.v.{}.hpp".format(self.version), self._header_file)
 
@@ -90,7 +90,7 @@ class ApprovalTestsCppConan(ConanFile):
             self._require_at_least_compiler_version("gcc", 5)
 
     def _require_at_least_compiler_version(self, compiler, compiler_version):
-        if self.settings.compiler == compiler and tools.scm.Version(self.settings.compiler.version) < compiler_version:
+        if self.settings.compiler == compiler and Version(self.settings.compiler.version) < compiler_version:
             raise ConanInvalidConfiguration(
                 "{}/{} with compiler {} requires at least compiler version {}".
                     format(self.name, self.version, compiler, compiler_version))

@@ -70,7 +70,7 @@ class LunaSVGConan(ConanFile):
             raise ConanInvalidConfiguration("{} requires C++14, which your compiler does not fully support.".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -83,7 +83,7 @@ class LunaSVGConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

@@ -67,7 +67,7 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                     strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
@@ -87,14 +87,14 @@ class AtSpi2CoreConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "bus", "meson.build"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "bus", "meson.build"),
                                 "if x11_dep.found()",
                                 "if x11_option == 'yes'")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, 'meson.build'),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, 'meson.build'),
             "subdir('tests')",
             "#subdir('tests')")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, 'meson.build'),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, 'meson.build'),
             "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
             "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
         meson = self._configure_meson()
@@ -104,8 +104,8 @@ class AtSpi2CoreConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
 
 
     def package_info(self):

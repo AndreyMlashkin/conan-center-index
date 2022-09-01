@@ -32,19 +32,19 @@ class StbConan(ConanFile):
         return str(self.version)[4:]
 
     def config_options(self):
-        if tools.scm.Version(self._version) < "20210713":
+        if Version(self._version) < "20210713":
             del self.options.with_deprecated
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         self.copy("*.h", src=self._source_subfolder, dst="include")
         self.copy("stb_vorbis.c", src=self._source_subfolder, dst="include")
-        tools.files.rmdir(self, os.path.join(self.package_folder, "include", "tests"))
-        if tools.scm.Version(self._version) >= "20210713":
-            tools.files.rmdir(self, os.path.join(self.package_folder, "include", "deprecated"))
+        files.rmdir(self, os.path.join(self.package_folder, "include", "tests"))
+        if Version(self._version) >= "20210713":
+            files.rmdir(self, os.path.join(self.package_folder, "include", "deprecated"))
         if self.options.get_safe("with_deprecated", False):
             self.copy("*.h", src=os.path.join(self._source_subfolder, "deprecated"), dst="include")
             self.copy("stb_image.c", src=os.path.join(self._source_subfolder, "deprecated"), dst="include")

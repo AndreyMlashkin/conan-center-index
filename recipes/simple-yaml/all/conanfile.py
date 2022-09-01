@@ -27,7 +27,7 @@ class SimpleYamlConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):
@@ -62,7 +62,7 @@ class SimpleYamlConan(ConanFile):
         if not minimum_version:
             self.output.warn(
                 "simple-yaml requires C++20. Your compiler is unknown. Assuming it fully supports C++20.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "simple-yaml requires C++20, which your compiler does not support.")
 

@@ -85,7 +85,7 @@ class DrogonConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++14, which your compiler does not support.".format(self.name))
         else:
             self.output.warn("{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name))
@@ -113,7 +113,7 @@ class DrogonConan(ConanFile):
             self.requires("hiredis/1.0.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -135,7 +135,7 @@ class DrogonConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -143,13 +143,13 @@ class DrogonConan(ConanFile):
         self.copy("LICENSE", "licenses", self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.libs = ["drogon"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["rpcrt4", "ws2_32", "crypt32", "advapi32"])
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version).major == "8":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
             self.cpp_info.system_libs.append("stdc++fs")
 
         if self.options.with_ctl:

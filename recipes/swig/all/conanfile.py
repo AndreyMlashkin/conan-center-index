@@ -41,7 +41,7 @@ class SwigConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -116,11 +116,11 @@ class SwigConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()

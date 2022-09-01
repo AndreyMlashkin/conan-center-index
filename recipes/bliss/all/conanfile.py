@@ -54,11 +54,11 @@ class BlissConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, 11)
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "15":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "15":
             raise ConanInvalidConfiguration("bliss doesn't support Visual Studio < 2017")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -72,7 +72,7 @@ class BlissConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()

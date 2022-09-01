@@ -56,7 +56,7 @@ class IgnitionToolsConan(ConanFile):
                 )
             )
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -66,7 +66,7 @@ class IgnitionToolsConan(ConanFile):
                 )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version],destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake is not None:
@@ -78,7 +78,7 @@ class IgnitionToolsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -86,16 +86,16 @@ class IgnitionToolsConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
+            files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
-        version_major = tools.scm.Version(self.version).major
+        version_major = Version(self.version).major
         self.cpp_info.names["cmake_find_package"] = "ignition-tools{}".format(version_major)
         self.cpp_info.names["cmake_find_package_multi"] = "ignition-tools{}".format(version_major)
 

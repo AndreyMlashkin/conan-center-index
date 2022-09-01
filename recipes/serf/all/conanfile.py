@@ -47,14 +47,14 @@ class SerfConan(ConanFile):
         self.build_requires("scons/4.3.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(glob.glob("serf-*")[0], self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         pc_in = os.path.join(self._source_subfolder, "build", "serf.pc.in")
-        tools.files.save(self, pc_in, tools.files.load(self, pc_in))
+        files.save(self, pc_in, files.load(self, pc_in))
 
     @property
     def _cc(self):
@@ -106,7 +106,7 @@ class SerfConan(ConanFile):
             })
 
         escape_str = lambda x : "\"{}\"".format(x)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             with self._build_context():
                     self.run("scons {} {}".format(" ".join(escape_str(s) for s in args), " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items())), run_environment=True)
 
@@ -124,11 +124,11 @@ class SerfConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             with self._build_context():
                 self.run("scons install -Y \"{}\"".format(os.path.join(self.source_folder, self._source_subfolder)), run_environment=True)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
             for file in glob.glob(os.path.join(self.package_folder, "lib", "*.exp")):
                 os.unlink(file)
@@ -137,7 +137,7 @@ class SerfConan(ConanFile):
             if self.options.shared:
                 for file in glob.glob(os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))):
                     os.unlink(file)
-                tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+                files.mkdir(self, os.path.join(self.package_folder, "bin"))
                 os.rename(os.path.join(self.package_folder, "lib", "libserf-{}.dll".format(self._version_major)),
                           os.path.join(self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)))
             else:

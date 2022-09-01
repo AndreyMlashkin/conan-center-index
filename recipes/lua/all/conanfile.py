@@ -39,7 +39,7 @@ class LuaConan(ConanFile):
             del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -54,20 +54,20 @@ class LuaConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         # Extract the License/s from the header to a file
-        tmp = tools.files.load(self,  os.path.join(self._source_subfolder, "src", "lua.h") )
+        tmp = files.load(self,  os.path.join(self._source_subfolder, "src", "lua.h") )
         license_contents = tmp[tmp.find("/***", 1):tmp.find("****/", 1)]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "COPYING.txt"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "COPYING.txt"), license_contents)
         cmake = self._configure_cmake()
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "m"]
         if self.settings.os in ["Linux", "FreeBSD", "Macos"]:

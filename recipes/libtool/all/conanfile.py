@@ -62,7 +62,7 @@ class LibtoolConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -84,7 +84,7 @@ class LibtoolConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-FS")
         conf_args = [
             "--datarootdir={}".format(tools.microsoft.unix_path(self, self._datarootdir)),
@@ -102,7 +102,7 @@ class LibtoolConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "build-aux", "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -150,8 +150,8 @@ class LibtoolConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "info"))
-        tools.files.rmdir(self, os.path.join(self._datarootdir, "man"))
+        files.rmdir(self, os.path.join(self._datarootdir, "info"))
+        files.rmdir(self, os.path.join(self._datarootdir, "man"))
 
         os.unlink(os.path.join(self.package_folder, "lib", "libltdl.la"))
         if self.options.shared:
@@ -181,22 +181,22 @@ class LibtoolConan(ConanFile):
 
         binpath = os.path.join(self.package_folder, "bin")
         if self.settings.os == "Windows":
-            tools.files.rename(self, os.path.join(binpath, "libtoolize"),
+            files.rename(self, os.path.join(binpath, "libtoolize"),
                          os.path.join(binpath, "libtoolize.exe"))
-            tools.files.rename(self, os.path.join(binpath, "libtool"),
+            files.rename(self, os.path.join(binpath, "libtool"),
                          os.path.join(binpath, "libtool.exe"))
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "ltdl.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "ltdl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "ltdl.lib"))
 
         # allow libtool to link static libs into shared for more platforms
         libtool_m4 = os.path.join(self._datarootdir, "aclocal", "libtool.m4")
         method_pass_all = "lt_cv_deplibs_check_method=pass_all"
-        tools.files.replace_in_file(self, libtool_m4,
+        files.replace_in_file(self, libtool_m4,
                               "lt_cv_deplibs_check_method='file_magic ^x86 archive import|^x86 DLL'",
                               method_pass_all)
-        tools.files.replace_in_file(self, libtool_m4,
+        files.replace_in_file(self, libtool_m4,
                               "lt_cv_deplibs_check_method='file_magic file format (pei*-i386(.*architecture: i386)?|pe-arm-wince|pe-x86-64)'",
                               method_pass_all)
 

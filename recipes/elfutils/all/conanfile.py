@@ -45,7 +45,7 @@ class ElfutilsConan(ConanFile):
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
-        if tools.scm.Version(self.version) < "0.186":
+        if Version(self.version) < "0.186":
             del self.options.libdebuginfod
 
     def configure(self):
@@ -55,7 +55,7 @@ class ElfutilsConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def validate(self):
-        if tools.scm.Version(self.version) >= "0.186":
+        if Version(self.version) >= "0.186":
             if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
                 raise ConanInvalidConfiguration("Compiler %s not supported. "
                             "elfutils only supports gcc and clang" % self.settings.compiler)
@@ -94,7 +94,7 @@ class ElfutilsConan(ConanFile):
             self.build_requires("msys2/cci.latest")
     
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -109,7 +109,7 @@ class ElfutilsConan(ConanFile):
                 "--with-lzma" if self.options.with_lzma else "--without-lzma",
                 "--enable-debuginfod" if self.options.debuginfod else "--disable-debuginfod",
             ]
-            if tools.scm.Version(self.version) >= "0.186":
+            if Version(self.version) >= "0.186":
                 args.append("--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod")
             args.append('BUILD_STATIC={}'.format("0" if self.options.shared else "1"))
 
@@ -119,8 +119,8 @@ class ElfutilsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("autoreconf -fiv")
         autotools = self._configure_autotools()
         autotools.make()
@@ -129,14 +129,14 @@ class ElfutilsConan(ConanFile):
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.options.shared:
-            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "*.so.1", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.so.1", os.path.join(self.package_folder, "lib"))
         
     def package_info(self):
         # library components

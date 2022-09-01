@@ -118,7 +118,7 @@ class MongoCxxConan(ConanFile):
             self.output.warn("Unknown compiler, assuming it supports at least C++{}".format(self._minimal_std_version))
             return
 
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(
                 "{} requires a compiler that supports at least C++{}".format(
@@ -128,7 +128,7 @@ class MongoCxxConan(ConanFile):
             )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -157,7 +157,7 @@ class MongoCxxConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -173,9 +173,9 @@ class MongoCxxConan(ConanFile):
 
         if self.settings.os == "Windows":
             for vc_file in ("concrt", "msvcp", "vcruntime"):
-                tools.files.rm(self, "{}*.dll".format(vc_file), os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+                files.rm(self, "{}*.dll".format(vc_file), os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         # FIXME: two CMake module/config files should be generated (mongocxx-config.cmake and bsoncxx-config.cmake),

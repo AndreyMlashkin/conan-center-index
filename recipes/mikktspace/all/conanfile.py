@@ -32,7 +32,7 @@ class MikkTSpaceConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('MikkTSpace-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -66,7 +66,7 @@ class MikkTSpaceConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
         cmake = self._configure_cmake()
         cmake.install()
 

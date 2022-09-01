@@ -55,7 +55,7 @@ class CppCommon(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("cppcommon requires C++17, which your compiler does not support.")
         else:
             self.output.warn("cppcommon requires C++17. Your compiler is unknown. Assuming it supports C++17.")
@@ -66,7 +66,7 @@ class CppCommon(ConanFile):
             self.requires("libuuid/1.0.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("CppCommon-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -79,7 +79,7 @@ class CppCommon(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -92,7 +92,7 @@ class CppCommon(ConanFile):
         self.copy(pattern="*.h", dst=os.path.join("include", "plugins"), src=os.path.join(self._source_subfolder, "plugins"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "plugins"))
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread", "rt", "dl", "m"]

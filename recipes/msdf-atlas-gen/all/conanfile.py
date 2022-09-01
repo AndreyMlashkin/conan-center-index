@@ -34,14 +34,14 @@ class MsdfAtlasGenConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         cmakelists = os.path.join(
             self._source_subfolder, "CMakeLists.txt")
 
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "add_subdirectory(msdfgen)", "")
         tools.save_append(cmakelists,
                           "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")

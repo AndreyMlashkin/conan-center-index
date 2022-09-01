@@ -18,16 +18,16 @@ class YasConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _extract_license(self):
-        header = tools.files.load(self, os.path.join(
+        header = files.load(self, os.path.join(
             self.source_folder, self._source_subfolder,
             "include", "yas", "binary_oarchive.hpp"))
         license_contents = header[:header.find("#")] \
             .replace("//", "").replace("\n ", "\n").lstrip()
-        tools.files.save(self, "LICENSE", license_contents)
+        files.save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()

@@ -62,8 +62,8 @@ class CunitConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
-        with tools.files.chdir(self, self._source_subfolder):
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        with files.chdir(self, self._source_subfolder):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
 
@@ -118,9 +118,9 @@ class CunitConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with self._build_context():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
                 autotools = self._configure_autotools()
                 autotools.make()
@@ -128,18 +128,18 @@ class CunitConan(ConanFile):
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         with self._build_context():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 autotools = self._configure_autotools()
                 autotools.install()
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
                          os.path.join(self.package_folder, "lib", "cunit.lib"))
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "doc"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "CUnit"

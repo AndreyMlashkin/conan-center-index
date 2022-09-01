@@ -62,7 +62,7 @@ class LibbacktraceConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -88,7 +88,7 @@ class LibbacktraceConan(ConanFile):
     def _configure_autotools(self):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         autotools.libs = []
-        if (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12") or \
+        if (self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= "12") or \
            str(self.settings.compiler) == "msvc":
             autotools.flags.append("-FS")
         yes_no = lambda v: "yes" if v else "no"
@@ -101,9 +101,9 @@ class LibbacktraceConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # relocatable shared lib on macOS
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               "-install_name \\$rpath/",
                               "-install_name @rpath/")
 
@@ -122,7 +122,7 @@ class LibbacktraceConan(ConanFile):
         if self._is_msvc:
             rename(self, os.path.join(lib_folder, "libbacktrace.lib"),
                          os.path.join(lib_folder, "backtrace.lib"))
-        tools.files.rm(self, "*.la", lib_folder)
+        files.rm(self, "*.la", lib_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["backtrace"]

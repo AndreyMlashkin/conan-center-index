@@ -60,7 +60,7 @@ class TracyConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -86,7 +86,7 @@ class TracyConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses",
                   src=self._source_subfolder)
         self._cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["TracyClient"]

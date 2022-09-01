@@ -32,7 +32,7 @@ class NativefiledialogConan(ConanFile):
             raise ConanInvalidConfiguration("architecture %s is not supported" % self.settings.arch)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-release_" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -50,7 +50,7 @@ class NativefiledialogConan(ConanFile):
             generator = "gmake2"
         subdir = os.path.join(self._source_subfolder, "build", "subdir")
         os.makedirs(subdir)
-        with tools.files.chdir(self, subdir):
+        with files.chdir(self, subdir):
             os.rename(os.path.join("..", "premake5.lua"), "premake5.lua")
             self.run("premake5 %s" % generator)
             

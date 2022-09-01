@@ -68,7 +68,7 @@ class Opene57Conan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 
     def requirements(self):
@@ -81,7 +81,7 @@ class Opene57Conan(ConanFile):
         self.requires("xerces-c/3.2.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -108,7 +108,7 @@ class Opene57Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         os.remove(os.path.join(self.package_folder, "CHANGELOG.md"))
-        tools.files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
+        files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         if self.options.with_tools:

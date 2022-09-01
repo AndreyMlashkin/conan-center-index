@@ -61,7 +61,7 @@ class LibiconvConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
     def _build_context(self):
@@ -97,7 +97,7 @@ class LibiconvConan(ConanFile):
             env_vars["RANLIB"] = ":"
 
         with tools.vcvars(self.settings) if (is_msvc(self) or self._is_clang_cl) else tools.no_op():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 with tools.environment_append(env_vars):
                     yield
 
@@ -120,7 +120,7 @@ class LibiconvConan(ConanFile):
         else:
             configure_args.extend(["--enable-static", "--disable-shared"])
 
-        if (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12") or \
+        if (self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= "12") or \
            self.settings.compiler == "msvc":
             autotools.flags.append("-FS")
 
@@ -129,10 +129,10 @@ class LibiconvConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # relocatable shared libs on macOS
         for configure in ["configure", os.path.join("libcharset", "configure")]:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, configure),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, configure),
                                   "-install_name \\$rpath/", "-install_name @rpath/")
 
     def build(self):
@@ -147,8 +147,8 @@ class LibiconvConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         if (is_msvc(self) or self._is_clang_cl) and self.options.shared:
             for import_lib in ["iconv", "charset"]:

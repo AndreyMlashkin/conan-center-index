@@ -37,7 +37,7 @@ class TCSBankUconfigConan(ConanFile):
 
     def validate(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
@@ -62,7 +62,7 @@ class TCSBankUconfigConan(ConanFile):
                 (self.name, min_req_cppstd, compiler, compiler_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

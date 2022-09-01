@@ -56,7 +56,7 @@ class CclientConan(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_msvc(self):
         opt_flags = "/O2 /Ob2 /DNDEBUG"
@@ -70,7 +70,7 @@ class CclientConan(ConanFile):
         cflags = f"{runtime} {warnings} /GS {opt_flags}"
         search = "EXTRACFLAGS ="
         replace = f"EXTRACFLAGS = {cflags}"
-        tools.files.replace_in_file(self, r"src\osdep\nt\makefile.w2k", search, replace)
+        files.replace_in_file(self, r"src\osdep\nt\makefile.w2k", search, replace)
 
     def _build_msvc(self):
         make = "nmake /nologo /f makefile.w2k"
@@ -93,9 +93,9 @@ class CclientConan(ConanFile):
         self._chmod_x(f"{unix}/mkauths")
         search = "SSLDIR=/usr/local/ssl"
         ssldir = self.deps_cpp_info["openssl"].rootpath
-        tools.files.replace_in_file(self, f"{unix}/Makefile", search, f"SSLDIR={ssldir}")
+        files.replace_in_file(self, f"{unix}/Makefile", search, f"SSLDIR={ssldir}")
         # This is from the Homebrew Formula
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             "src/osdep/unix/ssl_unix.c",
             "#include <x509v3.h>\n#include <ssl.h>",
             "#include <ssl.h>\n#include <x509v3.h>"
@@ -108,7 +108,7 @@ class CclientConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._is_msvc:
             self._patch_msvc()
             self._build_msvc()

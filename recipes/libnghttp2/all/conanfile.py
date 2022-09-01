@@ -80,11 +80,11 @@ class Nghttp2Conan(ConanFile):
     def validate(self):
         if self.options.with_asio and self._is_msvc:
             raise ConanInvalidConfiguration("Build with asio and MSVC is not supported yet, see upstream bug #589")
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "6":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             raise ConanInvalidConfiguration("gcc >= 6.0 required")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -104,7 +104,7 @@ class Nghttp2Conan(ConanFile):
 
         cmake.definitions["ENABLE_ASIO_LIB"] = self.options.with_asio
 
-        if tools.scm.Version(self.version) >= "1.42.0":
+        if Version(self.version) >= "1.42.0":
             # backward-incompatible change in 1.42.0
             cmake.definitions["STATIC_LIB_SUFFIX"] = "_static"
 
@@ -117,16 +117,16 @@ class Nghttp2Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if not self.options.shared:
             # easier to patch here rather than have patch 'nghttp_static_include_directories' for each version
-            tools.files.save(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
+            files.save(self, os.path.join(self._source_subfolder, "lib", "CMakeLists.txt"),
                        "target_include_directories(nghttp2_static INTERFACE\n"
                        "${CMAKE_CURRENT_BINARY_DIR}/includes\n"
                        "${CMAKE_CURRENT_SOURCE_DIR}/includes)\n",
                        append=True)
         target_libnghttp2 = "nghttp2" if self.options.shared else "nghttp2_static"
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                               "\n"
                               "link_libraries(\n"
                               "  nghttp2\n",
@@ -134,12 +134,12 @@ class Nghttp2Conan(ConanFile):
                               "link_libraries(\n"
                               "  {} ${{CONAN_LIBS}}\n".format(target_libnghttp2))
         if not self.options.shared:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                                   "\n"
                                   "  add_library(nghttp2_asio SHARED\n",
                                   "\n"
                                   "  add_library(nghttp2_asio\n")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                                   "\n"
                                   "  target_link_libraries(nghttp2_asio\n"
                                   "    nghttp2\n",
@@ -156,12 +156,12 @@ class Nghttp2Conan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["nghttp2"].set_property("pkg_config_name", "libnghttp2")
-        suffix = "_static" if tools.scm.Version(self.version) > "1.39.2" and not self.options.shared else ""
+        suffix = "_static" if Version(self.version) > "1.39.2" and not self.options.shared else ""
         self.cpp_info.components["nghttp2"].libs = [f"nghttp2{suffix}"]
         if self._is_msvc and not self.options.shared:
             self.cpp_info.components["nghttp2"].defines.append("NGHTTP2_STATICLIB")

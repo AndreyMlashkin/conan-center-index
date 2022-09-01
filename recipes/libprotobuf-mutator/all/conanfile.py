@@ -31,7 +31,7 @@ class LibProtobufMutatorConan(ConanFile):
         self.requires("protobuf/3.17.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def validate(self):
@@ -43,15 +43,15 @@ class LibProtobufMutatorConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def _patch_sources(self):
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """include_directories(${PROTOBUF_INCLUDE_DIRS})""",
             """include_directories(${protobuf_INCLUDE_DIRS})""")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
             """# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""")
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """add_subdirectory(examples EXCLUDE_FROM_ALL)""",
             """# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)""")
@@ -78,8 +78,8 @@ class LibProtobufMutatorConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "OFF"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "OFF"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"

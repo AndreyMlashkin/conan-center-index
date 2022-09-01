@@ -63,16 +63,16 @@ class LibjpegConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_nmake(self):
         shutil.copy("Win32.Mak", os.path.join(self._source_subfolder, "Win32.Mak"))
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Win32.Mak"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Win32.Mak"),
                               "\nccommon = -c ",
                               "\nccommon = -c -DLIBJPEG_BUILDING {}".format("" if self.options.shared else "-DLIBJPEG_STATIC "))
         # clean environment variables that might affect on the build (e.g. if set by Jenkins)
-        with tools.files.chdir(self, self._source_subfolder), tools.environment_append({"PROFILE": None, "TUNE": None, "NODEBUG": None}):
+        with files.chdir(self, self._source_subfolder), tools.environment_append({"PROFILE": None, "TUNE": None, "NODEBUG": None}):
             shutil.copy("jconfig.vc", "jconfig.h")
             make_args = [
                 "nodebug=1" if self.settings.build_type != 'Debug' else "",
@@ -82,18 +82,18 @@ class LibjpegConan(ConanFile):
                 link = os.environ.get('LD', 'lld-link')
                 lib = os.environ.get('AR', 'llvm-lib')
                 rc = os.environ.get('RC', 'llvm-rc')
-                tools.files.replace_in_file(self, 'Win32.Mak', 'cc     = cl', 'cc     = %s' % cl)
-                tools.files.replace_in_file(self, 'Win32.Mak', 'link   = link', 'link   = %s' % link)
-                tools.files.replace_in_file(self, 'Win32.Mak', 'implib = lib', 'implib = %s' % lib)
-                tools.files.replace_in_file(self, 'Win32.Mak', 'rc     = Rc', 'rc     = %s' % rc)
+                files.replace_in_file(self, 'Win32.Mak', 'cc     = cl', 'cc     = %s' % cl)
+                files.replace_in_file(self, 'Win32.Mak', 'link   = link', 'link   = %s' % link)
+                files.replace_in_file(self, 'Win32.Mak', 'implib = lib', 'implib = %s' % lib)
+                files.replace_in_file(self, 'Win32.Mak', 'rc     = Rc', 'rc     = %s' % rc)
             # set flags directly in makefile.vc
             # cflags are critical for the library. ldflags and ldlibs are only for binaries
             if self.settings.compiler.runtime in ["MD", "MDd"]:
-                tools.files.replace_in_file(self, "makefile.vc", "(cvars)", "(cvarsdll)")
-                tools.files.replace_in_file(self, "makefile.vc", "(conlibs)", "(conlibsdll)")
+                files.replace_in_file(self, "makefile.vc", "(cvars)", "(cvarsdll)")
+                files.replace_in_file(self, "makefile.vc", "(conlibs)", "(conlibsdll)")
             else:
-                tools.files.replace_in_file(self, "makefile.vc", "(cvars)", "(cvarsmt)")
-                tools.files.replace_in_file(self, "makefile.vc", "(conlibs)", "(conlibsmt)")
+                files.replace_in_file(self, "makefile.vc", "(cvars)", "(cvarsmt)")
+                files.replace_in_file(self, "makefile.vc", "(conlibs)", "(conlibsmt)")
             target = "{}/libjpeg.lib".format( "shared" if self.options.shared else "static" )
             with tools.vcvars(self.settings):
                 self.run("nmake -f makefile.vc {} {}".format(" ".join(make_args), target))
@@ -113,10 +113,10 @@ class LibjpegConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Fix rpath in LC_ID_DYLIB of installed shared libs on macOS
         if tools.apple.is_apple_os(self):
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "configure"),
                 "-install_name \\$rpath/",
                 "-install_name @rpath/",
@@ -143,12 +143,12 @@ class LibjpegConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
             if self.settings.os == "Windows" and self.options.shared:
-                tools.files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
+                files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
             else:
-                tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+                files.rmdir(self, os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         for fn in ("jpegint.h", "transupp.h",):
             self.copy(fn, src=self._source_subfolder, dst="include")
@@ -159,7 +159,7 @@ class LibjpegConan(ConanFile):
         # Remove export decorations of transupp symbols
         for relpath in os.path.join("include", "transupp.h"), os.path.join("res", "transupp.c"):
             path = os.path.join(self.package_folder, relpath)
-            tools.files.save(self, path, re.subn(r"(?:EXTERN|GLOBAL)\(([^)]+)\)", r"\1", tools.files.load(self, path))[0])
+            files.save(self, path, re.subn(r"(?:EXTERN|GLOBAL)\(([^)]+)\)", r"\1", files.load(self, path))[0])
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

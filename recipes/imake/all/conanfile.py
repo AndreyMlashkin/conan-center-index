@@ -65,7 +65,7 @@ class ImakeConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -121,8 +121,8 @@ class ImakeConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        # tools.files.replace_in_file(self, os.path.join(self._source_subfolder, ""))
+            files.patch(self, **patch)
+        # files.replace_in_file(self, os.path.join(self._source_subfolder, ""))
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make(args=["V=1"])
@@ -132,7 +132,7 @@ class ImakeConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

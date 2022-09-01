@@ -60,7 +60,7 @@ class NSSConan(ConanFile):
 
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @property
     def _make_args(self):
@@ -150,14 +150,14 @@ class NSSConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "nss")):
+            files.patch(self, **patch)
+        with files.chdir(self, os.path.join(self._source_subfolder, "nss")):
             with tools.vcvars(self) if self.settings.compiler == "Visual Studio" else tools.no_op():
                 self.run("make %s" % " ".join(self._make_args), run_environment=True)
 
     def package(self):
         self.copy("COPYING", src = os.path.join(self._source_subfolder, "nss"), dst = "licenses")
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "nss")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "nss")):
             self.run("make install %s" % " ".join(self._make_args))
         self.copy("*",
                   src=os.path.join(self._source_subfolder, "dist", "public", "nss"),
@@ -171,13 +171,13 @@ class NSSConan(ConanFile):
             self.copy("*", src = f)
 
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-            tools.files.rename(self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
+            files.rename(self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
 
         if self.options.shared:
-            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
 
 
 

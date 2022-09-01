@@ -91,7 +91,7 @@ class Mpg123Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -148,7 +148,7 @@ class Mpg123Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.settings.compiler == "Visual Studio":
             cmake = self._configure_cmake()
             cmake.build()
@@ -161,13 +161,13 @@ class Mpg123Conan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             cmake = self._configure_cmake()
             cmake.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "mpg123"

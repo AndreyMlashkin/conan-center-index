@@ -22,11 +22,11 @@ class PangommConan(ConanFile):
 
     @property
     def _is_2_48_api(self):
-        return tools.scm.Version(self.version) >= "2.48.0"
+        return Version(self.version) >= "2.48.0"
 
     @property
     def _is_1_4_api(self):
-        return tools.scm.Version(self.version) >= "1.4.0" and tools.scm.Version(
+        return Version(self.version) >= "1.4.0" and Version(
             self.version) < "2.48.0"
 
     @property
@@ -76,7 +76,7 @@ class PangommConan(ConanFile):
             self.requires("cairomm/1.14.3")
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder,
@@ -84,7 +84,7 @@ class PangommConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # glibmm_generate_extra_defs library does not provide any standard way
         # for discovery, which is why pangomm uses "find_library" method instead
@@ -93,7 +93,7 @@ class PangommConan(ConanFile):
             os.path.join(self.deps_cpp_info["glibmm"].rootpath, libdir) for
             libdir in self.deps_cpp_info["glibmm"].libdirs]
 
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "tools",
                          "extra_defs_gen", "meson.build"),
             "required: glibmm_dep.type_name() != 'internal',",
@@ -105,7 +105,7 @@ class PangommConan(ConanFile):
             # the problem is that older versions of Windows SDK is not standard
             # conformant! see:
             # https://developercommunity.visualstudio.com/t/error-c2760-in-combaseapih-with-windows-sdk-81-and/185399
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "meson.build"),
                 "cpp_std=c++", "cpp_std=vc++")
 
@@ -148,13 +148,13 @@ class PangommConan(ConanFile):
             os.path.join(self.package_folder, "include",
                          f"pangomm-{self._api_version}", "pangommconfig.h"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, 
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, 
             os.path.join(self.package_folder, "lib",
                          "pangomm-{self._api_version}", "include"))
 
         if is_msvc(self):
-            tools.files.rm(self, 
+            files.rm(self, 
                 os.path.join(self.package_folder, "bin"), "*.pdb")
             if not self.options.shared:
                 rename(

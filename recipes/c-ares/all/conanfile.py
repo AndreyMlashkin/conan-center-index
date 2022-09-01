@@ -52,7 +52,7 @@ class CAresConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _cmake_configure(self):
@@ -69,7 +69,7 @@ class CAresConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._cmake_configure()
         cmake.build()
 
@@ -77,10 +77,10 @@ class CAresConan(ConanFile):
         cmake = self._cmake_configure()
         cmake.install()
         self.copy("*LICENSE.md", src=self._source_subfolder, dst="licenses", keep_path=False)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "c-ares")
@@ -88,14 +88,14 @@ class CAresConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libcares")
 
         # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["cares"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["cares"].libs = files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.components["cares"].defines.append("CARES_STATICLIB")
         if self.settings.os == "Linux":
             self.cpp_info.components["cares"].system_libs.append("rt")
         elif self.settings.os == "Windows":
             self.cpp_info.components["cares"].system_libs.extend(["ws2_32", "advapi32"])
-            if tools.scm.Version(self.version) >= "1.18.0":
+            if Version(self.version) >= "1.18.0":
                 self.cpp_info.components["cares"].system_libs.append("iphlpapi")
         elif tools.apple.is_apple_os(self):
             self.cpp_info.components["cares"].system_libs.append("resolv")

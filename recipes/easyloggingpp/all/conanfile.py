@@ -50,7 +50,7 @@ class EasyloggingppConan(ConanFile):
         return self._cmake
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -60,7 +60,7 @@ class EasyloggingppConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy(pattern="LICENSE",
                   dst="licenses",
                   src=self._source_subfolder)

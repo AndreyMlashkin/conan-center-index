@@ -65,7 +65,7 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                     strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
@@ -85,9 +85,9 @@ class AtSpi2CoreConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        if tools.scm.Version(self.version) >= "2.42.0":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "bus", "meson.build"),
+            files.patch(self, **patch)
+        if Version(self.version) >= "2.42.0":
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "bus", "meson.build"),
                                   "if x11_dep.found()",
                                   "if x11_option == 'yes'")
         meson = self._configure_meson()
@@ -97,12 +97,12 @@ class AtSpi2CoreConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "etc"))
 
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.includedirs = ["include/at-spi-2.0"]
         self.cpp_info.names["pkg_config"] = "atspi-2"
 

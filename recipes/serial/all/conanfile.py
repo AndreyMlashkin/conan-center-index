@@ -38,7 +38,7 @@ class ConanRecipe(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version),
                   self._source_subfolder)
 

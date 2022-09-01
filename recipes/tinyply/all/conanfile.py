@@ -33,7 +33,7 @@ class TinyplyConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -50,14 +50,14 @@ class TinyplyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def _extract_license(self):
-        readme = tools.files.load(self, os.path.join(self.source_folder, self._source_subfolder, "readme.md"))
+        readme = files.load(self, os.path.join(self.source_folder, self._source_subfolder, "readme.md"))
         begin = readme.find("## License")
         return readme[begin:]
 
@@ -65,4 +65,4 @@ class TinyplyConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "tinyply"
         self.cpp_info.names["cmake_find_package_multi"] = "tinyply"
         self.cpp_info.names["pkg_config"] = "tinyply"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

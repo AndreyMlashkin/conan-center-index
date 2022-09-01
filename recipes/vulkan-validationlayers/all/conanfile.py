@@ -100,11 +100,11 @@ class VulkanValidationLayersConan(ConanFile):
         if self.options["spirv-tools"].shared:
             raise ConanInvalidConfiguration("vulkan-validationlayers can't depend on shared spirv-tools")
 
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 is not supported")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         self._patch_sources()
@@ -113,8 +113,8 @@ class VulkanValidationLayersConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/res/vulkan/registry")
         # FIXME: two CMake module/config files should be generated (SPIRV-ToolsConfig.cmake and SPIRV-Tools-optConfig.cmake),
@@ -146,18 +146,18 @@ class VulkanValidationLayersConan(ConanFile):
         if self.settings.os == "Windows":
             # import lib is useless, validation layers are loaded at runtime
             lib_dir = os.path.join(self.package_folder, "lib")
-            tools.files.rm(self, "VkLayer_khronos_validation.lib", lib_dir)
-            tools.files.rm(self, "libVkLayer_khronos_validation.dll.a", lib_dir)
+            files.rm(self, "VkLayer_khronos_validation.lib", lib_dir)
+            files.rm(self, "libVkLayer_khronos_validation.dll.a", lib_dir)
             # move dll and json manifest files in bin folder
             bin_dir = os.path.join(self.package_folder, "bin")
-            tools.files.mkdir(self, bin_dir)
+            files.mkdir(self, bin_dir)
             for ext in ("*.dll", "*.json"):
                 for bin_file in glob.glob(os.path.join(lib_dir, ext)):
                     shutil.move(bin_file, os.path.join(bin_dir, os.path.basename(bin_file)))
         else:
             # Move json files to res, but keep in mind to preserve relative
             # path between module library and manifest json file
-            tools.files.rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
+            files.rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.libs = ["VkLayer_utils"]

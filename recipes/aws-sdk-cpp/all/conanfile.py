@@ -330,7 +330,7 @@ class AwsSdkCppConan(ConanFile):
 
     @property
     def _use_aws_crt_cpp(self):
-        return tools.scm.Version(self.version) >= "1.9"
+        return Version(self.version) >= "1.9"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -340,7 +340,7 @@ class AwsSdkCppConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.scm.Version(self.version) < "1.9":
+        if Version(self.version) < "1.9":
             delattr(self.options, "s3-crt")
 
     def configure(self):
@@ -366,14 +366,14 @@ class AwsSdkCppConan(ConanFile):
     def validate(self):
         if (self.options.shared
             and self.settings.compiler == "gcc"
-            and tools.scm.Version(self.settings.compiler.version) < "6.0"):
+            and Version(self.settings.compiler.version) < "6.0"):
             raise ConanInvalidConfiguration(
                 "Doesn't support gcc5 / shared. "
                 "See https://github.com/conan-io/conan-center-index/pull/4401#issuecomment-802631744"
             )
-        if (tools.scm.Version(self.version) < "1.9.234"
+        if (Version(self.version) < "1.9.234"
             and self.settings.compiler == "gcc"
-            and tools.scm.Version(self.settings.compiler.version) >= "11.0"
+            and Version(self.settings.compiler.version) >= "11.0"
             and self.settings.build_type == "Release"):
             raise ConanInvalidConfiguration(
                 "Versions prior to 1.9.234 don't support release builds on >= gcc 11 "
@@ -396,7 +396,7 @@ class AwsSdkCppConan(ConanFile):
                     setattr(self.info.options, internal_requirement, True)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -431,7 +431,7 @@ class AwsSdkCppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -451,12 +451,12 @@ class AwsSdkCppConan(ConanFile):
             "aws-cpp-sdk-core/include/aws/core/VersionConfig.h"
         ]:
             self.copy(file, src=self._source_subfolder, dst=self._res_folder)
-            tools.files.replace_in_file(self, os.path.join(self.package_folder, self._res_folder, file), "CMAKE_CURRENT_SOURCE_DIR", "AWS_NATIVE_SDK_ROOT", strict=False)
+            files.replace_in_file(self, os.path.join(self.package_folder, self._res_folder, file), "CMAKE_CURRENT_SOURCE_DIR", "AWS_NATIVE_SDK_ROOT", strict=False)
 
         # avoid getting error from hook
-        with tools.files.chdir(self, os.path.join(self.package_folder, self._res_folder)):
+        with files.chdir(self, os.path.join(self.package_folder, self._res_folder)):
             rename(self, os.path.join("toolchains", "cmakeProjectConfig.cmake"), os.path.join("toolchains", "cmakeProjectConf.cmake"))
-            tools.files.replace_in_file(self, os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake")
+            files.replace_in_file(self, os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake")
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
@@ -464,10 +464,10 @@ class AwsSdkCppConan(ConanFile):
         cmake.install()
         if self._is_msvc:
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
-            tools.files.rm(self, "*.lib", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*.lib", os.path.join(self.package_folder, "bin"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         self._create_project_cmake_module()
 

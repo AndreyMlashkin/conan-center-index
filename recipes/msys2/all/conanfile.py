@@ -66,7 +66,7 @@ class MSYS2Conan(ConanFile):
 
 
     def _update_pacman(self):
-        with tools.files.chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
+        with files.chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
             try:
                 self._kill_pacman()
 
@@ -117,7 +117,7 @@ class MSYS2Conan(ConanFile):
         pass
 
     def build(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                     destination=os.path.join(self.package_folder, "bin"))
         with lock():
             self._do_build()
@@ -131,7 +131,7 @@ class MSYS2Conan(ConanFile):
 
         self._update_pacman()
 
-        with tools.files.chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
+        with files.chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
             for package in packages:
                 self.run('bash -l -c "pacman -S %s --noconfirm"' % package)
             for package in ['pkgconf']:
@@ -149,7 +149,7 @@ class MSYS2Conan(ConanFile):
             os.utime(tmp_name, None)
 
         # Prepend the PKG_CONFIG_PATH environment variable with an eventual PKG_CONFIG_PATH environment variable
-        tools.files.replace_in_file(self, os.path.join(self._msys_dir, "etc", "profile"),
+        files.replace_in_file(self, os.path.join(self._msys_dir, "etc", "profile"),
                               'PKG_CONFIG_PATH="', 'PKG_CONFIG_PATH="$PKG_CONFIG_PATH:')
 
     def package(self):

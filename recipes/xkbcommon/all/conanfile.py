@@ -43,7 +43,7 @@ class XkbcommonConan(ConanFile):
 
     @property
     def _has_xkbregistry_option(self):
-        return tools.scm.Version(self.version) >= "1.0.0"
+        return Version(self.version) >= "1.0.0"
 
     def config_options(self):
         if not self._has_xkbregistry_option:
@@ -76,18 +76,18 @@ class XkbcommonConan(ConanFile):
             self.build_requires("wayland/1.20.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
         # Conan doesn't provide a `wayland-scanner.pc` file for the package in the _build_ context
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                               "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
                               "# wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)")
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                               "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not wayland_scanner_dep.found()",
                               "if not wayland_client_dep.found() or not wayland_protocols_dep.found()")
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "meson.build"),
                               "wayland_scanner = find_program(wayland_scanner_dep.get_pkgconfig_variable('wayland_scanner'))",
                               "wayland_scanner = find_program('wayland-scanner')")
 
@@ -126,8 +126,8 @@ class XkbcommonConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.components["libxkbcommon"].set_property("pkg_config_name", "xkbcommon")
@@ -146,7 +146,7 @@ class XkbcommonConan(ConanFile):
             self.cpp_info.components["xkbcli-interactive-wayland"].libs = []
             self.cpp_info.components["xkbcli-interactive-wayland"].requires = ["wayland::wayland", "wayland-protocols::wayland-protocols"]
 
-        if tools.scm.Version(self.version) >= "1.0.0":
+        if Version(self.version) >= "1.0.0":
             bin_path = os.path.join(self.package_folder, "bin")
             self.output.info("Appending PATH environment variable: {}".format(bin_path))
             self.env_info.PATH.append(bin_path)

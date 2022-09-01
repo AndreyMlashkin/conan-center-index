@@ -64,7 +64,7 @@ class LibX264Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -124,7 +124,7 @@ class LibX264Conan(ConanFile):
         if self._is_msvc:
             self._override_env["CC"] = "cl -nologo"
             extra_cflags.extend(self._autotools.flags)
-            if not (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "12"):
+            if not (self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "12"):
                 extra_cflags.append("-FS")
         build_canonical_name = None
         host_canonical_name = None
@@ -144,7 +144,7 @@ class LibX264Conan(ConanFile):
     def build(self):
         with self._build_context():
             # relocatable shared lib on macOS
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "-install_name \\$(DESTDIR)\\$(libdir)/",
                                   "-install_name @rpath/")
             autotools = self._configure_autotools()
@@ -155,7 +155,7 @@ class LibX264Conan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self._is_msvc:
             ext = ".dll.lib" if self.options.shared else ".lib"
             rename(self, os.path.join(self.package_folder, "lib", "libx264{}".format(ext)),

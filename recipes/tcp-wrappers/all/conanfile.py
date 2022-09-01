@@ -43,16 +43,16 @@ class TcpWrappersConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = AutoToolsBuildEnvironment(self)
             make_args = [
                 "REAL_DAEMON_DIR={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin"))),

@@ -42,7 +42,7 @@ class TinyMidiConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _get_autotools(self):
@@ -63,23 +63,23 @@ class TinyMidiConan(ConanFile):
         return args
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._get_autotools()
             make_args = self._make_args(autotools)
             autotools.make(args=make_args)
 
     def package(self):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        tools.files.mkdir(self, os.path.join(self.package_folder, "include"))
-        tools.files.mkdir(self, os.path.join(self.package_folder, "lib"))
-        with tools.files.chdir(self, self._source_subfolder):
+        files.mkdir(self, os.path.join(self.package_folder, "include"))
+        files.mkdir(self, os.path.join(self.package_folder, "lib"))
+        with files.chdir(self, self._source_subfolder):
             autotools = self._get_autotools()
             make_args = self._make_args(autotools)
             autotools.install(args=make_args)
         if self.options.shared:
-            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["tinymidi"]

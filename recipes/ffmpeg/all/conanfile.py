@@ -320,7 +320,7 @@ class FFMpegConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -353,13 +353,13 @@ class FFMpegConan(ConanFile):
             # suppress MSVC linker warnings: https://trac.ffmpeg.org/ticket/7396
             # warning LNK4049: locally defined symbol x264_levels imported
             # warning LNK4049: locally defined symbol x264_bit_depth imported
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "libavcodec", "libx264.c"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "libavcodec", "libx264.c"),
                                   "#define X264_API_IMPORTS 1", "")
         if self.options.with_ssl == "openssl":
             # https://trac.ffmpeg.org/ticket/5675
             openssl_libraries = " ".join(
                 ["-l%s" % lib for lib in self.deps_cpp_info["openssl"].libs])
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                   "check_lib openssl openssl/ssl.h SSL_library_init -lssl -lcrypto -lws2_32 -lgdi32 ||",
                                   "check_lib openssl openssl/ssl.h OPENSSL_init_ssl %s || " % openssl_libraries)
 
@@ -547,7 +547,7 @@ class FFMpegConan(ConanFile):
         if self._is_msvc:
             args.append("--pkg-config={}".format(tools.get_env("PKG_CONFIG")))
             args.append("--toolchain=msvc")
-            if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) <= "12":
+            if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) <= "12":
                 # Visual Studio 2013 (and earlier) doesn't support "inline" keyword for C (only for C++)
                 self._autotools.defines.append("inline=__inline")
         if tools.build.cross_building(self):
@@ -586,7 +586,7 @@ class FFMpegConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               "echo libx264.lib", "echo x264.lib")
         if self.options.with_libx264:
             shutil.copy("x264.pc", "libx264.pc")
@@ -600,8 +600,8 @@ class FFMpegConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         if self._is_msvc:
             if self.options.shared:
@@ -610,11 +610,11 @@ class FFMpegConan(ConanFile):
                     if fn.endswith(".lib"):
                         rename(self, os.path.join(self.package_folder, "bin", fn),
                                os.path.join(self.package_folder, "lib", fn))
-                tools.files.rm(self, os.path.join(
+                files.rm(self, os.path.join(
                     self.package_folder, "lib"), "*.def")
             else:
                 # ffmpeg produces `.a` files that are actually `.lib` files
-                with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+                with files.chdir(self, os.path.join(self.package_folder, "lib")):
                     for lib in glob.glob("*.a"):
                         rename(self, lib, lib[3:-2] + ".lib")
 
@@ -886,7 +886,7 @@ class FFMpegConan(ConanFile):
             if self.options.get_safe("with_coreimage"):
                 self.cpp_info.components["avfilter"].frameworks.append(
                     "CoreImage")
-            if tools.scm.Version(self.version) >= "5.0" and tools.apple.is_apple_os(self):
+            if Version(self.version) >= "5.0" and tools.apple.is_apple_os(self):
                 self.cpp_info.components["avfilter"].frameworks.append("Metal")
 
         if self.options.get_safe("with_vaapi"):
@@ -901,4 +901,4 @@ class FFMpegConan(ConanFile):
                 "vulkan-loader::vulkan-loader")
 
     def _version_supports_vulkan(self):
-        return tools.scm.Version(self.version) >= "4.3.0"
+        return Version(self.version) >= "4.3.0"

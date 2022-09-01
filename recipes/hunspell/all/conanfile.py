@@ -40,7 +40,7 @@ class HunspellConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # NOTE: The source contains a pre-configured hunvisapi.h and it would
         #       prevent no_copy_source and building without patches.
         h = os.path.join(self.source_folder, "src", "hunspell", "hunvisapi.h")

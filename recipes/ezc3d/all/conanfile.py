@@ -49,12 +49,12 @@ class Ezc3dConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -62,7 +62,7 @@ class Ezc3dConan(ConanFile):
         cmake.definitions["USE_MATRIX_FAST_ACCESSOR"] = True
         cmake.definitions["BINDER_PYTHON3"] = False
         cmake.definitions["BINDER_MATLAB"] = False
-        if tools.scm.Version(self.version) >= "1.4.3":
+        if Version(self.version) >= "1.4.3":
             cmake.definitions["BINDER_OCTAVE"] = False
         cmake.definitions["BUILD_EXAMPLE"] = False
         cmake.definitions["BUILD_DOC"] = False
@@ -80,8 +80,8 @@ class Ezc3dConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "CMake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "CMake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {"ezc3d": "ezc3d::ezc3d"}
@@ -97,7 +97,7 @@ class Ezc3dConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

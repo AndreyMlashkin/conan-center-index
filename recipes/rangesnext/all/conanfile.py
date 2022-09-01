@@ -25,11 +25,11 @@ class RangesnextConan(ConanFile):
             tools.build.check_min_cppstd(self, "20")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version or tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        if not minimum_version or Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("rangesnext requires C++20, which your compiler does not fully support.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         include_folder = os.path.join(self._source_subfolder, "include")

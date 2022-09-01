@@ -61,12 +61,12 @@ class GiflibConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         # disable util build - tools and internal libs
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                               "SUBDIRS = lib util pic $(am__append_1)",
                               "SUBDIRS = lib pic $(am__append_1)")
 
@@ -78,14 +78,14 @@ class GiflibConan(ConanFile):
     def build_visual(self):
         # fully replace gif_lib.h for VS, with patched version
         ver_components = self.version.split(".")
-        tools.files.replace_in_file(self, "gif_lib.h", "@GIFLIB_MAJOR@", ver_components[0])
-        tools.files.replace_in_file(self, "gif_lib.h", "@GIFLIB_MINOR@", ver_components[1])
-        tools.files.replace_in_file(self, "gif_lib.h", "@GIFLIB_RELEASE@", ver_components[2])
+        files.replace_in_file(self, "gif_lib.h", "@GIFLIB_MAJOR@", ver_components[0])
+        files.replace_in_file(self, "gif_lib.h", "@GIFLIB_MINOR@", ver_components[1])
+        files.replace_in_file(self, "gif_lib.h", "@GIFLIB_RELEASE@", ver_components[2])
         shutil.copy("gif_lib.h", os.path.join(self._source_subfolder, "lib"))
         # add unistd.h for VS
         shutil.copy("unistd.h", os.path.join(self._source_subfolder, "lib"))
 
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             if self.settings.arch == "x86":
                 host = "i686-w64-mingw32"
             elif self.settings.arch == "x86_64":
@@ -134,10 +134,10 @@ class GiflibConan(ConanFile):
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             if tools.apple.is_apple_os(self):
                 # relocatable shared lib on macOS
-                tools.files.replace_in_file(self, 
+                files.replace_in_file(self, 
                     "configure",
                     "-install_name \\$rpath/\\$soname",
                     "-install_name \\@rpath/\\$soname"
@@ -150,10 +150,10 @@ class GiflibConan(ConanFile):
 
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder, ignore_case=True, keep_path=False)
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self._is_msvc and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "gif.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "gif.dll.lib"),
                          os.path.join(self.package_folder, "lib", "gif.lib"))
 
     def package_info(self):

@@ -31,11 +31,11 @@ class TaoCPPJSONConan(ConanFile):
 
     @property
     def _min_cppstd_required(self):
-        return "11" if tools.scm.Version(self.version) < "1.0.0-beta.11" else "17"
+        return "11" if Version(self.version) < "1.0.0-beta.11" else "17"
 
     @property
     def _requires_pegtl(self):
-        return tools.scm.Version(self.version) >= "1.0.0-beta.13"
+        return Version(self.version) >= "1.0.0-beta.13"
 
     def requirements(self):
         if self._requires_pegtl:
@@ -47,16 +47,16 @@ class TaoCPPJSONConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             tools.build.check_min_cppstd(self, self._min_cppstd_required)
-        if tools.scm.Version(self.version) >= "1.0.0-beta.11":
+        if Version(self.version) >= "1.0.0-beta.11":
             min_compiler_version = self._min_compilers_version.get(str(self.settings.compiler), False)
             if min_compiler_version:
-                if tools.scm.Version(self.settings.compiler.version) < min_compiler_version:
+                if Version(self.settings.compiler.version) < min_compiler_version:
                     raise ConanInvalidConfiguration("taocpp-json requires C++17, which your compiler does not support.")
             else:
                 self.output.warn("taocpp-json requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
                   strip_root=True)
 
     def package(self):

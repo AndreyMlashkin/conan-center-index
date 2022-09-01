@@ -57,7 +57,7 @@ class AzureStorageCppConan(ConanFile):
             self.requires("libgettext/0.20.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -93,20 +93,20 @@ class AzureStorageCppConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
         else:
-            if tools.scm.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
                     self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
 
         # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
         # https://github.com/conan-io/conan-center-index/issues/4195
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "16":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if self.settings.compiler == "Visual Studio" and self.options.shared and "MT" in self.settings.compiler.runtime:
             raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -117,7 +117,7 @@ class AzureStorageCppConan(ConanFile):
 
     def package_info(self):
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32", "rpcrt4", "xmllite", "bcrypt"]
             if not self.options.shared:

@@ -27,7 +27,7 @@ class LemonConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -39,16 +39,16 @@ class LemonConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def _extract_license_text(self):
-        header = tools.files.load(self, os.path.join(self._source_subfolder, "tool", "lempar.c"))
+        header = files.load(self, os.path.join(self._source_subfolder, "tool", "lempar.c"))
         return "\n".join(line.strip(" \n*") for line in header[3:header.find("*******", 1)].splitlines())
 
     def package(self):
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license_text())
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license_text())
         cmake = self._configure_cmake()
         cmake.install()
 

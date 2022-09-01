@@ -29,7 +29,7 @@ class AutoconfArchiveConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -39,20 +39,20 @@ class AutoconfArchiveConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             self._autotools = self._configure_autotools()
             self._autotools.make()
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             self._autotools = self._configure_autotools()
             self._autotools.install()
 
-        tools.files.mkdir(self, os.path.join(self.package_folder, "res"))
-        tools.files.rename(self, os.path.join(self.package_folder, "share", "aclocal"),
+        files.mkdir(self, os.path.join(self.package_folder, "res"))
+        files.rename(self, os.path.join(self.package_folder, "share", "aclocal"),
                      os.path.join(self.package_folder, "res", "aclocal"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         aclocal_path = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res", "aclocal"))

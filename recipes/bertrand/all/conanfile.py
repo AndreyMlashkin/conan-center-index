@@ -42,7 +42,7 @@ class BertrandConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(
             str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("bertrand requires C++17, which your compiler ({} {}) does not support.".format(
                     self.settings.compiler, self.settings.compiler.version))
         else:
@@ -53,7 +53,7 @@ class BertrandConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_folder = "bertrand-{}".format(self.version)
         os.rename(extracted_folder, self._source_subfolder)
 
@@ -64,4 +64,4 @@ class BertrandConan(ConanFile):
         cmake.definitions["BERTRAND_INSTALL_LIBRARY"] = True
         cmake.configure(build_folder=self._build_subfolder)
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))

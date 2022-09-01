@@ -33,7 +33,7 @@ class NormConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -49,7 +49,7 @@ class NormConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -57,9 +57,9 @@ class NormConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.shared:
-            tools.files.rm(self, "*proto*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*proto*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "norm"

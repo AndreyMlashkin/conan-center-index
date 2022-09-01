@@ -53,14 +53,14 @@ class SpirvtoolsConan(ConanFile):
 
     @property
     def _has_spirv_tools_lint(self):
-        return (tools.scm.Version(self.version) < "2016.6" or # spirv-tools with vulkan versioning
-                tools.scm.Version(self.version) >= "2021.3")
+        return (Version(self.version) < "2016.6" or # spirv-tools with vulkan versioning
+                Version(self.version) >= "2021.3")
 
     @property
     def _has_spirv_tools_diff(self):
         # TODO: use tools.Version comparison once https://github.com/conan-io/conan/issues/10000 is fixed
-        return ((self._greater_equal_semver(self.version, "1.3.211") and tools.scm.Version(self.version) < "2016.6") or # spirv-tools with vulkan versioning
-                tools.scm.Version(self.version) >= "2022.2")
+        return ((self._greater_equal_semver(self.version, "1.3.211") and Version(self.version) < "2016.6") or # spirv-tools with vulkan versioning
+                Version(self.version) >= "2022.2")
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -99,7 +99,7 @@ class SpirvtoolsConan(ConanFile):
                                             .format(self.version, self._get_compatible_spirv_headers_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -122,11 +122,11 @@ class SpirvtoolsConan(ConanFile):
         # - Before 2020.5, the shared lib is always built, but static libs might be built as shared
         #   with BUILD_SHARED_LIBS injection (which doesn't work due to symbols visibility, at least for msvc)
         # - From 2020.5, static and shared libs are fully controlled by upstream CMakeLists.txt
-        if tools.scm.Version(self.version) >= "2016.6" and tools.scm.Version(self.version) < "2020.5":
+        if Version(self.version) >= "2016.6" and Version(self.version) < "2020.5":
             cmake.definitions["BUILD_SHARED_LIBS"] = False
         # From 2020.6, same behavior than above but through a weird combination
         # of SPIRV_TOOLS_BUILD_STATIC and BUILD_SHARED_LIBS.
-        if tools.scm.Version(self.version) < "2016.6" or tools.scm.Version(self.version) >= "2020.6":
+        if Version(self.version) < "2016.6" or Version(self.version) >= "2020.6":
             cmake.definitions["SPIRV_TOOLS_BUILD_STATIC"] = True
         #============
 
@@ -158,10 +158,10 @@ class SpirvtoolsConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # CMAKE_POSITION_INDEPENDENT_CODE was set ON for the entire
         # project in the lists file.
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def package(self):
@@ -169,24 +169,24 @@ class SpirvtoolsConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-link"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-opt"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-reduce"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-lint"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-diff"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-link"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-opt"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-reduce"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-lint"))
+        files.rmdir(self, os.path.join(self.package_folder, "SPIRV-Tools-diff"))
         if self.options.shared:
             for file_name in [
                 "*SPIRV-Tools", "*SPIRV-Tools-opt", "*SPIRV-Tools-link",
                 "*SPIRV-Tools-reduce", "*SPIRV-Tools-lint",
             ]:
                 for ext in [".a", ".lib"]:
-                    tools.files.rm(self, file_name + ext, os.path.join(self.package_folder, "lib"))
+                    files.rm(self, file_name + ext, os.path.join(self.package_folder, "lib"))
         else:
-            tools.files.rm(self, "*SPIRV-Tools-shared.dll", os.path.join(self.package_folder, "bin"))
-            tools.files.rm(self, "*SPIRV-Tools-shared*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*SPIRV-Tools-shared.dll", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "*SPIRV-Tools-shared*", os.path.join(self.package_folder, "lib"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         if self.options.shared:
@@ -218,7 +218,7 @@ class SpirvtoolsConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

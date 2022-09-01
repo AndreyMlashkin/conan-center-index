@@ -58,7 +58,7 @@ class LiefConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version.value) <= 14 and self.options.shared:
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version.value) <= 14 and self.options.shared:
             raise ConanInvalidConfiguration("{} {} does not support Visual Studio <= 14 with shared:True".format(self.name, self.version))
 
     def requirements(self):
@@ -70,7 +70,7 @@ class LiefConan(ConanFile):
             self.requires("frozen/1.0.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "LIEF-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -98,7 +98,7 @@ class LiefConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -106,13 +106,13 @@ class LiefConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "lief"
         self.cpp_info.names["cmake_find_package"] = "LIEF"
         self.cpp_info.names["cmake_find_package_multi"] = "LIEF"
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.defines = ["_GLIBCXX_USE_CXX11_ABI=1"]
         if self.options.shared:
             self.cpp_info.defines.append("LIEF_IMPORT")

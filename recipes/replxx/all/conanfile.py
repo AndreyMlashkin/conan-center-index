@@ -33,7 +33,7 @@ class ReplxxConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def config_options(self):
@@ -53,8 +53,8 @@ class ReplxxConan(ConanFile):
         return self._cmake
 
     def build(self):
-        if tools.scm.Version(self.version) < "0.0.3":
-            tools.files.replace_in_file(self, 
+        if Version(self.version) < "0.0.3":
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "src", "io.cxx"),
                 "#include <array>\n",
                 "#include <array>\n#include <stdexcept>\n"
@@ -66,10 +66,10 @@ class ReplxxConan(ConanFile):
         self.copy("LICENSE.md", dst='licenses', src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread", "m"]
         if not self.options.shared:

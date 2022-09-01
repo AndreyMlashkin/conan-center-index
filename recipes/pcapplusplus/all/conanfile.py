@@ -46,7 +46,7 @@ class PcapplusplusConan(ConanFile):
             raise ConanInvalidConfiguration("%s is not supported" % self.settings.os)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -60,14 +60,14 @@ class PcapplusplusConan(ConanFile):
 
     def _patch_sources(self):
         if not self.options.get_safe("fPIC"):
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "PcapPlusPlus.mk.common"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "PcapPlusPlus.mk.common"),
                                   "-fPIC", "")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             config_args = [
                 "./{}".format(self._configure_sh_script),
                 "--libpcap-include-dir", tools.microsoft.unix_path(self, self.deps_cpp_info["libpcap"].include_paths[0]),

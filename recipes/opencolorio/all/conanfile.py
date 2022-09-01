@@ -56,7 +56,7 @@ class OpenColorIOConan(ConanFile):
         self.requires("expat/2.4.8")
         self.requires("openexr/2.5.7")
         self.requires("yaml-cpp/0.7.0")
-        if tools.scm.Version(self.version) < "2.0.0":
+        if Version(self.version) < "2.0.0":
             self.requires("tinyxml/2.6.2")
         else:
             self.requires("pystring/1.1.3")
@@ -69,14 +69,14 @@ class OpenColorIOConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
 
-        if tools.scm.Version(self.version) >= "2.1.0":
+        if Version(self.version) >= "2.1.0":
             cmake.definitions["OCIO_BUILD_PYTHON"] = False
         else:
             cmake.definitions["OCIO_BUILD_SHARED"] = self.options.shared
@@ -110,10 +110,10 @@ class OpenColorIOConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath"):
-            tools.files.rm(self, "Find"+module+".cmake", os.path.join(self._source_subfolder, "share", "cmake", "modules"))
+            files.rm(self, "Find"+module+".cmake", os.path.join(self._source_subfolder, "share", "cmake", "modules"))
 
     def build(self):
         self._patch_sources()
@@ -128,16 +128,16 @@ class OpenColorIOConan(ConanFile):
         if not self.options.shared:
             self.copy("*", src=os.path.join(self.package_folder,
                       "lib", "static"), dst="lib")
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "static"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         # nop for 2.x
-        tools.files.rm(self, "OpenColorIOConfig*.cmake", self.package_folder)
+        files.rm(self, "OpenColorIOConfig*.cmake", self.package_folder)
 
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
 
@@ -148,7 +148,7 @@ class OpenColorIOConan(ConanFile):
 
         self.cpp_info.libs = ["OpenColorIO"]
 
-        if tools.scm.Version(self.version) < "2.1.0":
+        if Version(self.version) < "2.1.0":
             if not self.options.shared:
                 self.cpp_info.defines.append("OpenColorIO_STATIC")
 

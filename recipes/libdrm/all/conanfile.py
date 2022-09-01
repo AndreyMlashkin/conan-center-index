@@ -86,7 +86,7 @@ class LibdrmConan(ConanFile):
             raise ConanInvalidConfiguration("libdrm supports only Linux or FreeBSD")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
@@ -116,12 +116,12 @@ class LibdrmConan(ConanFile):
     def package(self):
         meson = self._configure_meson()
         meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.mkdir(self, os.path.join(self.package_folder, "licenses"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.mkdir(self, os.path.join(self.package_folder, "licenses"))
         # Extract the License/s from the header to a file
-        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "include", "drm", "drm.h"))
+        tmp = files.load(self, os.path.join(self._source_subfolder, "include", "drm", "drm.h"))
         license_contents = re.search("\*\/.*(\/\*(\*(?!\/)|[^*])*\*\/)", tmp, re.DOTALL)[1]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package_info(self):
         self.cpp_info.components["libdrm_libdrm"].libs = ["drm"]

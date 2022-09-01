@@ -50,7 +50,7 @@ class AGSConan(ConanFile):
                 raise ConanInvalidConfiguration("ags doesn't support arch: {}".format(self.settings.arch))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _convert_msvc_version_to_vs_version(self, msvc_version):
@@ -86,4 +86,4 @@ class AGSConan(ConanFile):
                 self.copy(static_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

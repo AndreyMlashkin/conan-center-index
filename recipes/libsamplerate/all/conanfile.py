@@ -45,7 +45,7 @@ class LibsamplerateConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -59,7 +59,7 @@ class LibsamplerateConan(ConanFile):
         return self._cmake
 
     def build_requirements(self):
-        if tools.apple.is_apple_os(self) and self.options.shared and tools.scm.Version(self.version) >= "0.2.2":
+        if tools.apple.is_apple_os(self) and self.options.shared and Version(self.version) >= "0.2.2":
             self.build_requires("cmake/3.21.3")
 
     def build(self):
@@ -70,9 +70,9 @@ class LibsamplerateConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SampleRate")

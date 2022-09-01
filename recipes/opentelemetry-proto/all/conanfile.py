@@ -20,14 +20,14 @@ class OpenTelemetryProtoConan(ConanFile):
         return os.path.join(self.source_folder, "source_subfolder")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
                   strip_root=True)
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("*.proto", dst="res", src=self._source_subfolder)
         # satisfy KB-H014 (header_only recipes require headers)
-        tools.files.save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
+        files.save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
         self.user_info.proto_root = os.path.join(self.package_folder, "res")

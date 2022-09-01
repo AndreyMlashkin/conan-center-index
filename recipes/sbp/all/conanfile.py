@@ -39,8 +39,8 @@ class SbpConan(ConanFile):
     def source(self):
         data = self.conan_data["sources"][self.version]
 
-        tools.files.get(self, **data["source"], strip_root=True, destination=self._source_subfolder)
-        tools.files.get(self, **data["cmake"], strip_root=True, destination=os.path.join(self._source_subfolder, "c", "cmake", "common"))
+        files.get(self, **data["source"], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **data["cmake"], strip_root=True, destination=os.path.join(self._source_subfolder, "c", "cmake", "common"))
 
     def _configure_cmake(self):
         if self._cmake:

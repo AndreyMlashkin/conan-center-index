@@ -42,7 +42,7 @@ class OfeliConan(ConanFile):
                 "Ofeli supports only libstdc++'s new ABI")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -55,7 +55,7 @@ class OfeliConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.make()
 

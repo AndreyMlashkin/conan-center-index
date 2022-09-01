@@ -42,7 +42,7 @@ class NvclothConan(ConanFile):
         return "build_subfolder"
     
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -57,7 +57,7 @@ class NvclothConan(ConanFile):
         if build_type not in ["Debug", "RelWithDebInfo", "Release"]:
             raise ConanInvalidConfiguration("Current build_type is not supported")
 
-        if is_msvc(self) and tools.scm.Version(self.settings.compiler.version) < 9:
+        if is_msvc(self) and Version(self.settings.compiler.version) < 9:
             raise ConanInvalidConfiguration("Visual Studio versions < 9 are not supported")
 
     def _configure_cmake(self):
@@ -77,12 +77,12 @@ class NvclothConan(ConanFile):
         return cmake
     
     def _remove_samples(self):
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "NvCloth", "samples"))
+        files.rmdir(self, os.path.join(self._source_subfolder, "NvCloth", "samples"))
 
     def _patch_sources(self):
         # There is no reason to force consumer of PhysX public headers to use one of
         # NDEBUG or _DEBUG, since none of them relies on NDEBUG or _DEBUG
-        tools.files.replace_in_file(self, os.path.join(self.build_folder, self._source_subfolder, "PxShared", "include", "foundation", "PxPreprocessor.h"),
+        files.replace_in_file(self, os.path.join(self.build_folder, self._source_subfolder, "PxShared", "include", "foundation", "PxPreprocessor.h"),
                               "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
                               "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!")
         shutil.copy(
@@ -90,7 +90,7 @@ class NvclothConan(ConanFile):
             os.path.join(self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h.origin")
         )
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         
         if self.settings.build_type == "Debug":
             shutil.copy(

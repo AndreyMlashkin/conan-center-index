@@ -68,22 +68,22 @@ class MsdfgenConan(ConanFile):
             raise ConanInvalidConfiguration("skia recipe not available yet in CCI")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # unvendor lodepng & tinyxml2
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "lib"))
-        tools.files.replace_in_file(self, cmakelists, "\"lib/*.cpp\"", "")
-        tools.files.replace_in_file(self, cmakelists,
+        files.rmdir(self, os.path.join(self._source_subfolder, "lib"))
+        files.replace_in_file(self, cmakelists, "\"lib/*.cpp\"", "")
+        files.replace_in_file(self, cmakelists,
                               "target_link_libraries(msdfgen-ext PUBLIC msdfgen::msdfgen Freetype::Freetype)",
                               "target_link_libraries(msdfgen-ext PUBLIC msdfgen::msdfgen ${CONAN_LIBS})")
         # very weird but required for Visual Studio when libs are unvendored (at least for Ninja generator)
         if self._is_msvc:
-            tools.files.replace_in_file(self, cmakelists,
+            files.replace_in_file(self, cmakelists,
                                   "set_target_properties(msdfgen-standalone PROPERTIES ARCHIVE_OUTPUT_DIRECTORY archive OUTPUT_NAME msdfgen)",
                                   "set_target_properties(msdfgen-standalone PROPERTIES OUTPUT_NAME msdfgen IMPORT_PREFIX foo)")
 
@@ -108,7 +108,7 @@ class MsdfgenConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "msdfgen")

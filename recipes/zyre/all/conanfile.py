@@ -56,14 +56,14 @@ class ZyreConan(ConanFile):
             self.requires("libsystemd/249.7")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["ENABLE_DRAFTS"] = self.options.drafts
-        if tools.scm.Version(self.version) >= "2.0.1":
+        if Version(self.version) >= "2.0.1":
             cmake.definitions["ZYRE_BUILD_SHARED"] = self.options.shared
             cmake.definitions["ZYRE_BUILD_STATIC"] = not self.options.shared
         cmake.configure(build_dir=self._build_subfolder)
@@ -71,7 +71,7 @@ class ZyreConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -80,14 +80,14 @@ class ZyreConan(ConanFile):
                   dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig",))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share",))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake",))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig",))
+        files.rmdir(self, os.path.join(self.package_folder, "share",))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake",))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libzyre"
         
-        libname = "libzyre" if tools.scm.Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared else "zyre"
+        libname = "libzyre" if Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared else "zyre"
         self.cpp_info.libs = [libname]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "dl", "rt", "m"]

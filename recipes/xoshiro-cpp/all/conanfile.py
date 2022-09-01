@@ -40,7 +40,7 @@ class XoshiroCppConan(ConanFile):
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.scm.Version(compiler.version) < min_version:
+            if Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {}."
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -53,7 +53,7 @@ class XoshiroCppConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

@@ -45,7 +45,7 @@ class PlatformConvertersConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
 
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("{}/{} requires c++{}, "
                                             "which is not supported by {} {}.".format(
                 self.name, self.version, self._minimum_cpp_standard, self.settings.compiler,
@@ -58,7 +58,7 @@ class PlatformConvertersConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

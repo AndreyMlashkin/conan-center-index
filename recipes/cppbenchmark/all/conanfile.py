@@ -48,10 +48,10 @@ class CppBenchmark(ConanFile):
 
     def _patch(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("CppBenchmark-*")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -68,7 +68,7 @@ class CppBenchmark(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("cppbenchmark requires C++17, which your compiler does not support.")
         else:
             self.output.warn("cppbenchmark requires C++17. Your compiler is unknown. Assuming it supports C++17.")
@@ -85,6 +85,6 @@ class CppBenchmark(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread"]

@@ -40,10 +40,10 @@ class LzipConan(ConanFile):
         del self.info.settings.compiler
 
     def _detect_compilers(self):
-        tools.files.rmdir(self, "detectdir")
-        tools.files.mkdir(self, "detectdir")
-        with tools.files.chdir(self, "detectdir"):
-            tools.files.save(self, "CMakeLists.txt", textwrap.dedent("""\
+        files.rmdir(self, "detectdir")
+        files.mkdir(self, "detectdir")
+        with files.chdir(self, "detectdir"):
+            files.save(self, "CMakeLists.txt", textwrap.dedent("""\
                 cmake_minimum_required(VERSION 2.8)
                 project(test C CXX)
                 message(STATUS "CC=${CMAKE_C_COMPILER}")
@@ -52,12 +52,12 @@ class LzipConan(ConanFile):
                 file(WRITE cxx.txt "${CMAKE_CXX_COMPILER}")
                 """))
             CMake(self).configure(source_folder="detectdir", build_folder="detectdir")
-            cc = tools.files.load(self, "cc.txt").strip()
-            cxx = tools.files.load(self, "cxx.txt").strip()
+            cc = files.load(self, "cc.txt").strip()
+            cxx = files.load(self, "cxx.txt").strip()
         return cc, cxx
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -82,7 +82,7 @@ class LzipConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -94,7 +94,7 @@ class LzipConan(ConanFile):
             with tools.environment_append({"CONAN_CPU_COUNT": "1"}):
                 autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

@@ -24,7 +24,7 @@ class UvwConan(ConanFile):
     @property
     def _supported_compiler(self):
         compiler = str(self.settings.compiler)
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if compiler == "Visual Studio" and version >= "15":
             return True
         if compiler == "gcc" and version >= "7":
@@ -50,7 +50,7 @@ class UvwConan(ConanFile):
         match = re.match(r".*libuv[_-]v([0-9]+\.[0-9]+).*", self.conan_data["sources"][self.version]["url"])
         if not match:
             raise ConanException("uvw recipe does not know what version of libuv to use as dependency")
-        return tools.scm.Version(match.group(1))
+        return Version(match.group(1))
 
     def requirements(self):
         libuv_version = self._required_EXACT_libuv_version
@@ -63,7 +63,7 @@ class UvwConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -76,7 +76,7 @@ class UvwConan(ConanFile):
         required_version = self._required_EXACT_libuv_version
         tuple_exact = (required_version.major, required_version.minor)
 
-        current_version = tools.scm.Version(self.deps_cpp_info["libuv"].version)
+        current_version = Version(self.deps_cpp_info["libuv"].version)
         tuple_current = (current_version.major, current_version.minor)
 
         if tuple_exact != tuple_current:

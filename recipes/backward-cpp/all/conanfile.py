@@ -42,7 +42,7 @@ class BackwardCppConan(ConanFile):
     @property
     def _supported_os(self):
         supported_os = ["Linux", "Macos", "Android"]
-        if tools.scm.Version(self.version) >= "1.5":
+        if Version(self.version) >= "1.5":
             supported_os.append("Windows")
         return supported_os
 
@@ -92,7 +92,7 @@ class BackwardCppConan(ConanFile):
                                                 " is supported on Macos")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -113,7 +113,7 @@ class BackwardCppConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -124,7 +124,7 @@ class BackwardCppConan(ConanFile):
         self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "backward"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "backward"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Backward")
@@ -139,7 +139,7 @@ class BackwardCppConan(ConanFile):
         self.cpp_info.defines.append("BACKWARD_HAS_DWARF={}".format(int(self._has_stack_details("dwarf"))))
         self.cpp_info.defines.append("BACKWARD_HAS_PDB_SYMBOL={}".format(int(self.settings.os == "Windows")))
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["dl"])
         if self.settings.os == "Windows":

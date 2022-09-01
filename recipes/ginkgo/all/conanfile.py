@@ -99,7 +99,7 @@ class GinkgoConan(ConanFile):
             )
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -122,7 +122,7 @@ class GinkgoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -130,8 +130,8 @@ class GinkgoConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Ginkgo")
@@ -139,7 +139,7 @@ class GinkgoConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "ginkgo")
 
         debug_suffix = "d" if self.settings.build_type == "Debug" else ""
-        has_dpcpp_device = tools.scm.Version(self.version) >= "1.4.0"
+        has_dpcpp_device = Version(self.version) >= "1.4.0"
 
         self.cpp_info.components["ginkgo_core"].set_property("cmake_target_name", "Ginkgo::ginkgo")
         self.cpp_info.components["ginkgo_core"].set_property("pkg_config_name", "ginkgo")

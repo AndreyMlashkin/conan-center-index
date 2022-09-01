@@ -41,7 +41,7 @@ class BtyaccConan(ConanFile):
     def source(self):
         root = self._source_subfolder
         get_args = self.conan_data["sources"][self.version]
-        tools.files.get(self, **get_args, destination=root, strip_root=True)
+        files.get(self, **get_args, destination=root, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -60,7 +60,7 @@ class BtyaccConan(ConanFile):
         self.copy("README", "licenses", self._source_subfolder)
         self.copy("README.BYACC", "licenses", self._source_subfolder)
         self._configure_cmake().install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         variables = os.path.join(self.package_folder, self._variables)
         content = textwrap.dedent("""\
             set(BTYACC_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/btyacc")
@@ -68,7 +68,7 @@ class BtyaccConan(ConanFile):
               set(BTYACC_EXECUTABLE "${BTYACC_EXECUTABLE}.exe")
             endif()
         """)
-        tools.files.save(self, variables, content)
+        files.save(self, variables, content)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

@@ -32,7 +32,7 @@ class HazelcastCppClient(ConanFile):
 
     @property
     def _cmake_name(self):
-        return "hazelcastcxx" if tools.scm.Version(self.version) <= "4.0.0" else "hazelcast-cpp-client"
+        return "hazelcastcxx" if Version(self.version) <= "4.0.0" else "hazelcast-cpp-client"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,7 +50,7 @@ class HazelcastCppClient(ConanFile):
             self.requires("openssl/1.1.1k")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -58,7 +58,7 @@ class HazelcastCppClient(ConanFile):
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["WITH_OPENSSL"] = self.options.with_openssl
-        if tools.scm.Version(self.version) <= "4.0.0":
+        if Version(self.version) <= "4.0.0":
             self._cmake.definitions["BUILD_STATIC_LIB"] = not self.options.shared
             self._cmake.definitions["BUILD_SHARED_LIB"] = self.options.shared
         else:
@@ -68,7 +68,7 @@ class HazelcastCppClient(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -76,7 +76,7 @@ class HazelcastCppClient(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = self._cmake_name
@@ -84,7 +84,7 @@ class HazelcastCppClient(ConanFile):
         self.cpp_info.names["cmake_find_package"] = self._cmake_name
         self.cpp_info.names["cmake_find_package_multi"] = self._cmake_name
 
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.defines = ["BOOST_THREAD_VERSION=5"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")

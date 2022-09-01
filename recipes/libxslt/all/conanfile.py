@@ -73,17 +73,17 @@ class LibxsltConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if is_msvc(self):
             self._build_msvc()
         else:
             # Relocatable shared libs on macOS
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "configure"),
                 "-install_name \\$rpath/",
                 "-install_name @rpath/"
@@ -92,7 +92,7 @@ class LibxsltConan(ConanFile):
             autotools.make()
 
     def _build_msvc(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "win32")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "win32")):
             debug = "yes" if self.settings.build_type == "Debug" else "no"
             static = "no" if self.options.shared else "yes"
 
@@ -136,18 +136,18 @@ class LibxsltConan(ConanFile):
 
                 def fix_library(option, package, old_libname):
                     if option:
-                        tools.files.replace_in_file(self, "Makefile.msvc",
+                        files.replace_in_file(self, "Makefile.msvc",
                                               "LIBS = %s" % old_libname,
                                               "LIBS = %s" % format_libs(package))
 
                 if "icu" in self.deps_cpp_info.deps:
                     fix_library(True, 'icu', 'wsock32.lib')
 
-                tools.files.replace_in_file(self, "Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
-                tools.files.replace_in_file(self, "Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
+                files.replace_in_file(self, "Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
+                files.replace_in_file(self, "Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
 
                 # Avoid to indirectly build both static & shared when we build utils
-                tools.files.replace_in_file(self, 
+                files.replace_in_file(self, 
                     "Makefile.msvc",
                     "$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt libxslta libexslt libexslta",
                     "$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt{0} libexslt{0}".format("" if self.options.shared else "a"),
@@ -191,10 +191,10 @@ class LibxsltConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
             os.remove(os.path.join(self.package_folder, "bin", "xslt-config"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "*.sh", os.path.join(self.package_folder, "lib"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.sh", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

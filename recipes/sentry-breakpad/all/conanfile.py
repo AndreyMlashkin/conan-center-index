@@ -41,15 +41,15 @@ class SentryBreakpadConan(ConanFile):
         if self.settings.compiler.cppstd:
             tools.build.check_min_cppstd(self, 11)
 
-        if tools.scm.Version(self.version) <= "0.4.1":
+        if Version(self.version) <= "0.4.1":
             if self.settings.os == "Android" or tools.apple.is_apple_os(self):
                 raise ConanInvalidConfiguration("Versions <=0.4.1 do not support Apple or Android")
-        if tools.scm.Version(self.version) <= "0.2.6":
+        if Version(self.version) <= "0.2.6":
             if self.settings.os == "Windows":
                 raise ConanInvalidConfiguration("Versions <=0.2.6 do not support Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -59,7 +59,7 @@ class SentryBreakpadConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # FIXME: convert to patches
         import textwrap
@@ -87,13 +87,13 @@ class SentryBreakpadConan(ConanFile):
         ]
 
         for file in files_to_patch:
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "external", "breakpad", file),
                 "#include \"third_party/lss/linux_syscall_support.h\"",
                 "#include <linux_syscall_support.h>"
             )
 
-        tools.files.save(self, os.path.join(self._source_subfolder, "external", "CMakeLists.txt"),
+        files.save(self, os.path.join(self._source_subfolder, "external", "CMakeLists.txt"),
                    textwrap.dedent("""\
                     install(TARGETS breakpad_client
                         ARCHIVE DESTINATION lib

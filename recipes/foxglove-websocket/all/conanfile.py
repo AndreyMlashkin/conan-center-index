@@ -20,14 +20,14 @@ class FoxgloveWebSocketConan(ConanFile):
     _source_package_path = os.path.join(_source_root, "cpp", "foxglove-websocket")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_root)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_root)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, "17")
-        if (self.settings.compiler == "gcc" or self.settings.compiler == "clang") and tools.scm.Version(self.settings.compiler.version) <= 8:
+        if (self.settings.compiler == "gcc" or self.settings.compiler == "clang") and Version(self.settings.compiler.version) <= 8:
             raise ConanInvalidConfiguration("Compiler version is not supported, c++17 support is required")
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) <= "16.8":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) <= "16.8":
             raise ConanInvalidConfiguration("Compiler version is not supported, c++17 support is required")
 
     def configure(self):

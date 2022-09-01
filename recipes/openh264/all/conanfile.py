@@ -59,24 +59,24 @@ class OpenH264Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._is_msvc:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "platform-msvc.mk"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "platform-msvc.mk"),
                                   "CFLAGS_OPT += -MT",
                                   "CFLAGS_OPT += -{}".format(msvc_runtime_flag(self)))
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "platform-msvc.mk"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "build", "platform-msvc.mk"),
                                   "CFLAGS_DEBUG += -MTd -Gm",
                                   "CFLAGS_DEBUG += -{} -Gm".format(msvc_runtime_flag(self)))
         if self.settings.os == "Android":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "codec", "build", "android", "dec", "jni", "Application.mk"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "codec", "build", "android", "dec", "jni", "Application.mk"),
                                   "APP_STL := stlport_shared",
                                   "APP_STL := {}".format(self.settings.compiler.libcxx))
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "codec", "build", "android", "dec", "jni", "Application.mk"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "codec", "build", "android", "dec", "jni", "Application.mk"),
                                   "APP_PLATFORM := android-12",
                                   "APP_PLATFORM := {}".format(self._android_target))
 
@@ -123,7 +123,7 @@ class OpenH264Conan(ConanFile):
         if self._is_msvc:
             autotools.flags.extend(["-nologo", "-{}".format(self.settings.compiler.runtime)])
             autotools.link_flags.insert(0, "-link")
-            if not (self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "12"):
+            if not (self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "12"):
                 autotools.flags.append("-FS")
         elif self.settings.compiler in ("apple-clang",):
             if self.settings.arch in ("armv8",):
@@ -156,18 +156,18 @@ class OpenH264Conan(ConanFile):
     def build(self):
         self._patch_sources()
         with tools.vcvars(self) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(args=self._make_args, target=self._library_filename)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         with tools.vcvars(self) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(args=self._make_args, target="install-" + ("shared" if self.options.shared else "static-lib"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "openh264")

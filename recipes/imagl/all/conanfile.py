@@ -46,14 +46,14 @@ class ImaglConan(ConanFile):
                 "clang": "10",
                 "apple-clang": "11"
         }
-        if tools.scm.Version(self.version) <= "0.1.1" or tools.scm.Version(self.version) == "0.2.0":
+        if Version(self.version) <= "0.1.1" or Version(self.version) == "0.2.0":
             minimum_versions["Visual Studio"] = "16.5"
             minimum_versions["msvc"] = "19.25"
         return minimum_versions
 
     @property
     def _supports_jpeg(self):
-        return tools.scm.Version(self.version) >= "0.2.0"
+        return Version(self.version) >= "0.2.0"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -96,7 +96,7 @@ class ImaglConan(ConanFile):
             print("Your compiler is {} {} and is compatible.".format(str(self.settings.compiler), compiler_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -114,7 +114,7 @@ class ImaglConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

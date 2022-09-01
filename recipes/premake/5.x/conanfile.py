@@ -27,7 +27,7 @@ class PremakeConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -99,19 +99,19 @@ class PremakeConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self.options.get_safe("lto", None) == False:
             for fn in glob.glob(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname, "*.make")):
-                tools.files.replace_in_file(self, fn, "-flto", "", strict=False)
+                files.replace_in_file(self, fn, "-flto", "", strict=False)
 
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
+            with files.chdir(self, os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
                 msbuild = MSBuild(self)
                 msbuild.build("Premake5.sln", platforms={"x86": "Win32", "x86_64": "x64"})
         else:
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
+            with files.chdir(self, os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(target="Premake5", args=["verbose=1", "config={}".format(self._gmake_config)])
 

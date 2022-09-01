@@ -116,7 +116,7 @@ class LibGit2Conan(ConanFile):
             raise ConanInvalidConfiguration("regcomp_l isn't supported on {}".format(self.settings.os))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     _cmake_https = {
@@ -147,7 +147,7 @@ class LibGit2Conan(ConanFile):
         cmake.definitions["USE_HTTPS"] = self._cmake_https[str(self.options.with_https)]
         cmake.definitions["USE_SHA1"] = self._cmake_sha1[str(self.options.with_sha1)]
 
-        if tools.scm.Version(self.version) >= "1.4.0":
+        if Version(self.version) >= "1.4.0":
             cmake.definitions["BUILD_TESTS"] = False
         cmake.definitions["BUILD_CLAR"] = False
         cmake.definitions["BUILD_EXAMPLES"] = False
@@ -163,7 +163,7 @@ class LibGit2Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -171,7 +171,7 @@ class LibGit2Conan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libgit2")

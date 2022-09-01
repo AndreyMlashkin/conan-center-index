@@ -45,12 +45,12 @@ class Gm2calcConan(ConanFile):
         self.requires("eigen/3.3.9")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
-        conan.tools.files.rename(self, "GM2Calc-{}".format(self.version), self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version])
+        conan.files.rename(self, "GM2Calc-{}".format(self.version), self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -65,7 +65,7 @@ class Gm2calcConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "GM2Calc"

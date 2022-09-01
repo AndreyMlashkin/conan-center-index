@@ -44,7 +44,7 @@ class LibcapConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -70,19 +70,19 @@ class LibcapConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
 
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, self.name)):
+        with files.chdir(self, os.path.join(self._source_subfolder, self.name)):
             env_build, env_build_vars = self._configure_autotools()
             env_build.make(vars=env_build_vars)
 
     def package(self):
         self.copy("License", dst="licenses", src=self._source_subfolder)
 
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, self.name)):
+        with files.chdir(self, os.path.join(self._source_subfolder, self.name)):
             env_build, env_build_vars = self._configure_autotools()
 
             env_build.make(target="install-common-cap", vars=env_build_vars)
@@ -97,7 +97,7 @@ class LibcapConan(ConanFile):
                                else "install-static-psx")
                 env_build.make(target=install_psx, vars=env_build_vars)
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["cap"].names["pkg_config"] = "libcap"

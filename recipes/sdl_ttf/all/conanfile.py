@@ -60,15 +60,15 @@ class SdlttfConan(ConanFile):
         # TODO: check that major version of sdl_tff is the same than sdl (not possible yet in validate())
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # missing from distribution (only in 2.0.15?)
-        tools.files.save(self, os.path.join(self._source_subfolder, "SDL2_ttfConfig.cmake"), "")
+        files.save(self, os.path.join(self._source_subfolder, "SDL2_ttfConfig.cmake"), "")
 
     def _configure_cmake(self):
         if self._cmake:
@@ -86,10 +86,10 @@ class SdlttfConan(ConanFile):
         self.copy("COPYING.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "SDL2_ttf.framework"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "SDL2_ttf.framework"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SDL2_ttf")

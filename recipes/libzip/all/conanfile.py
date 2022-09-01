@@ -43,7 +43,7 @@ class LibZipConan(ConanFile):
 
     @property
     def _has_zstd_support(self):
-        return tools.scm.Version(self.version) >= "1.8.0"
+        return Version(self.version) >= "1.8.0"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -93,27 +93,27 @@ class LibZipConan(ConanFile):
             raise ConanInvalidConfiguration("Windows is required to use win32 crypto libraries")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         top_cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # Honor zstd enabled
         if self._has_zstd_support:
             lib_cmakelists = os.path.join(self._source_subfolder, "lib", "CMakeLists.txt")
-            tools.files.replace_in_file(self, top_cmakelists, "find_package(Zstd)", "find_package(zstd)")
-            tools.files.replace_in_file(self, top_cmakelists, "Zstd_FOUND", "zstd_FOUND")
-            tools.files.replace_in_file(self, lib_cmakelists, "Zstd::Zstd", "zstd::zstd")
+            files.replace_in_file(self, top_cmakelists, "find_package(Zstd)", "find_package(zstd)")
+            files.replace_in_file(self, top_cmakelists, "Zstd_FOUND", "zstd_FOUND")
+            files.replace_in_file(self, lib_cmakelists, "Zstd::Zstd", "zstd::zstd")
         # Do not pollute rpath of installed binaries
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             top_cmakelists,
             "set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})",
             "",
         )
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             top_cmakelists,
             "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)",
             "",
@@ -152,8 +152,8 @@ class LibZipConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libzip")

@@ -28,14 +28,14 @@ class StduuidConan(ConanFile):
     def requirements(self):
         if not self.options.with_cxx20_span:
             self.requires("ms-gsl/2.0.0")
-        if self.settings.os == "Linux" and tools.scm.Version(self.version) <= "1.0":
+        if self.settings.os == "Linux" and Version(self.version) <= "1.0":
             self.requires("libuuid/1.0.3")
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def validate(self):

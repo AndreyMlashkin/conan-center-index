@@ -26,16 +26,16 @@ class ExprTkConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _extract_license(self):
         exprtk_header_file = "exprtk.hpp"
         file = os.path.join(self.source_folder, self._source_subfolder, exprtk_header_file)
-        file_content = tools.files.load(self, file)
+        file_content = files.load(self, file)
         license_end = "/MIT                        *"
         license_contents = file_content[2:file_content.find(license_end) + len(license_end)]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
         self._extract_license()

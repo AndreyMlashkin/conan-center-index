@@ -57,11 +57,11 @@ class CProcessingConan(ConanFile):
             raise ConanInvalidConfiguration("{} requires some C++20 features,".format(self.name))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def build(self):
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "PImage.h"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "lib", "PImage.h"),
             "stb/stb_image.h",
             "stb_image.h")
 
@@ -69,9 +69,9 @@ class CProcessingConan(ConanFile):
         self.copy("*.h", "include", os.path.join(self._source_subfolder, "lib"))
 
         # Extract the License/s from README.md to a file
-        tmp = tools.files.load(self, os.path.join(self._source_subfolder, "README.md"))
+        tmp = files.load(self, os.path.join(self._source_subfolder, "README.md"))
         license_contents = re.search("(## Author.*)", tmp, re.DOTALL)[1]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE.md"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE.md"), license_contents)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CProcessing")

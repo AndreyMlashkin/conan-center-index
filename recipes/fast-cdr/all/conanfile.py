@@ -57,7 +57,7 @@ class FastCDRConan(ConanFile):
             raise ConanInvalidConfiguration("Mixing a dll eprosima library with a static runtime is a bad idea")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -76,13 +76,13 @@ class FastCDRConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, 
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, 
             directory=os.path.join(self.package_folder, "lib"),
             pattern="*.pdb"
         )
-        tools.files.rm(self, 
+        files.rm(self, 
             directory=os.path.join(self.package_folder, "bin"),
             pattern="*.pdb"
         )
@@ -103,7 +103,7 @@ class FastCDRConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -112,7 +112,7 @@ class FastCDRConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fastcdr")
         self.cpp_info.set_property("cmake_target_name", "fastcdr")
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("FASTCDR_DYN_LINK")
 

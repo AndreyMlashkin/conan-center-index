@@ -40,7 +40,7 @@ class SimdjsonConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             # In simdjson/2.0.1, several AVX-512 instructions are not support by GCC < 9.0
-            "gcc": "8" if tools.scm.Version(self.version) != "2.0.1" else "9",
+            "gcc": "8" if Version(self.version) != "2.0.1" else "9",
             "Visual Studio": "16",
             "clang": "6",
             "apple-clang": "9.4",
@@ -73,31 +73,31 @@ class SimdjsonConan(ConanFile):
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not fully support.".format(self.name))
 
-        if tools.scm.Version(self.version) >= "2.0.0" and \
+        if Version(self.version) >= "2.0.0" and \
             self.settings.compiler == "gcc" and \
-            tools.scm.Version(self.settings.compiler.version).major == "9":
+            Version(self.settings.compiler.version).major == "9":
             if self.settings.compiler.get_safe("libcxx") == "libstdc++11":
                 raise ConanInvalidConfiguration("{}/{} doesn't support GCC 9 with libstdc++11.".format(self.name, self.version))
             if self.settings.build_type == "Debug":
                 raise ConanInvalidConfiguration("{}/{} doesn't support GCC 9 with Debug build type.".format(self.name, self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        if tools.scm.Version(self.version) < "1.0.0":
+        if Version(self.version) < "1.0.0":
             # Those flags are not set in 1.0.0 since SIMDJSON_DEVELOPER_MODE is disabled in non-top project
             simd_flags_file = os.path.join(self._source_subfolder, "cmake", "simdjson-flags.cmake")
-            tools.files.replace_in_file(self, simd_flags_file, "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)", "")
-            tools.files.replace_in_file(self, simd_flags_file, "-Werror", "")
-            tools.files.replace_in_file(self, simd_flags_file, "/WX", "")
+            files.replace_in_file(self, simd_flags_file, "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)", "")
+            files.replace_in_file(self, simd_flags_file, "-Werror", "")
+            files.replace_in_file(self, simd_flags_file, "/WX", "")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["SIMDJSON_ENABLE_THREADS"] = self.options.threads
-        if tools.scm.Version(self.version) < "1.0.0":
+        if Version(self.version) < "1.0.0":
             cmake.definitions["SIMDJSON_BUILD_STATIC"] = not self.options.shared
             cmake.definitions["SIMDJSON_SANITIZE"] = False
             cmake.definitions["SIMDJSON_JUST_LIBRARY"] = True
@@ -112,7 +112,7 @@ class SimdjsonConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):

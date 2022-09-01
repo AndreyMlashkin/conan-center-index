@@ -37,7 +37,7 @@ class DuktapeConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder) 
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder) 
 
     def _configure_cmake(self):
         if self._cmake:
@@ -52,7 +52,7 @@ class DuktapeConan(ConanFile):
         # which is quite an unusual combination to have.
         # The most crucial option is --dll which just flips this define.
         if self.settings.os == "Windows" and self.options.shared:
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "src", "duk_config.h"),
                 "#undef DUK_F_DLL_BUILD",
                 "#define DUK_F_DLL_BUILD",

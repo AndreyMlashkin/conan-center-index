@@ -86,7 +86,7 @@ class QCoroConan(ConanFile):
             print("Your compiler is {} {} and is compatible.".format(str(self.settings.compiler), compiler_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -104,7 +104,7 @@ class QCoroConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -114,7 +114,7 @@ class QCoroConan(ConanFile):
         cmake.install()
 
         for mask in ["Find*.cmake", "*Config*.cmake", "*-config.cmake", "*Targets*.cmake"]:
-            tools.files.rm(self, mask, self.package_folder)
+            files.rm(self, mask, self.package_folder)
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "QCoro6"

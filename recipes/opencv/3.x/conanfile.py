@@ -115,43 +115,43 @@ class OpenCVConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
         if self.options.shared and self._is_msvc and "MT" in msvc_runtime_flag(self):
             raise ConanInvalidConfiguration("Visual Studio with static runtime is not supported for shared library.")
-        if self.settings.compiler == "clang" and tools.scm.Version(self.settings.compiler.version) < "4":
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "4":
             raise ConanInvalidConfiguration("Clang 3.x cannot build OpenCV 3.x due an internal bug.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version][0],
+        files.get(self, **self.conan_data["sources"][self.version][0],
                   destination=self._source_subfolder, strip_root=True)
 
-        tools.files.get(self, **self.conan_data["sources"][self.version][1],
+        files.get(self, **self.conan_data["sources"][self.version][1],
                   destination=self._contrib_folder, strip_root=True)
 
     def _patch_opencv(self):
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "3rdparty"))
+        files.rmdir(self, os.path.join(self._source_subfolder, "3rdparty"))
         if self.options.contrib:
             freetype_cmake = os.path.join(self._contrib_folder, "modules", "freetype", "CMakeLists.txt")
-            tools.files.replace_in_file(self, freetype_cmake, "ocv_check_modules(FREETYPE freetype2)", "find_package(Freetype REQUIRED)")
-            tools.files.replace_in_file(self, freetype_cmake, "FREETYPE_", "Freetype_")
+            files.replace_in_file(self, freetype_cmake, "ocv_check_modules(FREETYPE freetype2)", "find_package(Freetype REQUIRED)")
+            files.replace_in_file(self, freetype_cmake, "FREETYPE_", "Freetype_")
 
-            tools.files.replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED)")
-            tools.files.replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
+            files.replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED)")
+            files.replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "ANDROID OR NOT UNIX", "FALSE")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "modules", "imgcodecs", "CMakeLists.txt"), "JASPER_", "Jasper_")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "ANDROID OR NOT UNIX", "FALSE")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "modules", "imgcodecs", "CMakeLists.txt"), "JASPER_", "Jasper_")
 
         # Cleanup RPATH
-        if tools.scm.Version(self.version) < "3.4.8":
+        if Version(self.version) < "3.4.8":
             install_layout_file = os.path.join(self._source_subfolder, "CMakeLists.txt")
         else:
             install_layout_file = os.path.join(self._source_subfolder, "cmake", "OpenCVInstallLayout.cmake")
-        tools.files.replace_in_file(self, install_layout_file,
+        files.replace_in_file(self, install_layout_file,
                               "ocv_update(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}\")",
                               "")
-        tools.files.replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        files.replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
-        if self.options.contrib and tools.scm.Version(self.version) <= "3.4.12":
+        if self.options.contrib and Version(self.version) <= "3.4.12":
             sfm_cmake = os.path.join(self._contrib_folder, "modules", "sfm", "CMakeLists.txt")
             search = '  find_package(Glog QUIET)\nendif()'
-            tools.files.replace_in_file(self, sfm_cmake, search, """{}
+            files.replace_in_file(self, sfm_cmake, search, """{}
             if(NOT GFLAGS_LIBRARIES AND TARGET gflags::gflags)
               set(GFLAGS_LIBRARIES gflags::gflags)
             endif()
@@ -294,8 +294,8 @@ class OpenCVConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
         if os.path.isfile(os.path.join(self.package_folder, "setup_vars_opencv3.cmd")):
             os.rename(os.path.join(self.package_folder, "setup_vars_opencv3.cmd"),
                       os.path.join(self.package_folder, "res", "setup_vars_opencv3.cmd"))
@@ -316,7 +316,7 @@ class OpenCVConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

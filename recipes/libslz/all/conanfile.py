@@ -46,7 +46,7 @@ class LibslzConan(ConanFile):
             raise ConanInvalidConfiguration("{}/{} does not support Visual Studio.".format(self.name, self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)

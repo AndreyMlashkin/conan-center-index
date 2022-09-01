@@ -133,7 +133,7 @@ class BinutilsConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @property
@@ -157,7 +157,7 @@ class BinutilsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -166,9 +166,9 @@ class BinutilsConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

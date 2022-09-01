@@ -57,7 +57,7 @@ class TkConan(ConanFile):
             raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
@@ -67,41 +67,41 @@ class TkConan(ConanFile):
             if build_system != "win":
                 # When disabling 64-bit support (in 32-bit), this test must be 0 in order to use "long long" for 64-bit ints
                 # (${tcl_type_64bit} can be either "__int64" or "long long")
-                tools.files.replace_in_file(self, os.path.join(config_dir, "configure"),
+                files.replace_in_file(self, os.path.join(config_dir, "configure"),
                                       "(sizeof(${tcl_type_64bit})==sizeof(long))",
                                       "(sizeof(${tcl_type_64bit})!=sizeof(long))")
 
             makefile_in = os.path.join(config_dir, "Makefile.in")
             # Avoid clearing CFLAGS and LDFLAGS in the makefile
-            # tools.files.replace_in_file(self, makefile_in, "\nCFLAGS{}".format(" " if (build_system == "win" and name == "tcl") else "\t"), "\n#CFLAGS\t")
-            tools.files.replace_in_file(self, makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
-            tools.files.replace_in_file(self, makefile_in, "${CFLAGS}", "${CFLAGS} ${CPPFLAGS}")
+            # files.replace_in_file(self, makefile_in, "\nCFLAGS{}".format(" " if (build_system == "win" and name == "tcl") else "\t"), "\n#CFLAGS\t")
+            files.replace_in_file(self, makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
+            files.replace_in_file(self, makefile_in, "${CFLAGS}", "${CFLAGS} ${CPPFLAGS}")
 
         rules_ext_vc = os.path.join(self.source_folder, self._source_subfolder, "win", "rules-ext.vc")
-        tools.files.replace_in_file(self, rules_ext_vc,
+        files.replace_in_file(self, rules_ext_vc,
                               "\n_RULESDIR = ",
                               "\n_RULESDIR = .\n#_RULESDIR = ")
         rules_vc = os.path.join(self.source_folder, self._source_subfolder, "win", "rules.vc")
-        tools.files.replace_in_file(self, rules_vc,
+        files.replace_in_file(self, rules_vc,
                               r"$(_TCLDIR)\generic",
                               r"$(_TCLDIR)\include")
-        tools.files.replace_in_file(self, rules_vc,
+        files.replace_in_file(self, rules_vc,
                               "\nTCLSTUBLIB",
                               "\n#TCLSTUBLIB")
-        tools.files.replace_in_file(self, rules_vc,
+        files.replace_in_file(self, rules_vc,
                               "\nTCLIMPLIB",
                               "\n#TCLIMPLIB")
 
         win_makefile_in = os.path.join(self._get_configure_folder("win"), "Makefile.in")
-        tools.files.replace_in_file(self, win_makefile_in, "\nTCL_GENERIC_DIR", "\n#TCL_GENERIC_DIR")
+        files.replace_in_file(self, win_makefile_in, "\nTCL_GENERIC_DIR", "\n#TCL_GENERIC_DIR")
 
         win_rules_vc = os.path.join(self._source_subfolder, "win", "rules.vc")
-        tools.files.replace_in_file(self, win_rules_vc,
+        files.replace_in_file(self, win_rules_vc,
                               "\ncwarn = $(cwarn) -WX",
                               "\n# cwarn = $(cwarn) -WX")
         # disable whole program optimization to be portable across different MSVC versions.
         # See conan-io/conan-center-index#4811 conan-io/conan-center-index#4094
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             win_rules_vc,
             "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL",
             "# OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL")
@@ -205,31 +205,31 @@ class TkConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._build_nmake("install")
         else:
-            with tools.files.chdir(self, self.build_folder):
+            with files.chdir(self, self.build_folder):
                 autotools, make_args = self._configure_autotools()
                 autotools.install(args=make_args)
                 autotools.make(target="install-private-headers", args=make_args)
-                tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "man"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+                files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # FIXME: move to patch
         tkConfigShPath = os.path.join(self.package_folder, "lib", "tkConfig.sh")
         if os.path.exists(tkConfigShPath):
             pkg_path = os.path.join(self.package_folder).replace('\\', '/')
-            tools.files.replace_in_file(self, tkConfigShPath,
+            files.replace_in_file(self, tkConfigShPath,
                                   pkg_path,
                                   "${TK_ROOT}")
-            tools.files.replace_in_file(self, tkConfigShPath,
+            files.replace_in_file(self, tkConfigShPath,
                                   "\nTK_BUILD_",
                                   "\n#TK_BUILD_")
-            tools.files.replace_in_file(self, tkConfigShPath,
+            files.replace_in_file(self, tkConfigShPath,
                                   "\nTK_SRC_DIR",
                                   "\n#TK_SRC_DIR")
 
     def package_info(self):
         if self.settings.compiler == "Visual Studio":
-            tk_version = tools.scm.Version(self.version)
+            tk_version = Version(self.version)
             lib_infix = "{}{}".format(tk_version.major, tk_version.minor)
             tk_suffix = "t{}{}{}".format(
                 "" if self.options.shared else "s",
@@ -237,7 +237,7 @@ class TkConan(ConanFile):
                 "x" if "MD" in str(self.settings.compiler.runtime) and not self.options.shared else "",
             )
         else:
-            tk_version = tools.scm.Version(self.version)
+            tk_version = Version(self.version)
             lib_infix = "{}.{}".format(tk_version.major, tk_version.minor)
             tk_suffix = ""
         self.cpp_info.libs = ["tk{}{}".format(lib_infix, tk_suffix), "tkstub{}".format(lib_infix)]

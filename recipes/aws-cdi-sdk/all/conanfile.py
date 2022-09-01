@@ -43,7 +43,7 @@ class AwsCdiSdkConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -60,21 +60,21 @@ class AwsCdiSdkConan(ConanFile):
         return self._cmake
 
     def _detect_compilers(self):
-        cmake_cache = tools.files.load(self, os.path.join(self.build_folder, "CMakeCache.txt"))
+        cmake_cache = files.load(self, os.path.join(self.build_folder, "CMakeCache.txt"))
         cc = re.search("CMAKE_C_COMPILER:FILEPATH=(.*)", cmake_cache)[1]
         cxx = re.search("CMAKE_CXX_COMPILER:FILEPATH=(.*)", cmake_cache)[1]
         return cc, cxx
 
     def build(self):        
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # build aws-cpp-sdk-cdi
         cmake = self._configure_cmake()
         cmake.build()
 
         autotools = self._configure_autotools()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             # configure autotools to find aws-cpp-sdk-cdi
             autotools.include_paths.append(os.path.join(self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include"))
             autotools.library_paths.append(os.path.join(self.build_folder, "lib"))
@@ -100,8 +100,8 @@ class AwsCdiSdkConan(ConanFile):
         config = "debug" if self.settings.build_type == "Debug" else "release"
         self.copy(pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib"))
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):        
         self.cpp_info.set_property("cmake_file_name", "aws-cdi-sdk")

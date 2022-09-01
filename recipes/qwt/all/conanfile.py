@@ -58,12 +58,12 @@ class QwtConan(ConanFile):
         self.requires("qt/5.15.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_qwt_config_files(self):
         # qwtconfig.pri
         qwtconfig_path = os.path.join(self.source_folder, self._source_subfolder, "qwtconfig.pri")
-        qwtconfig = tools.files.load(self, qwtconfig_path)
+        qwtconfig = files.load(self, qwtconfig_path)
 
         qwtconfig = "CONFIG += conan_basic_setup\ninclude(../conanbuildinfo.pri)\n" + qwtconfig
         qwtconfig += "QWT_CONFIG {}= QwtDll\n".format("+" if self.options.shared else "-")
@@ -73,11 +73,11 @@ class QwtConan(ConanFile):
         qwtconfig += "QWT_CONFIG {}= QwtOpenGL\n".format("+" if self.options.opengl else "-")
         qwtconfig += "QWT_CONFIG {}= QwtMathML\n".format("+" if self.options.mathml else "-")
         qwtconfig += "QWT_CONFIG {}= QwtDesigner\n".format("+" if self.options.designer else "-")
-        tools.files.save(self, qwtconfig_path, qwtconfig)
+        files.save(self, qwtconfig_path, qwtconfig)
 
         # qwtbuild.pri
         qwtbuild_path = os.path.join(self.source_folder, self._source_subfolder, "qwtbuild.pri")
-        qwtbuild = tools.files.load(self, qwtbuild_path)
+        qwtbuild = files.load(self, qwtbuild_path)
         # set build type
         qwtbuild += "CONFIG -= debug_and_release\n"
         qwtbuild += "CONFIG -= build_all\n"
@@ -85,7 +85,7 @@ class QwtConan(ConanFile):
         qwtbuild += "CONFIG += {}\n".format("debug" if self.settings.build_type == "Debug" else "release")
         if self.settings.build_type == "RelWithDebInfo":
             qwtbuild += "CONFIG += force_debug_info\n"
-        tools.files.save(self, qwtbuild_path, qwtbuild)
+        files.save(self, qwtbuild_path, qwtbuild)
 
     def build(self):
         self._patch_qwt_config_files()

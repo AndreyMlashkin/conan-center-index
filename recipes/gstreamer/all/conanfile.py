@@ -70,7 +70,7 @@ class GStreamerConan(ConanFile):
             self.build_requires("flex/2.6.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("%s-%s" % (self.name, self.version), self._source_subfolder)
 
     def _configure_meson(self):
@@ -78,7 +78,7 @@ class GStreamerConan(ConanFile):
             return self._meson
         meson = Meson(self)
         if self._is_msvc:
-            if tools.scm.Version(self.settings.compiler.version) < "14":
+            if Version(self.settings.compiler.version) < "14":
                 meson.options["c_args"] = " -Dsnprintf=_snprintf"
                 meson.options["cpp_args"] = " -Dsnprintf=_snprintf"
         if self.settings.get_safe("compiler.runtime"):
@@ -102,7 +102,7 @@ class GStreamerConan(ConanFile):
     def _fix_library_names(self, path):
         # regression in 1.16
         if self.settings.compiler == "Visual Studio":
-            with tools.files.chdir(self, path):
+            with files.chdir(self, path):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
@@ -116,10 +116,10 @@ class GStreamerConan(ConanFile):
 
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.pdb", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.pdb", self.package_folder)
 
     def package_id(self):
         self.info.requires["glib"].full_package_mode()

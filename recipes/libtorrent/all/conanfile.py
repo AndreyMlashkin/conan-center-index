@@ -79,12 +79,12 @@ class LibtorrentConan(ConanFile):
         }.get(str(self.settings.compiler))
         if min_compiler_version is None:
             self.output.warn("Unknown compiler. Assuming it is supporting c++14")
-        if tools.scm.Version(self.settings.compiler.version) < min_compiler_version:
+        if Version(self.settings.compiler.version) < min_compiler_version:
             raise ConanInvalidConfiguration("This compiler (version) does not support c++ 14.")
         return True, None
 
     def validate(self):
-        if tools.scm.Version(self.version) < "2.0":
+        if Version(self.version) < "2.0":
             if self.settings.compiler.get_safe("cppstd"):
                 tools.build.check_min_cppstd(self, 11)
         else:
@@ -93,7 +93,7 @@ class LibtorrentConan(ConanFile):
                 tools.build.check_min_cppstd(self, 14)
 
     def requirements(self):
-        if tools.scm.Version(self.version) < "2.0.0":
+        if Version(self.version) < "2.0.0":
             self.requires("boost/1.79.0")
         else:
             self.requires("boost/1.76.0")
@@ -103,12 +103,12 @@ class LibtorrentConan(ConanFile):
             self.requires("libiconv/1.17")
 
     def _validate_dependency_graph(self):
-        if tools.scm.Version(self.deps_cpp_info["boost"].version) < "1.69.0" and \
+        if Version(self.deps_cpp_info["boost"].version) < "1.69.0" and \
            (self.options["boost"].header_only or self.options["boost"].without_system):
             raise ConanInvalidConfiguration("libtorrent requires boost with system, which is non-header only in boost < 1.69.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -135,20 +135,20 @@ class LibtorrentConan(ConanFile):
 
     def _patch_sources(self):
         for patch_data in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch_data)
+            files.patch(self, **patch_data)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "/W4", "")
-        if tools.scm.Version(self.version) < "2.0":
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "/W4", "")
+        if Version(self.version) < "2.0":
             if self.options.enable_iconv:
                 replace = "find_public_dependency(Iconv REQUIRED)"
             else:
                 replace = "set(Iconv_FOUND OFF)"
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "find_public_dependency(Iconv)",
                                   replace)
             if self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libstdc++":
                 # https://github.com/arvidn/libtorrent/issues/3557
-                tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "include", "libtorrent", "file_storage.hpp"),
+                files.replace_in_file(self, os.path.join(self._source_subfolder, "include", "libtorrent", "file_storage.hpp"),
                                       "file_entry& operator=(file_entry&&) & noexcept = default;",
                                       "file_entry& operator=(file_entry&&) & = default;")
 
@@ -163,9 +163,9 @@ class LibtorrentConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LibtorrentRasterbar")

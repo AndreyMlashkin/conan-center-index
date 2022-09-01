@@ -39,7 +39,7 @@ class CTPGConan(ConanFile):
 
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
         else:
             self.output.warn("{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
@@ -48,11 +48,11 @@ class CTPGConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE*", "licenses", self._source_subfolder)
-        if tools.scm.Version(self.version) >= "1.3.7":
+        if Version(self.version) >= "1.3.7":
             self.copy("ctpg.hpp",
                 os.path.join("include", "ctpg"), 
                 os.path.join(self._source_subfolder, "include", "ctpg"))

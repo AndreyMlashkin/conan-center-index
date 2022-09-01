@@ -44,7 +44,7 @@ class LibnetConan(ConanFile):
             raise ConanInvalidConfiguration("libnet can't be built as shared on Windows")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
@@ -74,7 +74,7 @@ class LibnetConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         os.unlink(os.path.join(self.package_folder, "lib", "libnet.la"))
         os.unlink(os.path.join(self.package_folder, "lib", "pkgconfig", "libnet.pc"))
 

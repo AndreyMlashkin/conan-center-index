@@ -52,7 +52,7 @@ class AwsChecksums(ConanFile):
         self.requires("aws-c-common/0.6.19")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -65,7 +65,7 @@ class AwsChecksums(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -74,7 +74,7 @@ class AwsChecksums(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-checksums"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-checksums"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-checksums")

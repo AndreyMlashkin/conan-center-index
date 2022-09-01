@@ -23,7 +23,7 @@ class LuajitConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def configure(self):
         if self.options.shared:
@@ -42,7 +42,7 @@ class LuajitConan(ConanFile):
 
     def build(self):
         if self.settings.compiler == 'Visual Studio':
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, 'src')):
+            with files.chdir(self, os.path.join(self._source_subfolder, 'src')):
                 env_build = VisualStudioBuildEnvironment(self)
                 with tools.environment_append(env_build.vars), tools.vcvars(self):
                     variant = '' if self.options.shared else 'static'
@@ -50,22 +50,22 @@ class LuajitConan(ConanFile):
         else:
             buildmode = 'shared' if self.options.shared else 'static'
             makefile = os.path.join(self._source_subfolder, 'src', 'Makefile')
-            tools.files.replace_in_file(self, makefile,
+            files.replace_in_file(self, makefile,
                                   'BUILDMODE= mixed',
                                   'BUILDMODE= %s' % buildmode)
-            tools.files.replace_in_file(self, makefile,
+            files.replace_in_file(self, makefile,
                                   'TARGET_DYLIBPATH= $(TARGET_LIBPATH)/$(TARGET_DYLIBNAME)',
                                   'TARGET_DYLIBPATH= $(TARGET_DYLIBNAME)')
             # adjust mixed mode defaults to build either .so or .a, but not both
             if not self.options.shared:
-                tools.files.replace_in_file(self, makefile,
+                files.replace_in_file(self, makefile,
                                       'TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)',
                                       'TARGET_T= $(LUAJIT_T) $(LUAJIT_A)')
-                tools.files.replace_in_file(self, makefile,
+                files.replace_in_file(self, makefile,
                                       'TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_SO)',
                                       'TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_A)')
             else:
-                tools.files.replace_in_file(self, makefile,
+                files.replace_in_file(self, makefile,
                                       'TARGET_O= $(LUAJIT_A)',
                                       'TARGET_O= $(LUAJIT_SO)')
             env = dict()
@@ -77,7 +77,7 @@ class LuajitConan(ConanFile):
                     major, minor, _ = platform.mac_ver()[0].split(".")
                     version = "%s.%s" % (major, minor)
                 env["MACOSX_DEPLOYMENT_TARGET"] = version
-            with tools.files.chdir(self, self._source_subfolder), tools.environment_append(env):
+            with files.chdir(self, self._source_subfolder), tools.environment_append(env):
                 env_build = self._configure_autotools()
                 env_build.make(args=["PREFIX=%s" % self.package_folder])
 
@@ -95,11 +95,11 @@ class LuajitConan(ConanFile):
             self.copy("lua51.lib", dst="lib", src=ljs)
             self.copy("lua51.dll", dst="bin", src=ljs)
         else:
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 env_build = self._configure_autotools()
                 env_build.install(args=["PREFIX=%s" % self.package_folder])
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["lua51" if self.settings.compiler == "Visual Studio" else "luajit-5.1"]

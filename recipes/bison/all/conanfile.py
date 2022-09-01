@@ -52,7 +52,7 @@ class BisonConan(ConanFile):
             self.build_requires("flex/2.6.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -106,30 +106,30 @@ class BisonConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if self.settings.os == "Windows":
             # replace embedded unix paths by windows paths
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                                   "echo '#define BINDIR \"$(bindir)\"';",
                                   "echo '#define BINDIR \"$(shell cygpath -m \"$(bindir)\")\"';")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                                   "echo '#define PKGDATADIR \"$(pkgdatadir)\"';",
                                   "echo '#define PKGDATADIR \"$(shell cygpath -m \"$(pkgdatadir)\")\"';")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                                   "echo '#define DATADIR \"$(datadir)\"';",
                                   "echo '#define DATADIR \"$(shell cygpath -m \"$(datadir)\")\"';")
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                                   "echo '#define DATAROOTDIR \"$(datarootdir)\"';",
                                   "echo '#define DATAROOTDIR \"$(shell cygpath -m \"$(datarootdir)\")\"';")
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                               "dist_man_MANS = $(top_srcdir)/doc/bison.1",
                               "dist_man_MANS =")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "yacc.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "yacc.in"),
                               "@prefix@",
                               "${}_ROOT".format(self.name.upper()))
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "yacc.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "yacc.in"),
                               "@bindir@",
                               "${}_ROOT/bin".format(self.name.upper()))
 

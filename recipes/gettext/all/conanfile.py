@@ -49,14 +49,14 @@ class GetTextConan(ConanFile):
             self.build_requires("automake/1.16.5")
 
     def validate(self):
-        if tools.scm.Version(self.version) < "0.21" and self.settings.compiler == "Visual Studio":
+        if Version(self.version) < "0.21" and self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("MSVC builds of gettext for versions < 0.21 are not supported.")  # FIXME: it used to be possible. What changed?
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -122,9 +122,9 @@ class GetTextConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@prefix@", "$GETTEXT_ROOT_UNIX")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@datarootdir@", "$prefix/res")
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@prefix@", "$GETTEXT_ROOT_UNIX")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@datarootdir@", "$prefix/res")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -134,11 +134,11 @@ class GetTextConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "include"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "info"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "include"))
+        files.rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        files.rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

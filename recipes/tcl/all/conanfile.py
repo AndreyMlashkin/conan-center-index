@@ -59,7 +59,7 @@ class TclConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _get_default_build_system_subdir(self):
@@ -76,38 +76,38 @@ class TclConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         if tools.apple.is_apple_os(self) and self.settings.arch not in ("x86", "x86_64"):
-            tools.files.replace_in_file(self, os.path.join(self._get_configure_dir(), "configure"), "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
+            files.replace_in_file(self, os.path.join(self._get_configure_dir(), "configure"), "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
 
         unix_config_dir = self._get_configure_dir("unix")
         # When disabling 64-bit support (in 32-bit), this test must be 0 in order to use "long long" for 64-bit ints
         # (${tcl_type_64bit} can be either "__int64" or "long long")
-        tools.files.replace_in_file(self, os.path.join(unix_config_dir, "configure"),
+        files.replace_in_file(self, os.path.join(unix_config_dir, "configure"),
                               "(sizeof(${tcl_type_64bit})==sizeof(long))",
                               "(sizeof(${tcl_type_64bit})!=sizeof(long))")
 
         unix_makefile_in = os.path.join(unix_config_dir, "Makefile.in")
         # Avoid building internal libraries as shared libraries
-        tools.files.replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
+        files.replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
         # Avoid clearing CFLAGS and LDFLAGS in the makefile
-        tools.files.replace_in_file(self, unix_makefile_in, "\nCFLAGS\t", "\n#CFLAGS\t")
-        tools.files.replace_in_file(self, unix_makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
+        files.replace_in_file(self, unix_makefile_in, "\nCFLAGS\t", "\n#CFLAGS\t")
+        files.replace_in_file(self, unix_makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
         # Use CFLAGS and CPPFLAGS as argument to CC
-        tools.files.replace_in_file(self, unix_makefile_in, "${CFLAGS}", "${CFLAGS} ${CPPFLAGS}")
+        files.replace_in_file(self, unix_makefile_in, "${CFLAGS}", "${CFLAGS} ${CPPFLAGS}")
         # nmake creates a temporary file with mixed forward/backward slashes
         # force the filename to avoid cryptic error messages
         win_config_dir = self._get_configure_dir("win")
         win_makefile_vc = os.path.join(win_config_dir, "makefile.vc")
-        tools.files.replace_in_file(self, win_makefile_vc, "@type << >$@", "type <<temp.tmp >$@")
+        files.replace_in_file(self, win_makefile_vc, "@type << >$@", "type <<temp.tmp >$@")
 
         win_rules_vc = os.path.join(self._source_subfolder, "win", "rules.vc")
         # do not treat nmake build warnings as errors
-        tools.files.replace_in_file(self, win_rules_vc, "cwarn = $(cwarn) -WX", "")
+        files.replace_in_file(self, win_rules_vc, "cwarn = $(cwarn) -WX", "")
         # disable whole program optimization to be portable across different MSVC versions.
         # See conan-io/conan-center-index#4811 conan-io/conan-center-index#4094
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             win_rules_vc,
             "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL",
             "")
@@ -126,7 +126,7 @@ class TclConan(ConanFile):
         if "d" not in msvc_runtime_flag(self):
             opts.append("unchecked")
         with tools.vcvars(self.settings):
-            with tools.files.chdir(self, self._get_configure_dir("win")):
+            with files.chdir(self, self._get_configure_dir("win")):
                 self.run('nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {targets}'.format(
                     cfgdir=self._get_configure_dir("win"),
                     pkgdir=self.package_folder,
@@ -149,7 +149,7 @@ class TclConan(ConanFile):
         # https://core.tcl.tk/tcl/tktview/840660e5a1
         for root, _, files in os.walk(self.build_folder):
             if "Makefile" in files:
-                tools.files.replace_in_file(self, os.path.join(root, "Makefile"), "-Dstrtod=fixstrtod", "", strict=False)
+                files.replace_in_file(self, os.path.join(root, "Makefile"), "-Dstrtod=fixstrtod", "", strict=False)
         return autotools
 
     def build(self):
@@ -169,9 +169,9 @@ class TclConan(ConanFile):
             autotools.install()
             autotools.make(target="install-private-headers")
 
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "man"))
-            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "man"))
+            files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         tclConfigShPath = os.path.join(self.package_folder, "lib", "tclConfig.sh")
         package_path = self.package_folder
@@ -181,17 +181,17 @@ class TclConan(ConanFile):
             drive, path = os.path.splitdrive(self.build_folder)
             build_folder = "".join([drive, path.lower().replace("\\", "/")])
 
-        tools.files.replace_in_file(self, tclConfigShPath,
+        files.replace_in_file(self, tclConfigShPath,
                               package_path,
                               "${TCL_ROOT}")
-        tools.files.replace_in_file(self, tclConfigShPath,
+        files.replace_in_file(self, tclConfigShPath,
                               build_folder,
                               "${TCL_BUILD_ROOT}")
 
-        tools.files.replace_in_file(self, tclConfigShPath,
+        files.replace_in_file(self, tclConfigShPath,
                               "\nTCL_BUILD_",
                               "\n#TCL_BUILD_")
-        tools.files.replace_in_file(self, tclConfigShPath,
+        files.replace_in_file(self, tclConfigShPath,
                               "\nTCL_SRC_DIR",
                               "\n#TCL_SRC_DIR")
 
@@ -200,7 +200,7 @@ class TclConan(ConanFile):
         systemlibs = []
         libdirs = []
         for root, _, _ in os.walk(os.path.join(self.package_folder, "lib"), topdown=False):
-            newlibs = tools.files.collect_libs(self, self, root)
+            newlibs = files.collect_libs(self, self, root)
             if newlibs:
                 libs.extend(newlibs)
                 libdirs.append(root)

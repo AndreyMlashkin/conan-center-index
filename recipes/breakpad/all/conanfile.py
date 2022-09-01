@@ -41,11 +41,11 @@ class BreakpadConan(ConanFile):
         return self._env_build
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         env_build = self._configure_autotools()
         env_build.make()
 
@@ -53,8 +53,8 @@ class BreakpadConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         env_build = self._configure_autotools()
         env_build.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info( self ):
         self.cpp_info.components["libbreakpad"].libs = ["breakpad"]

@@ -59,7 +59,7 @@ class LibId3TagConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
@@ -70,15 +70,15 @@ class LibId3TagConan(ConanFile):
 
     def _build_msvc(self):
         kwargs = {}
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "msvc++")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "msvc++")):
             # cl : Command line error D8016: '/ZI' and '/Gy-' command-line options are incompatible
-            tools.files.replace_in_file(self, "libid3tag.dsp", "/ZI ", "")
+            files.replace_in_file(self, "libid3tag.dsp", "/ZI ", "")
             if self.settings.compiler == "clang":
-                tools.files.replace_in_file(self, "libid3tag.dsp", "CPP=cl.exe", "CPP=clang-cl.exe")
-                tools.files.replace_in_file(self, "libid3tag.dsp", "RSC=rc.exe", "RSC=llvm-rc.exe")
+                files.replace_in_file(self, "libid3tag.dsp", "CPP=cl.exe", "CPP=clang-cl.exe")
+                files.replace_in_file(self, "libid3tag.dsp", "RSC=rc.exe", "RSC=llvm-rc.exe")
                 kwargs["toolset"] = "ClangCl"
             if self.settings.arch == "x86_64":
-                tools.files.replace_in_file(self, "libid3tag.dsp", "Win32", "x64")
+                files.replace_in_file(self, "libid3tag.dsp", "Win32", "x64")
             with tools.vcvars(self.settings):
                 self.run("devenv /Upgrade libid3tag.dsp")
             msbuild = MSBuild(self)
@@ -109,7 +109,7 @@ class LibId3TagConan(ConanFile):
     def _install_autotools(self):
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package(self):
         self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)

@@ -38,7 +38,7 @@ class GobjectIntrospectionConan(ConanFile):
             raise ConanInvalidConfiguration("%s recipe does not support windows. Contributions are welcome!" % self.name)
 
     def build_requirements(self):
-        if tools.scm.Version(self.version) >= "1.71.0":
+        if Version(self.version) >= "1.71.0":
             self.build_requires("meson/0.62.2")
         else:
             # https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/414
@@ -54,7 +54,7 @@ class GobjectIntrospectionConan(ConanFile):
         self.requires("glib/2.73.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
         meson = Meson(self)
@@ -71,12 +71,12 @@ class GobjectIntrospectionConan(ConanFile):
         return meson
 
     def build(self):
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "meson.build"),
             "subdir('tests')",
             "#subdir('tests')",
         )
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "meson.build"),
             "if meson.version().version_compare('>=0.54.0')",
             "if false",
@@ -97,8 +97,8 @@ class GobjectIntrospectionConan(ConanFile):
         ) if self._is_msvc else tools.no_op():
             meson = self._configure_meson()
             meson.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.unlink(pdb_file)
 

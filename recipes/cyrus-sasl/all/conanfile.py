@@ -94,7 +94,7 @@ class CyrusSaslConan(ConanFile):
         self.build_requires("gnu-config/cci.20210814")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
@@ -105,11 +105,11 @@ class CyrusSaslConan(ConanFile):
 
         configure = os.path.join(self._source_subfolder, "configure")
         # relocatable shared libs on macOS
-        tools.files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
+        files.replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
         # avoid SIP issues on macOS when dependencies are shared
         if tools.apple.is_apple_os(self):
             libpaths = ":".join(self.deps_cpp_info.lib_paths)
-            tools.files.replace_in_file(self, 
+            files.replace_in_file(self, 
                 configure,
                 "#! /bin/sh\n",
                 "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -159,9 +159,9 @@ class CyrusSaslConan(ConanFile):
         self.copy(pattern="COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsasl2")

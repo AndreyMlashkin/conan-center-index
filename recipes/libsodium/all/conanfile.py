@@ -74,7 +74,7 @@ class LibsodiumConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -138,7 +138,7 @@ class LibsodiumConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
@@ -146,7 +146,7 @@ class LibsodiumConan(ConanFile):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")), cwd=self._source_subfolder, win_bash=tools.os_info.is_windows)
             if tools.apple.is_apple_os(self):
                 # Relocatable shared lib for Apple platforms
-                tools.files.replace_in_file(self, 
+                files.replace_in_file(self, 
                     os.path.join(self._source_subfolder, "configure"),
                     "-install_name \\$rpath/",
                     "-install_name @rpath/"
@@ -164,8 +164,8 @@ class LibsodiumConan(ConanFile):
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsodium")

@@ -28,7 +28,7 @@ class LibsolaceConan(ConanFile):
         return ["17", "gnu17", "20", "gnu20"]
 
     def configure(self):
-        compiler_version = tools.scm.Version(str(self.settings.compiler.version))
+        compiler_version = Version(str(self.settings.compiler.version))
 
         if self.settings.os == "Windows":
           raise ConanInvalidConfiguration("This library is not yet compatible with Windows")
@@ -41,7 +41,7 @@ class LibsolaceConan(ConanFile):
           raise ConanInvalidConfiguration("This library requires c++17 standard or higher. {} required".format(self.settings.compiler.cppstd))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

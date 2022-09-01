@@ -20,7 +20,7 @@ class PrettyNameConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def package(self):
@@ -46,7 +46,7 @@ class PrettyNameConan(ConanFile):
         if not minimum_version:
             self.output.warn(
                 "pretty-name requires C++14. Your compiler is unknown. Assuming it supports C++14.")
-        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "pretty-name requires C++14, which your compiler does not support.")
 

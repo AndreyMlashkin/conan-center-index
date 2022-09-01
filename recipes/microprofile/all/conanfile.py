@@ -130,13 +130,13 @@ class MicroprofileConan(ConanFile):
             self.requires("vulkan-loader/1.2.182")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder)
-        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        files.get(self, **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder)
+        files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
         self._create_defines_file(os.path.join(self._source_subfolder, "microprofile.config.h"))
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -191,10 +191,10 @@ class MicroprofileConan(ConanFile):
                 defines_list.append("#define {} {}\n".format(define[0], define[1]))
             else:
                 defines_list.append("#define {}\n".format(define))
-        tools.files.save(self, filename, "".join(defines_list))
+        files.save(self, filename, "".join(defines_list))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.names["cmake_find_package"] = self.name
         self.cpp_info.names["cmake_find_package_multi"] = self.name
         if self.settings.os == "Windows":

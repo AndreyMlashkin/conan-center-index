@@ -1,4 +1,5 @@
 from conan import ConanFile, tools
+from conan.tools import files
 from conans import CMake
 import os
 import textwrap
@@ -59,7 +60,7 @@ class JasperConan(ConanFile):
             self.requires("libjpeg/9d")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -76,7 +77,7 @@ class JasperConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Clean rpath in installed shared lib
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         cmds_to_remove = [
@@ -85,7 +86,7 @@ class JasperConan(ConanFile):
             "set(CMAKE_INSTALL_RPATH\n		  \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}\")",
         ]
         for cmd_to_remove in cmds_to_remove:
-            tools.files.replace_in_file(self, cmakelists, cmd_to_remove, "")
+            files.replace_in_file(self, cmakelists, cmd_to_remove, "")
 
     def build(self):
         self._patch_sources()
@@ -96,11 +97,11 @@ class JasperConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
             for dll_prefix in ["concrt", "msvcp", "vcruntime"]:
-                tools.files.rm(self, "bin", os.path.join(self.package_folder),
+                files.rm(self, "bin", os.path.join(self.package_folder),
                                            "{}*.dll".format(dll_prefix))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path)
@@ -122,7 +123,7 @@ class JasperConan(ConanFile):
                 set(JASPER_VERSION_STRING ${Jasper_VERSION})
             endif()
         """)
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

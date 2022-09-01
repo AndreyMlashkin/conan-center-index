@@ -66,13 +66,13 @@ class PistacheConan(ConanFile):
             tools.build.check_min_cppstd(self, 17)
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_compiler:
+            if Version(self.settings.compiler.version) < minimum_compiler:
                 raise ConanInvalidConfiguration("Pistache requires c++17, which your compiler does not support.")
         else:
             self.output.warn("Pistache requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -88,7 +88,7 @@ class PistacheConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -96,10 +96,10 @@ class PistacheConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.options.shared:
-            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         # TODO: Pistache does not use namespace
@@ -110,7 +110,7 @@ class PistacheConan(ConanFile):
         suffix = "_{}".format("shared" if self.options.shared else "static")
         self.cpp_info.components["libpistache"].names["cmake_find_package"] = "pistache" + suffix
         self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = "pistache" + suffix
-        self.cpp_info.components["libpistache"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["libpistache"].libs = files.collect_libs(self, self)
         self.cpp_info.components["libpistache"].requires = ["rapidjson::rapidjson"]
         if self.options.with_ssl:
             self.cpp_info.components["libpistache"].requires.append("openssl::openssl")

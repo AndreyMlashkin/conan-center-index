@@ -79,12 +79,12 @@ class GetTextConan(ConanFile):
             self.build_requires("automake/1.16.5")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         libiconv_prefix = self.deps_cpp_info["libiconv"].rootpath
         libiconv_prefix = tools.microsoft.unix_path(self, libiconv_prefix) if tools.os_info.is_windows else libiconv_prefix
         args = ["HELP2MAN=/bin/true",
@@ -128,11 +128,11 @@ class GetTextConan(ConanFile):
                 args.extend(['RC=%s' % rc, 'WINDRES=%s' % rc])
         with tools.vcvars(self.settings) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
             with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if (self._is_msvc or self._is_clang_cl) else tools.no_op():
-                with tools.files.chdir(self, os.path.join(self._source_subfolder, self._gettext_folder)):
+                with files.chdir(self, os.path.join(self._source_subfolder, self._gettext_folder)):
                     env_build = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
                     if self._is_msvc:
                         if not (self.settings.compiler == "Visual Studio" and
-                                tools.scm.Version(self.settings.compiler.version) < "12"):
+                                Version(self.settings.compiler.version) < "12"):
                             env_build.flags.append("-FS")
                     env_build.configure(args=args, build=build, host=host)
                     env_build.make(self._make_args)
@@ -145,10 +145,10 @@ class GetTextConan(ConanFile):
         self.copy(pattern="*gnuintl*.so*", dst="lib", src=self._source_subfolder, keep_path=False, symlinks=True)
         self.copy(pattern="*gnuintl*.dylib", dst="lib", src=self._source_subfolder, keep_path=False, symlinks=True)
         self.copy(pattern="*libgnuintl.h", dst="include", src=self._source_subfolder, keep_path=False)
-        tools.files.rename(self, os.path.join(self.package_folder, "include", "libgnuintl.h"),
+        files.rename(self, os.path.join(self.package_folder, "include", "libgnuintl.h"),
                      os.path.join(self.package_folder, "include", "libintl.h"))
         if (self._is_msvc or self._is_clang_cl) and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "gnuintl.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "gnuintl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "gnuintl.lib"))
 
     def package_info(self):

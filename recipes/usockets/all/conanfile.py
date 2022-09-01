@@ -68,10 +68,10 @@ class UsocketsConan(ConanFile):
         if self.options.eventloop == "gcd" and (self.settings.os != "Linux" or self.settings.compiler != "clang"):
             raise ConanInvalidConfiguration("eventloop=gcd is only supported on Linux with clang")
 
-        if tools.scm.Version(self.version) < "0.8.0" and self.options.eventloop not in ("syscall", "libuv", "gcd"):
+        if Version(self.version) < "0.8.0" and self.options.eventloop not in ("syscall", "libuv", "gcd"):
             raise ConanInvalidConfiguration(f"eventloop={self.options.eventloop} is not supported with {self.name}/{self.version}")
 
-        if tools.scm.Version(self.version) >= "0.5.0" and self.options.with_ssl == "wolfssl":
+        if Version(self.version) >= "0.5.0" and self.options.with_ssl == "wolfssl":
             raise ConanInvalidConfiguration(f"with_ssl={self.options.with_ssl} is not supported with {self.name}/{self.version}. https://github.com/uNetworking/uSockets/issues/147")
 
         if self.options.with_ssl == "wolfssl" and not self.options["wolfssl"].opensslextra:
@@ -89,7 +89,7 @@ class UsocketsConan(ConanFile):
 
         minimum_version = self._minimum_compilers_version(cppstd).get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("{} requires C++{}, which your compiler does not support.".format(self.name, cppstd))
         else:
             self.output.warn("{0} requires C++{1}. Your compiler is unknown. Assuming it supports C++{1}.".format(self.name, cppstd))
@@ -120,22 +120,22 @@ class UsocketsConan(ConanFile):
             self.requires("boost/1.79.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("uSockets-%s" % self.version, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _build_msvc(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             msbuild = MSBuild(self)
             msbuild.build(project_file="uSockets.vcxproj", platforms={"x86": "Win32"})
 
     def _build_configure(self):
         autotools = AutoToolsBuildEnvironment(self)
         autotools.fpic = self.options.get_safe("fPIC", False)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             args = []
             if self.options.with_ssl == "openssl":
                 args.append("WITH_OPENSSL=1")
@@ -165,7 +165,7 @@ class UsocketsConan(ConanFile):
         self.copy(pattern="*.a", src=self._source_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.lib", src=self._source_subfolder, dst="lib", keep_path=False)
         # drop internal headers
-        tools.files.rmdir(self, os.path.join(self.package_folder, "include", "internal"))
+        files.rmdir(self, os.path.join(self.package_folder, "include", "internal"))
 
     def package_id(self):
         # Deprecated options

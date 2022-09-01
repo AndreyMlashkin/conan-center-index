@@ -39,11 +39,11 @@ class DepotToolsConan(ConanFile):
                 self.output.info("Replaced symlink '%s' with its destination file '%s'" % (symlink, dest))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
         self._dereference_symlinks()
 
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

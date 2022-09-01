@@ -43,7 +43,7 @@ class OatppWebSocketConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("oatpp-websocket can not be built as shared library on Windows")
 
-        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("oatpp-websocket requires GCC >=5")
 
     def requirements(self):
@@ -51,7 +51,7 @@ class OatppWebSocketConan(ConanFile):
         self.requires("oatpp/" + self.version)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -60,7 +60,7 @@ class OatppWebSocketConan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.definitions["OATPP_BUILD_TESTS"] = False
         self._cmake.definitions["OATPP_MODULES_LOCATION"] = "INSTALLED"
-        if tools.scm.Version(self.version) >= "1.3.0" and self.settings.compiler == "Visual Studio":
+        if Version(self.version) >= "1.3.0" and self.settings.compiler == "Visual Studio":
             self._cmake.definitions["OATPP_MSVC_LINK_STATIC_RUNTIME"] = self.settings.compiler.runtime in ["MT", "MTd"]
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -73,7 +73,7 @@ class OatppWebSocketConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "oatpp-websocket"

@@ -25,7 +25,7 @@ class VincentlaucsbCsvParserConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
         compiler = self.settings.compiler
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if compiler == "gcc" and compiler_version < "7":
             raise ConanInvalidConfiguration("gcc version < 7 not supported")
 
@@ -33,7 +33,7 @@ class VincentlaucsbCsvParserConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

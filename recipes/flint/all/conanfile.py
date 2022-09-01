@@ -50,11 +50,11 @@ class FlintConan(ConanFile):
             self.requires("pthreads4w/3.0.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -89,4 +89,4 @@ class FlintConan(ConanFile):
             self.cpp_info.system_libs = ["pthread", "m"]
 
         self.cpp_info.includedirs.append(os.path.join("include", "flint"))
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)

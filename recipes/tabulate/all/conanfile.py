@@ -18,13 +18,13 @@ class Tabulate(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def configure(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         if self.settings.compiler.cppstd:
             tools.build.check_min_cppstd(self, "17")

@@ -47,7 +47,7 @@ class LibFtdi(ConanFile):
             del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("libftdi-{}".format(self.version), self._source_subfolder)
 
     def requirements(self):
@@ -68,10 +68,10 @@ class LibFtdi(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "ftdipp", "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "ftdipp", "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
 
     def build(self):
         self._patch_sources()
@@ -83,7 +83,7 @@ class LibFtdi(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         if self.options.enable_cpp_wrapper:

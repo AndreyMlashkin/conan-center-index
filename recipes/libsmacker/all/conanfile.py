@@ -49,7 +49,7 @@ class LibsmackerConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -71,7 +71,7 @@ class LibsmackerConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self,win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-FS")
         yes_no = lambda v: "yes" if v else "no"
         args = [
@@ -83,8 +83,8 @@ class LibsmackerConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        with tools.files.chdir(self, self._source_subfolder):
+            files.patch(self, **patch)
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
@@ -96,7 +96,7 @@ class LibsmackerConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
             os.rename(os.path.join(self.package_folder, "lib", "smacker.dll.lib"),
                       os.path.join(self.package_folder, "lib", "smacker.lib"))

@@ -36,7 +36,7 @@ class TinyXmlConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("tinyxml", self._source_subfolder)
 
     def _configure_cmake(self):
@@ -57,7 +57,7 @@ class TinyXmlConan(ConanFile):
         license_content = []
         for i in range(2, 22):
             license_content.append(content_lines[i][:-1])
-        tools.files.save(self, "LICENSE", "\n".join(license_content))
+        files.save(self, "LICENSE", "\n".join(license_content))
 
 
     def package(self):
@@ -68,7 +68,7 @@ class TinyXmlConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.options.with_stl:
             self.cpp_info.defines = ["TIXML_USE_STL"]
         self.cpp_info.names["cmake_find_package"] = "TinyXML"

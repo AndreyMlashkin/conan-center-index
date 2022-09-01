@@ -70,7 +70,7 @@ class LibmikmodConan(ConanFile):
                 self.requires("pulseaudio/14.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -91,18 +91,18 @@ class LibmikmodConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "CMAKE_SOURCE_DIR",
                               "PROJECT_SOURCE_DIR")
 
          # Ensure missing dependencies yields errors
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "MESSAGE(WARNING",
                               "MESSAGE(FATAL_ERROR")
 
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "drivers", "drv_alsa.c"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "drivers", "drv_alsa.c"),
                               "alsa_pcm_close(pcm_h);",
                               "if (pcm_h) alsa_pcm_close(pcm_h);")
 
@@ -115,11 +115,11 @@ class LibmikmodConan(ConanFile):
         cmake.install()
         os.remove(os.path.join(self.package_folder, "bin", "libmikmod-config"))
         if not self.options.shared:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.defines = ["MIKMOD_STATIC"]
         self.cpp_info.filenames["pkg_config"] = "libmikmod"

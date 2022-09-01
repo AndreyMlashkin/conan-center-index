@@ -40,7 +40,7 @@ class CppSortConan(ConanFile):
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.scm.Version(compiler.version) < min_version:
+            if Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {}."
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -53,7 +53,7 @@ class CppSortConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -64,7 +64,7 @@ class CppSortConan(ConanFile):
         cmake.install()
 
         # Copy license files
-        if tools.scm.Version(self.version) < "1.8.0":
+        if Version(self.version) < "1.8.0":
             license_files = ["license.txt"]
         else:
             license_files = ["LICENSE.txt", "NOTICE.txt"]
@@ -72,7 +72,7 @@ class CppSortConan(ConanFile):
             self.copy(license_file, dst="licenses", src=self._source_subfolder)
 
         # Remove CMake config files (only files in lib)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "cpp-sort"

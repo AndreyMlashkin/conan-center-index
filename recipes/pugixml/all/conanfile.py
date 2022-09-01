@@ -62,7 +62,7 @@ class PugiXmlConan(ConanFile):
             self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -78,24 +78,24 @@ class PugiXmlConan(ConanFile):
             header_file = os.path.join(self._source_subfolder, "src", "pugiconfig.hpp")
             # For the library build mode, options applied via change the configuration file
             if self.options.wchar_mode:
-                tools.files.replace_in_file(self, header_file, "// #define PUGIXML_WCHAR_MODE", '''#define PUGIXML_WCHAR_MODE''')
+                files.replace_in_file(self, header_file, "// #define PUGIXML_WCHAR_MODE", '''#define PUGIXML_WCHAR_MODE''')
             if self.options.no_exceptions:
-                tools.files.replace_in_file(self, header_file, "// #define PUGIXML_NO_EXCEPTIONS", '''#define PUGIXML_NO_EXCEPTIONS''')
+                files.replace_in_file(self, header_file, "// #define PUGIXML_NO_EXCEPTIONS", '''#define PUGIXML_NO_EXCEPTIONS''')
             cmake = self._configure_cmake()
             cmake.build()
 
     def package(self):
-        readme_contents = tools.files.load(self, os.path.join(self._source_subfolder, "readme.txt"))
+        readme_contents = files.load(self, os.path.join(self._source_subfolder, "readme.txt"))
         license_contents = readme_contents[readme_contents.find("This library is"):]
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
         if self.options.header_only:
             source_dir = os.path.join(self._source_subfolder, "src")
             self.copy(pattern="*", dst="include", src=source_dir)
         else:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'cmake'))
-            tools.files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
+            files.rmdir(self, os.path.join(self.package_folder, 'lib', 'cmake'))
+            files.rmdir(self, os.path.join(self.package_folder, 'lib', 'pkgconfig'))
 
     def package_info(self):
         if self.options.header_only:
@@ -106,4 +106,4 @@ class PugiXmlConan(ConanFile):
             if self.options.no_exceptions:
                 self.cpp_info.defines.append("PUGIXML_NO_EXCEPTIONS")
         else:
-            self.cpp_info.libs = tools.files.collect_libs(self, self)
+            self.cpp_info.libs = files.collect_libs(self, self)

@@ -68,7 +68,7 @@ class JemallocConan(ConanFile):
         if self.options.enable_cxx and \
                 self.settings.compiler.get_safe("libcxx") == "libc++" and \
                 self.settings.compiler == "clang" and \
-                tools.scm.Version(self.settings.compiler.version) < "10":
+                Version(self.settings.compiler.version) < "10":
             raise ConanInvalidConfiguration("clang and libc++ version {} (< 10) is missing a mutex implementation".format(self.settings.compiler.version))
         if self.settings.compiler == "Visual Studio" and \
                 self.options.shared and \
@@ -81,7 +81,7 @@ class JemallocConan(ConanFile):
             raise ConanInvalidConfiguration("Only Release and Debug build_types are supported")
         if self.settings.compiler == "Visual Studio" and self.settings.arch not in ("x86_64", "x86"):
             raise ConanInvalidConfiguration("Unsupported arch")
-        if self.settings.compiler == "clang" and tools.scm.Version(self.settings.compiler.version) <= "3.9":
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "3.9":
             raise ConanInvalidConfiguration("Unsupported compiler version")
 
     @property
@@ -93,7 +93,7 @@ class JemallocConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -136,10 +136,10 @@ class JemallocConan(ConanFile):
     def _patch_sources(self):
         if self.settings.os == "Windows":
             makefile_in = os.path.join(self._source_subfolder, "Makefile.in")
-            tools.files.replace_in_file(self, makefile_in,
+            files.replace_in_file(self, makefile_in,
                                   "DSO_LDFLAGS = @DSO_LDFLAGS@",
                                   "DSO_LDFLAGS = @DSO_LDFLAGS@ -Wl,--out-implib,lib/libjemalloc.a")
-            tools.files.replace_in_file(self, makefile_in,
+            files.replace_in_file(self, makefile_in,
                                   "\t$(INSTALL) -d $(LIBDIR)\n"
                                   "\t$(INSTALL) -m 755 $(objroot)lib/$(LIBJEMALLOC).$(SOREV) $(LIBDIR)",
                                   "\t$(INSTALL) -d $(BINDIR)\n"
@@ -148,14 +148,14 @@ class JemallocConan(ConanFile):
                                   "\t$(INSTALL) -m 644 $(objroot)lib/libjemalloc.a $(LIBDIR)")
 
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
                 with tools.environment_append({"CC": "cl", "CXX": "cl"}) if self.settings.compiler == "Visual Studio" else tools.no_op():
-                    with tools.files.chdir(self, self._source_subfolder):
+                    with files.chdir(self, self._source_subfolder):
                         # Do not use AutoToolsBuildEnvironment because we want to run configure as ./configure
                         self.run("./configure {}".format(" ".join(self._autotools_args)), win_bash=tools.os_info.is_windows)
             msbuild = MSBuild(self)
@@ -204,7 +204,7 @@ class JemallocConan(ConanFile):
             autotools.make(target="install_lib_shared" if self.options.shared else "install_lib_static")
             autotools.make(target="install_include")
             if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-                tools.files.rename(self, os.path.join(self.package_folder, "lib", "{}.lib".format(self._library_name)),
+                files.rename(self, os.path.join(self.package_folder, "lib", "{}.lib".format(self._library_name)),
                              os.path.join(self.package_folder, "lib", "lib{}.a".format(self._library_name)))
                 if not self.options.shared:
                     os.unlink(os.path.join(self.package_folder, "lib", "jemalloc.lib"))

@@ -54,7 +54,7 @@ class RubyConan(ConanFile):
 
     @property
     def _msvc_optflag(self):
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < "14":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "14":
             return "-O2b2xg-"
         else:
             return "-O2sy-"
@@ -81,7 +81,7 @@ class RubyConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def generate(self):
         td = AutotoolsDeps(self)
@@ -151,23 +151,23 @@ class RubyConan(ConanFile):
             else:
                 at.install()
 
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         binpath = os.path.join(self.package_folder, "bin")
         self.output.info(f"Adding to PATH: {binpath}")
         self.env_info.PATH.append(binpath)
 
-        version = tools.scm.Version(self.version)
+        version = Version(self.version)
         rubylib = self.cpp_info.components["rubylib"]
         config_file = glob.glob(os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True)[0]
         rubylib.includedirs = [
             os.path.join(self.package_folder, "include", f"ruby-{version}"),
             os.path.dirname(os.path.dirname(config_file))
         ]
-        rubylib.libs = tools.files.collect_libs(self, self)
+        rubylib.libs = files.collect_libs(self, self)
         if is_msvc(self):
             if self.options.shared:
                 rubylib.libs = list(filter(lambda l: not l.endswith("-static"), rubylib.libs))

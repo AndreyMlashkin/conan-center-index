@@ -53,7 +53,7 @@ class FlannConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        return 11 if tools.scm.Version(self.version) > "1.9.1" else None
+        return 11 if Version(self.version) > "1.9.1" else None
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -66,29 +66,29 @@ class FlannConan(ConanFile):
         del self.info.options.with_hdf5
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, {}):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # remove embedded lz4
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "src", "cpp", "flann", "ext"))
+        files.rmdir(self, os.path.join(self._source_subfolder, "src", "cpp", "flann", "ext"))
 
-        if tools.scm.Version(self.version) > "1.9.1":
+        if Version(self.version) > "1.9.1":
             return
 
         # Workaround issue with empty sources for a CMake target
         flann_cpp_dir = os.path.join(self._source_subfolder, "src", "cpp")
-        tools.files.save(self, os.path.join(flann_cpp_dir, "empty.cpp"), "\n")
+        files.save(self, os.path.join(flann_cpp_dir, "empty.cpp"), "\n")
 
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(flann_cpp_dir, "CMakeLists.txt"),
             'add_library(flann_cpp SHARED "")',
             'add_library(flann_cpp SHARED empty.cpp)'
         )
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             os.path.join(flann_cpp_dir, "CMakeLists.txt"),
             'add_library(flann SHARED "")',
             'add_library(flann SHARED empty.cpp)'
@@ -126,22 +126,22 @@ class FlannConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         # Remove vc runtimes
         if self.settings.os == "Windows":
             if self.options.shared:
                 for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-                    tools.files.rm(self, 
+                    files.rm(self, 
                         os.path.join(self.package_folder, "bin"),
                         dll_pattern_to_remove,
                     )
             else:
-                tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+                files.rmdir(self, os.path.join(self.package_folder, "bin"))
         # Remove static/dynamic libraries depending on the build mode
         libs_pattern_to_remove = ["*flann_cpp_s.*", "*flann_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*"]
         for lib_pattern_to_remove in libs_pattern_to_remove:
-            tools.files.rm(self, lib_pattern_to_remove, os.path.join(self.package_folder, "lib"))
+            files.rm(self, lib_pattern_to_remove, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

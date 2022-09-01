@@ -44,7 +44,7 @@ class IqaConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('iqa-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -64,7 +64,7 @@ class IqaConan(ConanFile):
         license_content = []
         for i in range(1, 31):
             license_content.append(content_lines[i][3:-1])
-        tools.files.save(self, "LICENSE", "\n".join(license_content))
+        files.save(self, "LICENSE", "\n".join(license_content))
 
     def package(self):
         cmake = self._configure_cmake()
@@ -73,6 +73,6 @@ class IqaConan(ConanFile):
         self.copy("LICENSE", dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

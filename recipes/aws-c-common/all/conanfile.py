@@ -41,7 +41,7 @@ class AwsCCommon(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.scm.Version(self.version) < "0.6.11":
+        if Version(self.version) < "0.6.11":
             del self.options.cpu_extensions
 
     def configure(self):
@@ -55,7 +55,7 @@ class AwsCCommon(ConanFile):
             raise ConanInvalidConfiguration("Static runtime + shared is not working for more recent releases")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -71,7 +71,7 @@ class AwsCCommon(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -79,7 +79,7 @@ class AwsCCommon(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-common"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-common"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-common")
@@ -98,7 +98,7 @@ class AwsCCommon(ConanFile):
             self.cpp_info.components["aws-c-common-lib"].system_libs = ["dl", "m", "pthread", "rt"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["aws-c-common-lib"].system_libs = ["bcrypt", "ws2_32"]
-            if tools.scm.Version(self.version) >= "0.6.13":
+            if Version(self.version) >= "0.6.13":
                 self.cpp_info.components["aws-c-common-lib"].system_libs.append("shlwapi")
         if not self.options.shared:
             if tools.apple.is_apple_os(self):

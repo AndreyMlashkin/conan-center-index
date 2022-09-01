@@ -53,7 +53,7 @@ class Iir1Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.scm.Version(self.version) < "1.9.1":
+        if Version(self.version) < "1.9.1":
             del self.options.noexceptions
 
     def configure(self):
@@ -64,12 +64,12 @@ class Iir1Conan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.build.check_min_cppstd(self, self._min_cppstd)
 
-        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if self.settings.compiler == "gcc" and compiler_version <= 5:
             raise ConanInvalidConfiguration("GCC version < 5 not supported")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -83,7 +83,7 @@ class Iir1Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -91,17 +91,17 @@ class Iir1Conan(ConanFile):
         self.copy('COPYING', dst='licenses', src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
-            tools.files.rm(self, "libiir_static.*", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "iir_static.*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "libiir_static.*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "iir_static.*", os.path.join(self.package_folder, "lib"))
         else:
-            tools.files.rm(self, "iir.*", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "iir.*", os.path.join(self.package_folder, "bin"))
-            tools.files.rm(self, "libiir.*", os.path.join(self.package_folder, "lib"))
-            tools.files.rm(self, "libiir.*", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "iir.*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "iir.*", os.path.join(self.package_folder, "bin"))
+            files.rm(self, "libiir.*", os.path.join(self.package_folder, "lib"))
+            files.rm(self, "libiir.*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         name = "iir" if self.options.shared else "iir_static"

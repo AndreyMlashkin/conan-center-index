@@ -48,23 +48,23 @@ class GlbindingConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Don't force PIC
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
                               "POSITION_INDEPENDENT_CODE ON", "")
         # Don't replace /W3 by /W4
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
                               "/W4", "")
         # No whole program optimization
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "CompileOptions.cmake"),
                               "/GL", "")
         # Don't populate rpath
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "if(NOT SYSTEM_DIR_INSTALL)", "if(0)")
 
     @functools.lru_cache(1)
@@ -89,8 +89,8 @@ class GlbindingConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "glbinding")

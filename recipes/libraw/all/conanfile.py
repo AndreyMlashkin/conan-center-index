@@ -59,7 +59,7 @@ class LibRawConan(ConanFile):
             self.requires("jasper/2.0.33")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("LibRaw-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -81,7 +81,7 @@ class LibRawConan(ConanFile):
         self.copy("LICENSE.*", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
 
         if self.settings.os == "Windows":
             self.cpp_info.defines.append("WIN32")

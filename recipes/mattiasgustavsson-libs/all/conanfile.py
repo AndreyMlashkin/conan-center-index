@@ -16,16 +16,16 @@ class MattiasgustavssonLibsConan(ConanFile):
         return os.path.join(self.source_folder, "source_subfolder")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('libs-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def _extract_licenses(self):
-        header = tools.files.load(self, os.path.join(self._source_subfolder, "thread.h"))
+        header = files.load(self, os.path.join(self._source_subfolder, "thread.h"))
         mit_content = header[header.find("ALTERNATIVE A - "):header.find("ALTERNATIVE B -")]
-        tools.files.save(self, "LICENSE_MIT", mit_content)
+        files.save(self, "LICENSE_MIT", mit_content)
         unlicense_content = header[header.find("ALTERNATIVE B - "):header.rfind("*/", 1)]
-        tools.files.save(self, "LICENSE_UNLICENSE", unlicense_content)
+        files.save(self, "LICENSE_UNLICENSE", unlicense_content)
 
     def package(self):
         self.copy(pattern="*.h", dst="include", src=self._source_subfolder)

@@ -30,11 +30,11 @@ class LinuxHeadersGenericConan(ConanFile):
             raise ConanInvalidConfiguration("linux-headers-generic can not be cross-compiled")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
+        with files.chdir(self, os.path.join(self._source_subfolder)):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.make(target="headers")
 

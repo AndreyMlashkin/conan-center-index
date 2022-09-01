@@ -77,7 +77,7 @@ class LibSigCppConan(ConanFile):
             raise ConanInvalidConfiguration("libsigcpp requires C++17, which your compiler does not support.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -89,9 +89,9 @@ class LibSigCppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         if not self.options.shared:
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "sigc++config.h.cmake"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "sigc++config.h.cmake"),
                                   "define SIGC_DLL 1", "undef SIGC_DLL")
         cmake = self._configure_cmake()
         cmake.build()
@@ -106,7 +106,7 @@ class LibSigCppConan(ConanFile):
                 os.path.join(self.package_folder, "include", "sigc++-3.0", os.path.basename(header_file))
             )
         for dir_to_remove in ["cmake", "pkgconfig", "sigc++-3.0"]:
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", dir_to_remove))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", dir_to_remove))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -124,7 +124,7 @@ class LibSigCppConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.files.save(self, module_file, content)
+        files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -137,7 +137,7 @@ class LibSigCppConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components["sigc++"].includedirs = [os.path.join("include", "sigc++-3.0")]
-        self.cpp_info.components["sigc++"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["sigc++"].libs = files.collect_libs(self, self)
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.components["sigc++"].system_libs.append("m")
 

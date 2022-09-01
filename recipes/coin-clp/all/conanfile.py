@@ -71,7 +71,7 @@ class CoinClpConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -98,14 +98,14 @@ class CoinClpConan(ConanFile):
         configure_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
         ]
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= 12:
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= 12:
             self._autotools.flags.append("-FS")
         self._autotools.configure(self._source_subfolder, args=configure_args)
         return self._autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -117,17 +117,17 @@ class CoinClpConan(ConanFile):
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         # Installation script expects include/coin to already exist
-        tools.files.mkdir(self, os.path.join(self.package_folder, "include", "coin"))
+        files.mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install(args=["-j1"]) # due to configure generated with old autotools version
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.compiler == "Visual Studio":
             for l in ("Clp", "ClpSolver", "OsiClp"):
-                tools.files.rename(self, os.path.join(self.package_folder, "lib", "lib{}.a").format(l),
+                files.rename(self, os.path.join(self.package_folder, "lib", "lib{}.a").format(l),
                              os.path.join(self.package_folder, "lib", "{}.lib").format(l))
 
     def package_info(self):

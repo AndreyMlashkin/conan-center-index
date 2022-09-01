@@ -52,26 +52,26 @@ class SnappyConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["SNAPPY_BUILD_TESTS"] = False
-        if tools.scm.Version(self.version) >= "1.1.8":
+        if Version(self.version) >= "1.1.8":
             self._cmake.definitions["SNAPPY_FUZZING_BUILD"] = False
             self._cmake.definitions["SNAPPY_REQUIRE_AVX"] = False
             self._cmake.definitions["SNAPPY_REQUIRE_AVX2"] = False
             self._cmake.definitions["SNAPPY_INSTALL"] = True
-        if tools.scm.Version(self.version) >= "1.1.9":
+        if Version(self.version) >= "1.1.9":
             self._cmake.definitions["SNAPPY_BUILD_BENCHMARKS"] = False
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -79,7 +79,7 @@ class SnappyConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Snappy")

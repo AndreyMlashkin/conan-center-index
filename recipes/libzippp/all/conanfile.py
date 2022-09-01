@@ -45,14 +45,14 @@ class LibZipppConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.2.11")
-        if tools.scm.Version(self.version) == "4.0":
+        if Version(self.version) == "4.0":
             self.requires("libzip/1.7.3")
         else:
             libzip_version = str(self.version).split("-")[1]
             self.requires("libzip/{}".format(libzip_version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -66,7 +66,7 @@ class LibZipppConan(ConanFile):
         return self._cmake
 
     def _patch_source(self):
-        tools.files.replace_in_file(self, 'source_subfolder/CMakeLists.txt',
+        files.replace_in_file(self, 'source_subfolder/CMakeLists.txt',
                               'find_package(LIBZIP MODULE REQUIRED)',
                               'find_package(libzip REQUIRED CONFIG)')
 
@@ -79,11 +79,11 @@ class LibZipppConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="LICENCE", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.files.collect_libs(self, self)
+        self.cpp_info.libs = files.collect_libs(self, self)
         self.cpp_info.names["cmake_find_package"] = "libzippp"
         self.cpp_info.names["cmake_find_package_multi"] = "libzippp"
         self.cpp_info.set_property("cmake_file_name", "libzippp")

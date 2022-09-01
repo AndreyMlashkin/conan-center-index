@@ -25,7 +25,7 @@ class PopplerDataConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("poppler-data-{}".format(self.version), self._source_subfolder)
 
     def package_id(self):
@@ -46,7 +46,7 @@ class PopplerDataConan(ConanFile):
 
     def _patch_sources(self):
         for patchdata in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patchdata)
+            files.patch(self, **patchdata)
 
     def build(self):
         self._patch_sources()
@@ -57,7 +57,7 @@ class PopplerDataConan(ConanFile):
         self.copy("COPYING*", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self._datadir, "pkgconfig"))
+        files.rmdir(self, os.path.join(self._datadir, "pkgconfig"))
 
     @property
     def _poppler_datadir(self):

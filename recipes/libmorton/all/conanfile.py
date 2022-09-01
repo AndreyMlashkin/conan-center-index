@@ -27,18 +27,18 @@ class LibmortonConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        if tools.scm.Version(self.version) < "0.2.7":
+        if Version(self.version) < "0.2.7":
             src_hdrs = os.path.join(self._source_subfolder, "libmorton", "include")
-        elif tools.scm.Version(self.version) < "0.2.8":
+        elif Version(self.version) < "0.2.8":
             src_hdrs = os.path.join(self._source_subfolder, "libmorton")
         else:
             src_hdrs = os.path.join(self._source_subfolder, "include", "libmorton")

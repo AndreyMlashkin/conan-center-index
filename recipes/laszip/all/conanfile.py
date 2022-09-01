@@ -47,12 +47,12 @@ class LaszipConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -69,7 +69,7 @@ class LaszipConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        suffix = tools.scm.Version(self.version).major if self.settings.os == "Windows" else ""
+        suffix = Version(self.version).major if self.settings.os == "Windows" else ""
         self.cpp_info.libs = [f"laszip{suffix}"]
         if self.options.shared:
             self.cpp_info.defines.append("LASZIP_DYN_LINK")

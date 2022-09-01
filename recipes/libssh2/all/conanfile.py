@@ -65,13 +65,13 @@ class Libssh2Conan(ConanFile):
             self.requires("mbedtls/2.25.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            files.patch(self, **patch)
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)",
                               "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)")
 
@@ -103,16 +103,16 @@ class Libssh2Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Libssh2")
         self.cpp_info.set_property("cmake_target_name", "Libssh2::libssh2")
         self.cpp_info.set_property("pkg_config_name", "libssh2")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_libssh2"].libs = tools.files.collect_libs(self, self)
+        self.cpp_info.components["_libssh2"].libs = files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.components["_libssh2"].system_libs.append("ws2_32")
         elif self.settings.os in ["Linux", "FreeBSD"]:

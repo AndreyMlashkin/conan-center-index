@@ -42,36 +42,36 @@ class HiredisConan(ConanFile):
             raise ConanInvalidConfiguration("hiredis {} is not supported on Windows.".format(self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # Do not force PIC if static
         if not self.options.shared:
             makefile = os.path.join(self._source_subfolder, "Makefile")
-            tools.files.replace_in_file(self, makefile, "-fPIC ", "")
+            files.replace_in_file(self, makefile, "-fPIC ", "")
 
     def build(self):
         self._patch_sources()
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autoTools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autoTools.make()
 
     def package(self):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             autoTools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autoTools.install(vars={
                 "DESTDIR": tools.microsoft.unix_path(self, self.package_folder),
                 "PREFIX": "",
             })
-        tools.files.rm(self, 
+        files.rm(self, 
             os.path.join(self.package_folder, "lib"),
             "*.a" if self.options.shared else "*.[so|dylib]*",
         )
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "hiredis")

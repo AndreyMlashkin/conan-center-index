@@ -16,7 +16,7 @@ class ZugConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.files.get(self, 
+        files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self.source_folder
@@ -40,7 +40,7 @@ class ZugConan(ConanFile):
             self.output.warn("Unknown compiler, assuming it supports at least C++14")
             return
 
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++14")
 

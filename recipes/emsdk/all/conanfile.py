@@ -26,7 +26,7 @@ class EmSDKConan(ConanFile):
         # self.requires("wasm")  # FIXME: Not available as Conan package
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @staticmethod
@@ -52,7 +52,7 @@ class EmSDKConan(ConanFile):
         return ret
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             emsdk = "emsdk.bat" if tools.os_info.is_windows else "./emsdk"
             self._chmod_plus_x("emsdk")
 
@@ -78,13 +78,13 @@ class EmSDKConan(ConanFile):
         toolchain = os.path.join(emscripten, "cmake", "Modules", "Platform", "Emscripten.cmake")
         # FIXME: conan should add the root of conan package requirements to CMAKE_PREFIX_PATH (LIBRARY/INCLUDE -> ONLY; PROGRAM -> NEVER)
         # allow to find conan libraries
-        tools.files.replace_in_file(self, toolchain,
+        files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)")
-        tools.files.replace_in_file(self, toolchain,
+        files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)")
-        tools.files.replace_in_file(self, toolchain,
+        files.replace_in_file(self, toolchain,
                               "set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)",
                               "set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)")
         if not tools.build.cross_building(self):

@@ -61,7 +61,7 @@ class PDCursesConan(ConanFile):
             self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("PDCurses-{}".format(self.version), self._source_subfolder)
 
     def _configure_autotools(self):
@@ -76,7 +76,7 @@ class PDCursesConan(ConanFile):
         return self._autotools
 
     def _build_windows(self):
-        with tools.files.chdir(self, os.path.join(self._source_subfolder, "wincon")):
+        with files.chdir(self, os.path.join(self._source_subfolder, "wincon")):
             args = []
             if self.options.shared:
                 args.append("DLL=Y")
@@ -89,13 +89,13 @@ class PDCursesConan(ConanFile):
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "wincon", "Makefile.vc"),
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "wincon", "Makefile.vc"),
                                   "$(CFLAGS)",
                                   "$(CFLAGS) -{}".format(self.settings.compiler.runtime))
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "x11", "Makefile.in"),
                               "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
                               "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a")
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "x11", "Makefile.in"),
                               "\nall:\t",
                               "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"))
 
@@ -104,7 +104,7 @@ class PDCursesConan(ConanFile):
         if self.settings.os == "Windows":
             self._build_windows()
         else:
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, "x11")):
+            with files.chdir(self, os.path.join(self._source_subfolder, "x11")):
                 autotools = self._configure_autotools()
                 autotools.make()
 
@@ -116,7 +116,7 @@ class PDCursesConan(ConanFile):
 
     @property
     def _license_text(self):
-        readme = tools.files.load(self, os.path.join(self._source_subfolder, self._subsystem_folder, "README.md"))
+        readme = files.load(self, os.path.join(self._source_subfolder, self._subsystem_folder, "README.md"))
         match = re.search(r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)", readme,
                           re.IGNORECASE | re.MULTILINE)
         if not match:
@@ -124,7 +124,7 @@ class PDCursesConan(ConanFile):
         return match.group(1).strip() + "\n"
 
     def package(self):
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         if self.settings.os == "Windows":
             self.copy(pattern="curses.h", src=self._source_subfolder, dst="include")
@@ -136,10 +136,10 @@ class PDCursesConan(ConanFile):
                 os.rename(os.path.join(self.package_folder, "lib", "pdcurses.a"),
                           os.path.join(self.package_folder, "lib", "libpdcurses.a"))
         else:
-            with tools.files.chdir(self, os.path.join(self._source_subfolder, "x11")):
+            with files.chdir(self, os.path.join(self._source_subfolder, "x11")):
                 autotools = self._configure_autotools()
                 autotools.install()
-                tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+                files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         if self.settings.os == "Windows":

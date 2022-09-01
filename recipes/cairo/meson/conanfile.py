@@ -146,7 +146,7 @@ class CairoConan(ConanFile):
             yield
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_meson(self):
@@ -199,11 +199,11 @@ class CairoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # Dependency freetype2 found: NO found 2.11.0 but need: '>= 9.7.3'
         if self.options.with_freetype:
-            tools.files.replace_in_file(self, "freetype2.pc",
+            files.replace_in_file(self, "freetype2.pc",
                                   "Version: %s" % self.deps_cpp_info["freetype"].version,
                                   "Version: 9.7.3")
         with self._build_context():
@@ -212,11 +212,11 @@ class CairoConan(ConanFile):
 
     def _fix_library_names(self):
         if self._is_msvc:
-            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
+            with files.chdir(self, os.path.join(self.package_folder, "lib")):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info("rename %s into %s" % (filename_old, filename_new))
-                    tools.files.rename(self, filename_old, filename_new)
+                    files.rename(self, filename_old, filename_new)
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
@@ -225,8 +225,8 @@ class CairoConan(ConanFile):
             meson = self._configure_meson()
             meson.install()
         self._fix_library_names()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.components["cairo_"].names["pkg_config"] = "cairo"

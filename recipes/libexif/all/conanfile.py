@@ -65,17 +65,17 @@ class LibexifConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=self._settings_build.os == "Windows")
         self._autotools.libs = []
-        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-FS")
         yes_no = lambda v: "yes" if v else "no"
         args = [
@@ -100,11 +100,11 @@ class LibexifConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.files.rename(self, os.path.join(self.package_folder, "lib", "exif.dll.lib"),
+            files.rename(self, os.path.join(self.package_folder, "lib", "exif.dll.lib"),
                          os.path.join(self.package_folder, "lib", "exif.lib"))
-        tools.files.rm(self, "*.la", self.package_folder)
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", self.package_folder)
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["exif"]

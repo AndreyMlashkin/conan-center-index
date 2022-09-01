@@ -38,7 +38,7 @@ class PlatformInterfacesConan(ConanFile):
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        if Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("platform.interfaces/{} "
                                             "requires C++20 with {}, "
                                             "which is not supported "
@@ -47,7 +47,7 @@ class PlatformInterfacesConan(ConanFile):
             tools.build.check_min_cppstd(self, 20)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("*.h", dst="include", src=self._subfolder_sources)

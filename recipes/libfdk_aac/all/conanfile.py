@@ -41,7 +41,7 @@ class LibFDKAACConan(ConanFile):
 
     @property
     def _use_cmake(self):
-        return tools.scm.Version(self.version) >= "2.0.2"
+        return Version(self.version) >= "2.0.2"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,7 +58,7 @@ class LibFDKAACConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -72,7 +72,7 @@ class LibFDKAACConan(ConanFile):
 
     @contextlib.contextmanager
     def _msvc_build_environment(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     yield
@@ -80,36 +80,36 @@ class LibFDKAACConan(ConanFile):
     def _build_vs(self):
         with self._msvc_build_environment():
             # Rely on flags injected by conan
-            tools.files.replace_in_file(self, "Makefile.vc",
+            files.replace_in_file(self, "Makefile.vc",
                                   "CFLAGS   = /nologo /W3 /Ox /MT",
                                   "CFLAGS   = /nologo")
-            tools.files.replace_in_file(self, "Makefile.vc",
+            files.replace_in_file(self, "Makefile.vc",
                                   "MKDIR_FLAGS = -p",
                                   "MKDIR_FLAGS =")
             # Build either shared or static, and don't build utility (it always depends on static lib)
-            tools.files.replace_in_file(self, "Makefile.vc", "copy $(PROGS) $(bindir)", "")
-            tools.files.replace_in_file(self, "Makefile.vc", "copy $(LIB_DEF) $(libdir)", "")
+            files.replace_in_file(self, "Makefile.vc", "copy $(PROGS) $(bindir)", "")
+            files.replace_in_file(self, "Makefile.vc", "copy $(LIB_DEF) $(libdir)", "")
             if self.options.shared:
-                tools.files.replace_in_file(self, "Makefile.vc",
+                files.replace_in_file(self, "Makefile.vc",
                                       "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                                       "all: $(LIB_DEF) $(SHARED_LIB) $(IMP_LIB)")
-                tools.files.replace_in_file(self, "Makefile.vc", "copy $(STATIC_LIB) $(libdir)", "")
+                files.replace_in_file(self, "Makefile.vc", "copy $(STATIC_LIB) $(libdir)", "")
             else:
-                tools.files.replace_in_file(self, "Makefile.vc",
+                files.replace_in_file(self, "Makefile.vc",
                                       "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                                       "all: $(STATIC_LIB)")
-                tools.files.replace_in_file(self, "Makefile.vc", "copy $(IMP_LIB) $(libdir)", "")
-                tools.files.replace_in_file(self, "Makefile.vc", "copy $(SHARED_LIB) $(bindir)", "")
+                files.replace_in_file(self, "Makefile.vc", "copy $(IMP_LIB) $(libdir)", "")
+                files.replace_in_file(self, "Makefile.vc", "copy $(SHARED_LIB) $(bindir)", "")
             self.run("nmake -f Makefile.vc")
 
     def _build_autotools(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared lib on macOS
-            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             if self.settings.os == "Android" and tools.os_info.is_windows:
                 # remove escape for quotation marks, to make ndk on windows happy
-                tools.files.replace_in_file(self, "configure",
+                files.replace_in_file(self, "configure",
                     "s/[	 `~#$^&*(){}\\\\|;'\\\''\"<>?]/\\\\&/g", "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g")
         autotools = self._configure_autotools()
         autotools.make()
@@ -144,13 +144,13 @@ class LibFDKAACConan(ConanFile):
             with self._msvc_build_environment():
                 self.run("nmake -f Makefile.vc prefix=\"{}\" install".format(self.package_folder))
             if self.options.shared:
-                tools.files.rename(self, os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
+                files.rename(self, os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
                              os.path.join(self.package_folder, "lib", "fdk-aac.lib"))
         else:
             autotools = self._configure_autotools()
             autotools.install()
-            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fdk-aac")

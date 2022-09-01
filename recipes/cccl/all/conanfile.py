@@ -32,20 +32,20 @@ class CcclConan(ConanFile):
         del self.info.options.verbose
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
         cccl_path = os.path.join(self.source_folder, self._source_subfolder, "cccl")
-        tools.files.replace_in_file(self, cccl_path,
+        files.replace_in_file(self, cccl_path,
                               "    --help)",
                               "    *.lib)\n"
                               "        linkopt+=(\"$lib\")"
                               "        ;;\n\n"
                               "    --help)")
-        tools.files.replace_in_file(self, cccl_path,
+        files.replace_in_file(self, cccl_path,
                               "clopt+=(\"$lib\")",
                               "linkopt+=(\"$lib\")")
-        tools.files.replace_in_file(self, cccl_path,
+        files.replace_in_file(self, cccl_path,
                               "    -L*)",
                               "    -LIBPATH:*)\n"
                               "        linkopt+=(\"$1\")\n"

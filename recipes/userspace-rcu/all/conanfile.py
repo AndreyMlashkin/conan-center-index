@@ -66,7 +66,7 @@ class UserspaceRCUConan(ConanFile):
 
 
     def build(self):
-        with tools.files.chdir(self, self._source_subfolder):
+        with files.chdir(self, self._source_subfolder):
             self.run("./bootstrap")
         autotools = self._configure_autotools()
         autotools.make()
@@ -76,7 +76,7 @@ class UserspaceRCUConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 

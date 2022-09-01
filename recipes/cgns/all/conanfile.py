@@ -53,7 +53,7 @@ class CgnsConan(ConanFile):
             self.requires("hdf5/1.12.0")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("CGNS-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -74,7 +74,7 @@ class CgnsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build(target="cgns_shared" if self.options.shared else "cgns_static")

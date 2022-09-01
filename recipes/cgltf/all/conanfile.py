@@ -34,7 +34,7 @@ class CgltfConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _create_source_files(self):
@@ -46,8 +46,8 @@ class CgltfConan(ConanFile):
             "#define CGLTF_WRITE_IMPLEMENTATION\n"
             "#include \"cgltf_write.h\"\n"
         )
-        tools.files.save(self, os.path.join(self.build_folder, self._source_subfolder, "cgltf.c"), cgltf_c)
-        tools.files.save(self, os.path.join(self.build_folder, self._source_subfolder, "cgltf_write.c"), cgltf_write_c)
+        files.save(self, os.path.join(self.build_folder, self._source_subfolder, "cgltf.c"), cgltf_c)
+        files.save(self, os.path.join(self.build_folder, self._source_subfolder, "cgltf_write.c"), cgltf_write_c)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -71,11 +71,11 @@ class CgltfConan(ConanFile):
 
     @staticmethod
     def _remove_implementation(header_fullpath):
-        header_content = tools.files.load(self, header_fullpath)
+        header_content = files.load(self, header_fullpath)
         begin = header_content.find("/*\n *\n * Stop now, if you are only interested in the API.")
         end = header_content.find("/* cgltf is distributed under MIT license:", begin)
         implementation = header_content[begin:end]
-        tools.files.replace_in_file(self, 
+        files.replace_in_file(self, 
             header_fullpath,
             implementation,
             (

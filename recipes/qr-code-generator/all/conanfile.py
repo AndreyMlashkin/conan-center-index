@@ -50,7 +50,7 @@ class QrCodeGeneratorConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -61,7 +61,7 @@ class QrCodeGeneratorConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -69,9 +69,9 @@ class QrCodeGeneratorConan(ConanFile):
         cmake.build()
 
     def _extract_license(self):
-        header_name = ("QrCode.hpp" if tools.scm.Version(self.version) < "1.7.0"
+        header_name = ("QrCode.hpp" if Version(self.version) < "1.7.0"
                        else "qrcodegen.hpp")
-        header = tools.files.load(self, os.path.join(
+        header = files.load(self, os.path.join(
             self._source_subfolder, "cpp", header_name))
         license_contents = header[2:header.find("*/", 1)]
         return license_contents
@@ -79,11 +79,11 @@ class QrCodeGeneratorConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
+        files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
                    self._extract_license())
 
     def package_info(self):
-        library_name = ("qrcodegen" if tools.scm.Version(self.version) < "1.7.0"
+        library_name = ("qrcodegen" if Version(self.version) < "1.7.0"
                        else "qrcodegencpp")
         self.cpp_info.libs.append(library_name)
         if self.settings.os in ["Linux", "FreeBSD"]:

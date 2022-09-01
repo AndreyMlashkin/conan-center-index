@@ -46,7 +46,7 @@ class PlatformDelegatesConan(ConanFile):
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
 
-        if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+        if Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("platform.delegates/{} "
                                             "requires C++{} with {}, "
                                             "which is not supported "
@@ -59,7 +59,7 @@ class PlatformDelegatesConan(ConanFile):
             
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("*.h", dst="include", src=self._internal_cpp_subfolder)

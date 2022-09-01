@@ -40,7 +40,7 @@ class PbcConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -81,7 +81,7 @@ class PbcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -89,8 +89,8 @@ class PbcConan(ConanFile):
         self.copy(pattern="COPYING", dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["pbc"]

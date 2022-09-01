@@ -60,7 +60,7 @@ class SundialsConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -81,7 +81,7 @@ class SundialsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -90,7 +90,7 @@ class SundialsConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         if self.settings.os == "Windows" and self.options.shared:
-            tools.files.mkdir(self, os.path.join(self.package_folder, "bin"))
+            files.mkdir(self, os.path.join(self.package_folder, "bin"))
             for dll_path in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
                 shutil.move(dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path)))
 

@@ -98,7 +98,7 @@ class LibjpegTurboConan(ConanFile):
             self.build_requires("nasm/2.14")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -118,7 +118,7 @@ class LibjpegTurboConan(ConanFile):
         if is_msvc(self):
             cmake.definitions["WITH_CRT_DLL"] = True # avoid replacing /MD by /MT in compiler flags
 
-        if tools.scm.Version(self.version) <= "2.1.0":
+        if Version(self.version) <= "2.1.0":
             cmake.definitions["CMAKE_MACOSX_BUNDLE"] = False # avoid configuration error if building for iOS/tvOS/watchOS
 
         if tools.build.cross_building(self):
@@ -134,14 +134,14 @@ class LibjpegTurboConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
         # use standard GNUInstallDirs.cmake - custom one is broken
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "include(cmakescripts/GNUInstallDirs.cmake)",
                               "include(GNUInstallDirs)")
         # do not override /MT by /MD if shared
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "sharedlib", "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "sharedlib", "CMakeLists.txt"),
                               """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
                               "")
 
@@ -155,13 +155,13 @@ class LibjpegTurboConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # remove unneeded directories
-        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
+        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "doc"))
         # remove binaries and pdb files
         for pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
-            tools.files.rm(self, pattern_to_remove, os.path.join(self.package_folder, "bin"))
+            files.rm(self, pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libjpeg-turbo")

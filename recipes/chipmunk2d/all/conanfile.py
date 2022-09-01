@@ -40,7 +40,7 @@ class Chipmunk2DConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "Chipmunk2D-Chipmunk-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

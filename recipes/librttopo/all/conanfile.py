@@ -47,17 +47,17 @@ class LibrttopoConan(ConanFile):
         self.requires("geos/3.10.2")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
-        librttopo_version = tools.scm.Version(self.version)
+        librttopo_version = Version(self.version)
         cmake.definitions["LIBRTGEOM_VERSION_MAJOR"] = librttopo_version.major
         cmake.definitions["LIBRTGEOM_VERSION_MINOR"] = librttopo_version.minor
         cmake.definitions["LIBRTGEOM_VERSION_PATCH"] = librttopo_version.patch
-        geos_version = tools.scm.Version(self.deps_cpp_info["geos"].version)
+        geos_version = Version(self.deps_cpp_info["geos"].version)
         cmake.definitions["RTGEOM_GEOS_VERSION"] = "{}{}".format(geos_version.major, geos_version.minor)
         cmake.configure()
         return cmake

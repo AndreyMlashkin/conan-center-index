@@ -31,13 +31,13 @@ class MathterConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("mathter requires C++17, which your compiler does not support.")
         else:
             self.output.warn("mathter requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         os.rename("Mathter-" + self.version, self._source_subfolder)
             
     def package(self):

@@ -50,19 +50,19 @@ class GlogConan(ConanFile):
             self.requires("gflags/2.2.2")
 
     def build_requirements(self):
-        if tools.scm.Version(self.version) >= "0.6.0":
+        if Version(self.version) >= "0.6.0":
             self.build_requires("cmake/3.22.3")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         # do not force PIC
-        if tools.scm.Version(self.version) <= "0.5.0":
-            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        if Version(self.version) <= "0.5.0":
+            files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "set_target_properties (glog PROPERTIES POSITION_INDEPENDENT_CODE ON)",
                                   "")
 
@@ -72,7 +72,7 @@ class GlogConan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.definitions["WITH_GFLAGS"] = self.options.with_gflags
         self._cmake.definitions["WITH_THREADS"] = self.options.with_threads
-        if tools.scm.Version(self.version) >= "0.5.0":
+        if Version(self.version) >= "0.5.0":
             self._cmake.definitions["WITH_PKGCONFIG"] = True
             if self.settings.os == "Emscripten":
                 self._cmake.definitions["WITH_SYMBOLIZE"] = False
@@ -94,8 +94,8 @@ class GlogConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "glog"

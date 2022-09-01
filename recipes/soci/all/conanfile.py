@@ -93,7 +93,7 @@ class SociConan(ConanFile):
             tools.build.check_min_cppstd(self, 11)
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.scm.Version(self.settings.compiler.version.value)
+        compiler_version = Version(self.settings.compiler.version.value)
         if compiler not in self._minimum_compilers_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(self.name, self.settings.compiler))
         elif compiler_version < self._minimum_compilers_version[compiler]:
@@ -112,25 +112,25 @@ class SociConan(ConanFile):
             raise ConanInvalidConfiguration("{} firebird {} ".format(prefix, message))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "set(CMAKE_MODULE_PATH ${SOCI_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})",
                               "list(APPEND CMAKE_MODULE_PATH ${SOCI_SOURCE_DIR}/cmake)")
-        tools.files.replace_in_file(self, cmakelists,
+        files.replace_in_file(self, cmakelists,
                               "set(CMAKE_MODULE_PATH ${SOCI_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})",
                               "list(APPEND CMAKE_MODULE_PATH ${SOCI_SOURCE_DIR}/cmake/modules)")
 
         # Remove hardcoded install_name_dir, it prevents relocatable shared lib on macOS
         soci_backend_cmake = os.path.join(self._source_subfolder, "cmake", "SociBackend.cmake")
         soci_core_cmake = os.path.join(self._source_subfolder, "src", "core", "CMakeLists.txt")
-        tools.files.replace_in_file(self, soci_backend_cmake, "INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib", "")
-        tools.files.replace_in_file(self, soci_core_cmake, "INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib", "")
+        files.replace_in_file(self, soci_backend_cmake, "INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib", "")
+        files.replace_in_file(self, soci_core_cmake, "INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib", "")
 
     def _configure_cmake(self):
         if self._cmake:
@@ -172,24 +172,24 @@ class SociConan(ConanFile):
 
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "cmake"))
 
         if os.path.isdir(os.path.join(self.package_folder, "lib64")):
             if os.path.isdir(os.path.join(self.package_folder, "lib")):
                 self.copy("*", dst="lib", src="lib64", keep_path=False, symlinks=True)
-                tools.files.rmdir(self, os.path.join(self.package_folder, "lib64"))
+                files.rmdir(self, os.path.join(self.package_folder, "lib64"))
             else:
                 rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
 
         os.remove(os.path.join(self.package_folder, "include", "soci", "soci-config.h.in"))
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SOCI")
 
         target_suffix = "" if self.options.shared else "_static"
         lib_prefix = "lib" if self._is_msvc and not self.options.shared else ""
-        version = tools.scm.Version(self.version)
+        version = Version(self.version)
         lib_suffix = "_{}_{}".format(version.major, version.minor) if self.settings.os == "Windows" else ""
 
         # soci_core

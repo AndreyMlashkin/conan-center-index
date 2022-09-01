@@ -47,12 +47,12 @@ class CpppeglibConan(ConanFile):
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration("{} {} requires C++17, which your compiler does not support.".format(self.name, self.version))
 
-        if self.settings.compiler == "clang" and tools.scm.Version(self.settings.compiler.version) == "7" and \
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) == "7" and \
            tools.stdcpp_library(self) == "stdc++":
             raise ConanInvalidConfiguration("{} {} does not support clang 7 with libstdc++.".format(self.name, self.version))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)

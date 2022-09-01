@@ -92,19 +92,19 @@ class Pagmo2Conan(ConanFile):
             raise ConanInvalidConfiguration("{0} requires non header-only boost with these components: {1}".format(self.name, ", ".join(self._required_boost_components)))
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version],
+        files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         # do not force MT runtime for static lib
-        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "if(YACMA_COMPILER_IS_MSVC AND PAGMO_BUILD_STATIC_LIBRARY)",
                               "if(0)")
         # No warnings as errors
         yacma_cmake = os.path.join(self._source_subfolder, "cmake_modules", "yacma", "YACMACompilerLinkerSettings.cmake")
-        tools.files.replace_in_file(self, yacma_cmake, "list(APPEND _YACMA_CXX_FLAGS_DEBUG \"-Werror\")", "")
-        tools.files.replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/W4)", "")
-        tools.files.replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/WX)", "")
+        files.replace_in_file(self, yacma_cmake, "list(APPEND _YACMA_CXX_FLAGS_DEBUG \"-Werror\")", "")
+        files.replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/W4)", "")
+        files.replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/WX)", "")
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -129,7 +129,7 @@ class Pagmo2Conan(ConanFile):
         self.copy(pattern="COPYING.*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "pagmo")

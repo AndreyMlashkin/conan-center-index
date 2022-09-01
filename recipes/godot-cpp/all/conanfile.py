@@ -61,8 +61,8 @@ class GodotCppConan(ConanFile):
         return self.deps_cpp_info["godot_headers"]
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
-        tools.files.rename(self, glob.glob("godot-cpp-*")[0], self._source_subfolder)
+        files.get(self, **self.conan_data["sources"][self.version])
+        files.rename(self, glob.glob("godot-cpp-*")[0], self._source_subfolder)
 
     def requirements(self):
         self.requires("godot_headers/{}".format(self.version))
@@ -87,7 +87,7 @@ class GodotCppConan(ConanFile):
                 "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard))
             return
 
-        version = tools.scm.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             if compiler in ["apple-clang", "clang"]:
                 raise ConanInvalidConfiguration(

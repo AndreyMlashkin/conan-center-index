@@ -34,13 +34,13 @@ class Base64Conan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version])
+        files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.files.patch(self, **patch)
+            files.patch(self, **patch)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -65,7 +65,7 @@ class Base64Conan(ConanFile):
             # ARM-specific instructions can be enabled here
             extra_env = {}
         with tools.environment_append(extra_env):
-            with tools.files.chdir(self, self._source_subfolder):
+            with files.chdir(self, self._source_subfolder):
                 autotools.make(target="lib/libbase64.a")
 
     def build(self):
