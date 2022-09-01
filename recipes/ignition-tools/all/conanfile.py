@@ -1,6 +1,7 @@
 import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.29.1"
 
@@ -46,7 +47,7 @@ class IgnitionToolsConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -55,7 +56,7 @@ class IgnitionToolsConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -65,7 +66,7 @@ class IgnitionToolsConan(ConanFile):
                 )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake is not None:
@@ -77,7 +78,7 @@ class IgnitionToolsConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -85,16 +86,16 @@ class IgnitionToolsConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            tools.files.rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
-        version_major = tools.Version(self.version).major
+        version_major = tools.scm.Version(self.version).major
         self.cpp_info.names["cmake_find_package"] = "ignition-tools{}".format(version_major)
         self.cpp_info.names["cmake_find_package_multi"] = "ignition-tools{}".format(version_major)
 

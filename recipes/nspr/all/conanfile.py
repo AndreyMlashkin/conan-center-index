@@ -1,7 +1,8 @@
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.files import rename
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import functools
 import os
@@ -57,7 +58,7 @@ class NsprConan(ConanFile):
 
     def validate(self):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1658671
-        if tools.Version(self.version) < "4.29":
+        if tools.scm.Version(self.version) < "4.29":
             if self.settings.os == "Macos" and self.settings.arch == "armv8":
                 raise ConanInvalidConfiguration("NSPR does not support mac M1 before 4.29")
 
@@ -68,10 +69,10 @@ class NsprConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination="tmp", strip_root=True)
         rename(self, os.path.join("tmp", "nspr"), self._source_subfolder)
-        tools.rmdir("tmp")
+        tools.files.rmdir(self, "tmp")
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -91,7 +92,7 @@ class NsprConan(ConanFile):
             "--enable-64bit={}".format(yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))),
             "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
             "--disable-cplus",
         ]
         if self._is_msvc:
@@ -120,9 +121,9 @@ class NsprConan(ConanFile):
         return autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             # relocatable shared libs on macOS
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 "configure",
                 "-install_name @executable_path/",
                 "-install_name @rpath/"
@@ -133,13 +134,13 @@ class NsprConan(ConanFile):
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with self._build_context():
                 autotools = self._configure_autotools()
                 autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "bin"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.os == "Windows":
             if self.options.shared:
                 os.mkdir(os.path.join(self.package_folder, "bin"))
@@ -154,10 +155,10 @@ class NsprConan(ConanFile):
                     os.unlink(os.path.join(self.package_folder, "lib", "{}{}.{}".format(libprefix, lib, libsuffix)))
                     os.unlink(os.path.join(self.package_folder, "lib", "{}.dll".format(lib)))
             if not self.options.shared:
-                tools.replace_in_file(os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
+                tools.files.replace_in_file(self, os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
                                       "#define NSPR_API(__type) PR_IMPORT(__type)",
                                       "#define NSPR_API(__type) extern __type")
-                tools.replace_in_file(os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
+                tools.files.replace_in_file(self, os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
                                       "#define NSPR_DATA_API(__type) PR_IMPORT_DATA(__type)",
                                       "#define NSPR_DATA_API(__type) extern __type")
         else:
@@ -198,7 +199,7 @@ class NsprConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["winmm", "ws2_32"])
 
-        aclocal = tools.unix_path(os.path.join(self.package_folder, "res", "aclocal"))
+        aclocal = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res", "aclocal"))
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal)
 

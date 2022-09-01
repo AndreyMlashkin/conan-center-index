@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.32.0"
@@ -53,7 +54,7 @@ class SleefConan(ConanFile):
             raise ConanInvalidConfiguration("shared sleef not supported on Windows, it produces runtime errors")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -87,7 +88,7 @@ class SleefConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "sleef"

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -60,29 +61,29 @@ class MsdfgenConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self._is_msvc and self.options.shared:
             raise ConanInvalidConfiguration("msdfgen shared not supported by Visual Studio")
         if self.options.with_skia:
             raise ConanInvalidConfiguration("skia recipe not available yet in CCI")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         # unvendor lodepng & tinyxml2
-        tools.rmdir(os.path.join(self._source_subfolder, "lib"))
-        tools.replace_in_file(cmakelists, "\"lib/*.cpp\"", "")
-        tools.replace_in_file(cmakelists,
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "lib"))
+        tools.files.replace_in_file(self, cmakelists, "\"lib/*.cpp\"", "")
+        tools.files.replace_in_file(self, cmakelists,
                               "target_link_libraries(msdfgen-ext PUBLIC msdfgen::msdfgen Freetype::Freetype)",
                               "target_link_libraries(msdfgen-ext PUBLIC msdfgen::msdfgen ${CONAN_LIBS})")
         # very weird but required for Visual Studio when libs are unvendored (at least for Ninja generator)
         if self._is_msvc:
-            tools.replace_in_file(cmakelists,
+            tools.files.replace_in_file(self, cmakelists,
                                   "set_target_properties(msdfgen-standalone PROPERTIES ARCHIVE_OUTPUT_DIRECTORY archive OUTPUT_NAME msdfgen)",
                                   "set_target_properties(msdfgen-standalone PROPERTIES OUTPUT_NAME msdfgen IMPORT_PREFIX foo)")
 
@@ -107,7 +108,7 @@ class MsdfgenConan(ConanFile):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "msdfgen")

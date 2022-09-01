@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, copy, get, mkdir, rename, rmdir, save, rm
 from conans import CMake
 # TODO: Update to conan.tools.apple after 1.51.3
-from conans.tools import is_apple_os
+from conan.tools.apple import is_apple_os
 
 required_conan_version = ">=1.50.0"
 
@@ -80,7 +80,7 @@ class DbusConan(ConanFile):
 
             self._cmake.definitions["DBUS_BUILD_X11"] = self.options.get_safe("with_x11", False)
             self._cmake.definitions["DBUS_WITH_GLIB"] = self.options.with_glib
-            self._cmake.definitions["DBUS_DISABLE_ASSERT"] = is_apple_os(self.settings.os)
+            self._cmake.definitions["DBUS_DISABLE_ASSERT"] = is_apple_os(self)
             self._cmake.definitions["DBUS_DISABLE_CHECKS"] = False
 
             # Conan does not provide an EXPAT_LIBRARIES CMake variable for the Expat library.

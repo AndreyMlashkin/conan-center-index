@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class NcbiCxxToolkitTest(ConanFile):
@@ -13,6 +14,6 @@ class NcbiCxxToolkitTest(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             self.run(os.path.join("bin", "basic_sample"),  run_environment=True)
             self.run(os.path.join("bin", "basic_sample2"), run_environment=True)

@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 import textwrap
 
@@ -37,7 +38,7 @@ class XtensorConan(ConanFile):
         self.requires("xtl/0.7.4")
         self.requires("nlohmann_json/3.10.5")
         if self.options.xsimd:
-            if tools.Version(self.version) < "0.24.0":
+            if tools.scm.Version(self.version) < "0.24.0":
                 self.requires("xsimd/7.5.0")
             else:
                 self.requires("xsimd/8.1.0")
@@ -53,7 +54,7 @@ class XtensorConan(ConanFile):
         # https://github.com/xtensor-stack/xtensor/blob/master/README.md
         # - On Windows platforms, Visual C++ 2015 Update 2, or more recent
         # - On Unix platforms, gcc 4.9 or a recent version of Clang
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         compiler = self.settings.compiler
         if compiler == "Visual Studio" and version < "16":
             raise ConanInvalidConfiguration(
@@ -68,12 +69,12 @@ class XtensorConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
@@ -97,7 +98,7 @@ class XtensorConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

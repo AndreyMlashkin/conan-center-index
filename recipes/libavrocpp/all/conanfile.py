@@ -1,7 +1,8 @@
 import os
 import functools
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -47,20 +48,20 @@ class LibavrocppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
     def requirements(self):
         self.requires("boost/1.78.0")
         self.requires("snappy/1.1.9")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, 
             os.path.join(os.path.join(self._source_subfolder, "lang", "c++"), "CMakeLists.txt"),
             "${SNAPPY_LIBRARIES}", "${Snappy_LIBRARIES}"
         )
@@ -85,7 +86,7 @@ class LibavrocppConan(ConanFile):
 
         if self.settings.os == "Windows":
             for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-                tools.remove_files_by_mask(self.package_folder, dll_pattern_to_remove)
+                tools.files.rm(self, dll_pattern_to_remove, self.package_folder)
 
     def package_info(self):
         # FIXME: avro does not install under a CMake namespace https://github.com/apache/avro/blob/351f589913b9691322966fb77fe72269a0a2ec82/lang/c%2B%2B/CMakeLists.txt#L193

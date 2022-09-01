@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 required_conan_version = ">=1.33.0"
@@ -77,13 +78,13 @@ class MsixConan(ConanFile):
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn("{} recipe lacks information about the {} compiler support.".format(
                 self.name, self.settings.compiler))
-        elif tools.Version(self.settings.compiler.version) < min_version:
+        elif tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17 support. The current compiler {} {} does not support it.".format(
                     self.name, self.settings.compiler, self.settings.compiler.version))
 
@@ -132,11 +133,11 @@ class MsixConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -146,7 +147,7 @@ class MsixConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["runtimeobject"]
             if self.settings.compiler == "Visual Studio":

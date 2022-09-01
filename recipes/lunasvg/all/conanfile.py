@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -54,7 +55,7 @@ class LunaSVGConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            tools.build.check_min_cppstd(self, "14")
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -69,7 +70,7 @@ class LunaSVGConan(ConanFile):
             raise ConanInvalidConfiguration("{} requires C++14, which your compiler does not fully support.".format(self.name))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -82,7 +83,7 @@ class LunaSVGConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

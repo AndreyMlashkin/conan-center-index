@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -59,7 +60,7 @@ class LibCheckConan(ConanFile):
             self.requires("subunit/1.4.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -75,7 +76,7 @@ class LibCheckConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -84,9 +85,9 @@ class LibCheckConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         target = "checkShared" if self.options.shared else "check"

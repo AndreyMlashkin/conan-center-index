@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -49,7 +49,7 @@ class MpcConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -65,7 +65,7 @@ class MpcConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
@@ -73,8 +73,8 @@ class MpcConan(ConanFile):
         self.copy(pattern="COPYING.LESSER", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["mpc"]

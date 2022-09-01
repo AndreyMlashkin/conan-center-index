@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -34,7 +34,7 @@ class MDSpanConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(
             str(self.settings.compiler))
         if not min_version:
@@ -42,7 +42,7 @@ class MDSpanConan(ConanFile):
                              "compiler support.".format(
                                  self.name, self.settings.compiler))
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. "
                     "The current compiler {} {} does not support it.".format(
@@ -51,7 +51,7 @@ class MDSpanConan(ConanFile):
                         self.settings.compiler.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))

@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.43.0"
 
@@ -31,10 +32,10 @@ class WiseEnumConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         minimal_version = {
            "gcc": "5"
@@ -54,7 +55,7 @@ class WiseEnumConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

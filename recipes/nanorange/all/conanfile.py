@@ -1,7 +1,7 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 
 
 class NanorangeConan(ConanFile):
@@ -40,7 +40,7 @@ class NanorangeConan(ConanFile):
                     raise ConanInvalidConfiguration("NanoRange requires a compiler that supports at least C++17")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         url = self.conan_data["sources"][self.version]["url"]
         commit = url[url.rfind("/")+1:url.find(".tar.gz")]
         extracted_folder = "NanoRange-" + commit

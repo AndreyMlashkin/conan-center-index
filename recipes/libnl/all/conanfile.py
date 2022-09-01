@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -24,7 +25,7 @@ class LibNlConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def configure(self):
         if self.options.shared:
@@ -41,7 +42,7 @@ class LibNlConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self)
         config_args = [
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
+            "--prefix={}".format(tools.microsoft.unix_path(self, self.package_folder)),
         ]
         if self.options.shared:
             config_args.extend(["--enable-shared=yes", "--enable-static=no"])
@@ -59,10 +60,10 @@ class LibNlConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     @property
     def _settings_build(self):

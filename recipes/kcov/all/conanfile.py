@@ -1,7 +1,8 @@
 import os
 from conan import ConanFile
-from conans import CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 class KcovConan(ConanFile):
     name = "kcov"
@@ -29,13 +30,13 @@ class KcovConan(ConanFile):
                 "kcov can not be built on windows.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake is not None:
@@ -52,7 +53,7 @@ class KcovConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("COPYING*", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):

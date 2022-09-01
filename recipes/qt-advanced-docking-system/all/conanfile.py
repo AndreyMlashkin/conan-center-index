@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -45,7 +46,7 @@ class QtADS(ConanFile):
         self.requires(f"qt/{self._qt_version}")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True,
                   destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -62,9 +63,9 @@ class QtADS(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             f"{self.source_folder}/{self._source_subfolder}/src/ads_globals.cpp",
             "#include <qpa/qplatformnativeinterface.h>",
             f"#include <{self._qt_version}/QtGui/qpa/qplatformnativeinterface.h>"
@@ -79,8 +80,8 @@ class QtADS(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "license"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "license"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         if self.options.shared:

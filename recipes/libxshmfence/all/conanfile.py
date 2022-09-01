@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
@@ -62,7 +63,7 @@ class LibxshmfenceConan(ConanFile):
         self.requires("xorg-proto/2021.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], 
+        tools.files.get(self, **self.conan_data["sources"][self.version], 
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -92,7 +93,7 @@ class LibxshmfenceConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -102,8 +103,8 @@ class LibxshmfenceConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["xshmfence"]

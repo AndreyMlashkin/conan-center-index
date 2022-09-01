@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -68,17 +69,17 @@ class Jinja2cppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Don't force MD for shared lib, allow to honor runtime from profile
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set(JINJA2CPP_MSVC_RUNTIME_TYPE \"/MD\")", "")
 
     def _configure_cmake(self):
@@ -103,7 +104,7 @@ class Jinja2cppConan(ConanFile):
 
     def build(self):
         if self.version == "1.1.0":
-            if tools.Version(self.deps_cpp_info["fmt"].version) >= "7.0.0":
+            if tools.scm.Version(self.deps_cpp_info["fmt"].version) >= "7.0.0":
                 raise ConanInvalidConfiguration("jinja2cpp requires fmt < 7.0.0")
         self._patch_sources()
         cmake = self._configure_cmake()
@@ -113,8 +114,8 @@ class Jinja2cppConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "jinja2cpp"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "jinja2cpp"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -132,7 +133,7 @@ class Jinja2cppConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

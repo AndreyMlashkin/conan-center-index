@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
@@ -11,7 +12,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self):
+        if not tools.build.cross_building(self):
             # core component
             bin_path = os.path.join("bin", "test_package_core")
             self.run(bin_path, run_environment=True)

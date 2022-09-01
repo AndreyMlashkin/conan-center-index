@@ -1,8 +1,9 @@
 import os
 import shutil
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc_static_runtime, is_msvc
 
 required_conan_version = ">=1.35.0"
@@ -41,7 +42,7 @@ class NvclothConan(ConanFile):
         return "build_subfolder"
     
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -56,7 +57,7 @@ class NvclothConan(ConanFile):
         if build_type not in ["Debug", "RelWithDebInfo", "Release"]:
             raise ConanInvalidConfiguration("Current build_type is not supported")
 
-        if is_msvc(self) and tools.Version(self.settings.compiler.version) < 9:
+        if is_msvc(self) and tools.scm.Version(self.settings.compiler.version) < 9:
             raise ConanInvalidConfiguration("Visual Studio versions < 9 are not supported")
 
     def _configure_cmake(self):
@@ -76,12 +77,12 @@ class NvclothConan(ConanFile):
         return cmake
     
     def _remove_samples(self):
-        tools.rmdir(os.path.join(self._source_subfolder, "NvCloth", "samples"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "NvCloth", "samples"))
 
     def _patch_sources(self):
         # There is no reason to force consumer of PhysX public headers to use one of
         # NDEBUG or _DEBUG, since none of them relies on NDEBUG or _DEBUG
-        tools.replace_in_file(os.path.join(self.build_folder, self._source_subfolder, "PxShared", "include", "foundation", "PxPreprocessor.h"),
+        tools.files.replace_in_file(self, os.path.join(self.build_folder, self._source_subfolder, "PxShared", "include", "foundation", "PxPreprocessor.h"),
                               "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
                               "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!")
         shutil.copy(
@@ -89,7 +90,7 @@ class NvclothConan(ConanFile):
             os.path.join(self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h.origin")
         )
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         
         if self.settings.build_type == "Debug":
             shutil.copy(

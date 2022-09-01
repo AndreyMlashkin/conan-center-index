@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
@@ -50,13 +51,13 @@ class LiblslConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         if not self.options.shared:
             # Do not force PIC
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "CMakeLists.txt"),
                 "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
                 ""
@@ -83,8 +84,8 @@ class LiblslConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "lslver*")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rm(self, "lslver*", os.path.join(self.package_folder, "bin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
@@ -103,7 +104,7 @@ class LiblslConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.43.0"
@@ -18,7 +18,7 @@ class JwtCppConan(ConanFile):
 
     @property
     def _supports_generic_json(self):
-        return tools.Version(self.version) >= "0.5.0"
+        return tools.scm.Version(self.version) >= "0.5.0"
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -30,10 +30,10 @@ class JwtCppConan(ConanFile):
             self.requires("picojson/1.3.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
         header_dir = os.path.join(self._source_subfolder, "include")

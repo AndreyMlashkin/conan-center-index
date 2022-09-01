@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -62,9 +63,9 @@ class LibpqxxConan(ConanFile):
                 .format(self.name,))
 
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
-        lib_version = tools.Version(self.version)
+        lib_version = tools.scm.Version(self.version)
         lib_version_7_6_0_or_later = lib_version >= "7.6.0"
         minimum_compiler_version = {
             "Visual Studio": "16" if lib_version_7_6_0_or_later else "15",
@@ -85,15 +86,15 @@ class LibpqxxConan(ConanFile):
 
         if self.settings.os == "Macos":
             os_version = self.settings.get_safe("os.version")
-            if os_version and tools.Version(os_version) < self._mac_os_minimum_required_version:
+            if os_version and tools.scm.Version(os_version) < self._mac_os_minimum_required_version:
                 raise ConanInvalidConfiguration(
                     "Macos Mojave (10.14) and earlier cannot to be built because C++ standard library too old.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, minimum_cpp_standard)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -108,7 +109,7 @@ class LibpqxxConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -118,9 +119,9 @@ class LibpqxxConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libpqxx")

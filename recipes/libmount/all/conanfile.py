@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -25,7 +26,7 @@ class LibmountConan(ConanFile):
             raise ConanInvalidConfiguration("only Linux is supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "util-linux-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -41,18 +42,18 @@ class LibmountConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             env_build = self._configure_autotools()
             env_build.make()
 
     def package(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             env_build = self._configure_autotools()
             env_build.install()
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "sbin"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "sbin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         os.remove(os.path.join(self.package_folder, "lib", "libblkid.la"))
         os.remove(os.path.join(self.package_folder, "lib", "libmount.la"))
 

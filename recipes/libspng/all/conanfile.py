@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import functools
 
@@ -50,7 +51,7 @@ class LibspngConan(ConanFile):
             self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -65,7 +66,7 @@ class LibspngConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -73,7 +74,7 @@ class LibspngConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "spng")

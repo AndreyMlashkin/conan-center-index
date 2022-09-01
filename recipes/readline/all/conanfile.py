@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 
 class ReadLineConan(ConanFile):
@@ -49,7 +49,7 @@ class ReadLineConan(ConanFile):
             raise ConanInvalidConfiguration("readline does not support Visual Studio")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -62,7 +62,7 @@ class ReadLineConan(ConanFile):
             configure_args.extend(["--enable-shared", "--disable-static"])
         else:
             configure_args.extend(["--enable-static", "--disable-shared"])
-        if tools.cross_building(self.settings):
+        if tools.build.cross_building(self, self.settings):
             configure_args.append("bash_cv_wcwidth_broken=yes")
 
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
@@ -74,9 +74,9 @@ class ReadLineConan(ConanFile):
         return self._autotools
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "shlib", "Makefile.in"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "shlib", "Makefile.in"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
                               "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap")
 
     def build(self):
         self._patch_sources()
@@ -88,8 +88,8 @@ class ReadLineConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["history", "readline"]

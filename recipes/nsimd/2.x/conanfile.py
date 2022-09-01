@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 required_conan_version = ">=1.33.0"
 
@@ -49,7 +50,7 @@ class NsimdConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -65,13 +66,13 @@ class NsimdConan(ConanFile):
 
     def _patch_sources(self):
         cmakefile_path = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(cmakefile_path,
+        tools.files.replace_in_file(self, cmakefile_path,
                               " SHARED ",
                               " ")
-        tools.replace_in_file(cmakefile_path,
+        tools.files.replace_in_file(self, cmakefile_path,
                               "RUNTIME DESTINATION lib",
                               "RUNTIME DESTINATION bin")
-        tools.replace_in_file(cmakefile_path,
+        tools.files.replace_in_file(self, cmakefile_path,
                               "set_property(TARGET ${o} PROPERTY POSITION_INDEPENDENT_CODE ON)",
                               "")
 
@@ -86,4 +87,4 @@ class NsimdConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -42,7 +43,7 @@ class WiringpiConan(ConanFile):
             raise ConanInvalidConfiguration("{} only works for Linux.".format(self.name))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):

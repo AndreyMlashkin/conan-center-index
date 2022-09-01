@@ -1,5 +1,6 @@
 from conan.tools.microsoft import is_msvc
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 import re
@@ -55,7 +56,7 @@ class LibharuConan(ConanFile):
         self.requires("libpng/1.6.37")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -70,12 +71,12 @@ class LibharuConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
     def _extract_license(self):
-        readme = tools.load(os.path.join(self._source_subfolder, "README"))
+        readme = tools.files.load(self, os.path.join(self._source_subfolder, "README"))
         match = next(re.finditer("\n[^\n]*license[^\n]*\n", readme, flags=re.I | re.A))
         return readme[match.span()[1]:].strip("*").strip()
 
@@ -85,8 +86,8 @@ class LibharuConan(ConanFile):
 
         for fn in ("CHANGES", "INSTALL", "README"):
             os.unlink(os.path.join(self.package_folder, fn))
-        tools.rmdir(os.path.join(self.package_folder, "if"))
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        tools.files.rmdir(self, os.path.join(self.package_folder, "if"))
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
 
     def package_info(self):
         libprefix = "lib" if is_msvc(self) else ""

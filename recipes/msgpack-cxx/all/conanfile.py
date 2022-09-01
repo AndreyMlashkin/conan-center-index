@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -34,7 +34,7 @@ class MsgpackCXXConan(ConanFile):
 
     def configure_options(self):
         # No boost was added in 4.1.0
-        if tools.Version(self.version) < "4.1.0":
+        if tools.scm.Version(self.version) < "4.1.0":
             del self.options.use_boost
 
     def requirements(self):
@@ -45,7 +45,7 @@ class MsgpackCXXConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def package(self):
@@ -67,7 +67,7 @@ class MsgpackCXXConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -90,5 +90,5 @@ class MsgpackCXXConan(ConanFile):
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
 
-        if tools.Version(self.version) >= "4.1.0" and not self.options.use_boost:
+        if tools.scm.Version(self.version) >= "4.1.0" and not self.options.use_boost:
             self.cpp_info.defines.append("MSGPACK_NO_BOOST")

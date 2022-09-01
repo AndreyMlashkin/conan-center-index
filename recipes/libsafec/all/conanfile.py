@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -54,7 +54,7 @@ class LibSafeCConan(ConanFile):
     @property
     def _supported_compiler(self):
         compiler = self.settings.compiler
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if compiler == "Visual Studio":
             return False
         if compiler == "gcc" and version < "5":
@@ -70,7 +70,7 @@ class LibSafeCConan(ConanFile):
                     self.settings.compiler, self.settings.compiler.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -89,7 +89,7 @@ class LibSafeCConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")),
                      win_bash=tools.os_info.is_windows, run_environment=True)
         autotools = self._configure_autotools()
@@ -99,8 +99,8 @@ class LibSafeCConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "libsafec"))

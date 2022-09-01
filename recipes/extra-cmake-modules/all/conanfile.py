@@ -1,5 +1,6 @@
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class ExtracmakemodulesConan(ConanFile):
     name = "extra-cmake-modules"
@@ -18,7 +19,7 @@ class ExtracmakemodulesConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("extra-cmake-modules-{}".format(self.version), self._source_subfolder)
 
     def _configure_cmake(self):

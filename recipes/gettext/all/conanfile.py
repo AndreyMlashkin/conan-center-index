@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
@@ -49,25 +49,25 @@ class GetTextConan(ConanFile):
             self.build_requires("automake/1.16.5")
 
     def validate(self):
-        if tools.Version(self.version) < "0.21" and self.settings.compiler == "Visual Studio":
+        if tools.scm.Version(self.version) < "0.21" and self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("MSVC builds of gettext for versions < 0.21 are not supported.")  # FIXME: it used to be possible. What changed?
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             env = {
-                "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
+                "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
                 "LD": "link -nologo",
                 "NM": "dumpbin -symbols",
                 "STRIP": ":",
-                "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                "AR": "{} lib".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib)),
                 "RANLIB": ":",
             }
             with tools.vcvars(self):
@@ -82,11 +82,11 @@ class GetTextConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
-        libiconv_prefix = tools.unix_path(self.deps_cpp_info["libiconv"].rootpath)
+        libiconv_prefix = tools.microsoft.unix_path(self, self.deps_cpp_info["libiconv"].rootpath)
         args = [
             "HELP2MAN=/bin/true",
             "EMACS=no",
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res"))),
             "--with-libiconv-prefix={}".format(libiconv_prefix),
             "--disable-shared",
             "--disable-static",
@@ -122,9 +122,9 @@ class GetTextConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@prefix@", "$GETTEXT_ROOT_UNIX")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@datarootdir@", "$prefix/res")
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@prefix@", "$GETTEXT_ROOT_UNIX")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "gettext-tools", "misc", "autopoint.in"), "@datarootdir@", "$prefix/res")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -134,11 +134,11 @@ class GetTextConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
-        tools.rmdir(os.path.join(self.package_folder, "include"))
-        tools.rmdir(os.path.join(self.package_folder, "share", "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "share", "info"))
-        tools.rmdir(os.path.join(self.package_folder, "share", "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "include"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.libdirs = []
@@ -148,12 +148,12 @@ class GetTextConan(ConanFile):
         self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
 
-        aclocal = tools.unix_path(os.path.join(self.package_folder, "res", "aclocal"))
+        aclocal = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res", "aclocal"))
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal)
 
-        autopoint = tools.unix_path(os.path.join(self.package_folder, "bin", "autopoint"))
+        autopoint = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "bin", "autopoint"))
         self.output.info("Setting AUTOPOINT environment variable: {}".format(autopoint))
         self.env_info.AUTOPOINT = autopoint
 
-        self.env_info.GETTEXT_ROOT_UNIX = tools.unix_path(self.package_folder)
+        self.env_info.GETTEXT_ROOT_UNIX = tools.microsoft.unix_path(self, self.package_folder)

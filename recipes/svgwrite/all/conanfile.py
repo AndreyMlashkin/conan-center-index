@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class SvgwriteConan(ConanFile):
@@ -32,10 +33,10 @@ class SvgwriteConan(ConanFile):
 
     def configure(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
 
         minimal_version = {
             "Visual Studio": "16",
@@ -53,7 +54,7 @@ class SvgwriteConan(ConanFile):
                                             " supported." % (self.name, compiler, compiler_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_folder = self.name + "-v" + self.version
         os.rename(extracted_folder, self._source_subfolder)
 
@@ -65,7 +66,7 @@ class SvgwriteConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -73,7 +74,7 @@ class SvgwriteConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["svgwrite"]

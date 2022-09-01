@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -30,7 +31,7 @@ class LibProtobufMutatorConan(ConanFile):
         self.requires("protobuf/3.17.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def validate(self):
@@ -39,18 +40,18 @@ class LibProtobufMutatorConan(ConanFile):
         if self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration("Requires either compiler.libcxx=libstdc++11")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def _patch_sources(self):
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """include_directories(${PROTOBUF_INCLUDE_DIRS})""",
             """include_directories(${protobuf_INCLUDE_DIRS})""")
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
             """# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""")
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, 'CMakeLists.txt'),
             """add_subdirectory(examples EXCLUDE_FROM_ALL)""",
             """# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)""")
@@ -77,8 +78,8 @@ class LibProtobufMutatorConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "OFF"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "OFF"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"

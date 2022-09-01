@@ -2,8 +2,9 @@ import os
 
 from conan.tools.files import rename
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
@@ -329,7 +330,7 @@ class AwsSdkCppConan(ConanFile):
 
     @property
     def _use_aws_crt_cpp(self):
-        return tools.Version(self.version) >= "1.9"
+        return tools.scm.Version(self.version) >= "1.9"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -339,7 +340,7 @@ class AwsSdkCppConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "1.9":
+        if tools.scm.Version(self.version) < "1.9":
             delattr(self.options, "s3-crt")
 
     def configure(self):
@@ -365,14 +366,14 @@ class AwsSdkCppConan(ConanFile):
     def validate(self):
         if (self.options.shared
             and self.settings.compiler == "gcc"
-            and tools.Version(self.settings.compiler.version) < "6.0"):
+            and tools.scm.Version(self.settings.compiler.version) < "6.0"):
             raise ConanInvalidConfiguration(
                 "Doesn't support gcc5 / shared. "
                 "See https://github.com/conan-io/conan-center-index/pull/4401#issuecomment-802631744"
             )
-        if (tools.Version(self.version) < "1.9.234"
+        if (tools.scm.Version(self.version) < "1.9.234"
             and self.settings.compiler == "gcc"
-            and tools.Version(self.settings.compiler.version) >= "11.0"
+            and tools.scm.Version(self.settings.compiler.version) >= "11.0"
             and self.settings.build_type == "Release"):
             raise ConanInvalidConfiguration(
                 "Versions prior to 1.9.234 don't support release builds on >= gcc 11 "
@@ -395,7 +396,7 @@ class AwsSdkCppConan(ConanFile):
                     setattr(self.info.options, internal_requirement, True)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -420,7 +421,7 @@ class AwsSdkCppConan(ConanFile):
         if self._is_msvc and not self._use_aws_crt_cpp:
             self._cmake.definitions["FORCE_SHARED_CRT"] = "MD" in msvc_runtime_flag(self)
 
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             self._cmake.definitions["CURL_HAS_H2_EXITCODE"] = "0"
             self._cmake.definitions["CURL_HAS_H2_EXITCODE__TRYRUN_OUTPUT"] = ""
             self._cmake.definitions["CURL_HAS_TLS_PROXY_EXITCODE"] = "0"
@@ -430,7 +431,7 @@ class AwsSdkCppConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -450,12 +451,12 @@ class AwsSdkCppConan(ConanFile):
             "aws-cpp-sdk-core/include/aws/core/VersionConfig.h"
         ]:
             self.copy(file, src=self._source_subfolder, dst=self._res_folder)
-            tools.replace_in_file(os.path.join(self.package_folder, self._res_folder, file), "CMAKE_CURRENT_SOURCE_DIR", "AWS_NATIVE_SDK_ROOT", strict=False)
+            tools.files.replace_in_file(self, os.path.join(self.package_folder, self._res_folder, file), "CMAKE_CURRENT_SOURCE_DIR", "AWS_NATIVE_SDK_ROOT", strict=False)
 
         # avoid getting error from hook
-        with tools.chdir(os.path.join(self.package_folder, self._res_folder)):
+        with tools.files.chdir(self, os.path.join(self.package_folder, self._res_folder)):
             rename(self, os.path.join("toolchains", "cmakeProjectConfig.cmake"), os.path.join("toolchains", "cmakeProjectConf.cmake"))
-            tools.replace_in_file(os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake")
+            tools.files.replace_in_file(self, os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake")
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
@@ -463,10 +464,10 @@ class AwsSdkCppConan(ConanFile):
         cmake.install()
         if self._is_msvc:
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.lib")
+            tools.files.rm(self, "*.lib", os.path.join(self.package_folder, "bin"))
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         self._create_project_cmake_module()
 

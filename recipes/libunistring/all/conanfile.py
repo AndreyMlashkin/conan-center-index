@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -53,7 +53,7 @@ class LibUnistringConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -79,7 +79,7 @@ class LibUnistringConan(ConanFile):
         autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libunistring.la"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["unistring"]

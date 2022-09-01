@@ -1,5 +1,7 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 import shutil
 import textwrap
@@ -53,28 +55,28 @@ class CryptoPPPEMConan(ConanFile):
         suffix = "CRYPTOPP_{}".format(self.version.replace(".", "_"))
 
         # Get sources
-        tools.get(**self.conan_data["sources"][self.version]["source"],
+        tools.files.get(self, **self.conan_data["sources"][self.version]["source"],
                   strip_root=True, destination=self._source_subfolder)
 
         # Get CMakeLists
-        tools.get(**self.conan_data["sources"][self.version]["cmake"])
+        tools.files.get(self, **self.conan_data["sources"][self.version]["cmake"])
         src_folder = os.path.join(self.source_folder, "cryptopp-cmake-" + suffix)
         dst_folder = os.path.join(self.source_folder, self._source_subfolder)
         shutil.move(os.path.join(src_folder, "CMakeLists.txt"), os.path.join(dst_folder, "CMakeLists.txt"))
         shutil.move(os.path.join(src_folder, "cryptopp-config.cmake"), os.path.join(dst_folder, "cryptopp-config.cmake"))
-        tools.rmdir(src_folder)
+        tools.files.rmdir(self, src_folder)
         
         # Get license
-        tools.download("https://unlicense.org/UNLICENSE", "UNLICENSE", sha256="7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c")
+        tools.files.download(self, "https://unlicense.org/UNLICENSE", "UNLICENSE", sha256="7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c")
 
     def _patch_sources(self):
         if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
             shutil.copyfile(os.path.join(tools.get_env("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"),
                             os.path.join(self._source_subfolder, "cpu-features.h"))
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Honor fPIC option
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
 
     def _configure_cmake(self):
@@ -89,7 +91,7 @@ class CryptoPPPEMConan(ConanFile):
         self._cmake.definitions["DISABLE_ASM"] = True
         if self.settings.os == "Android":
             self._cmake.definitions["CRYPTOPP_NATIVE_ARCH"] = True
-        if self.settings.os == "Macos" and self.settings.arch == "armv8" and tools.Version(self.version) <= "8.4.0":
+        if self.settings.os == "Macos" and self.settings.arch == "armv8" and tools.scm.Version(self.version) <= "8.4.0":
             self._cmake.definitions["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -106,7 +108,7 @@ class CryptoPPPEMConan(ConanFile):
         self.copy(pattern="UNLICENSE", dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
@@ -126,7 +128,7 @@ class CryptoPPPEMConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -139,7 +141,7 @@ class CryptoPPPEMConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libcryptopp-pem")
 
         # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["libcryptopp-pem"].libs = tools.collect_libs(self)
+        self.cpp_info.components["libcryptopp-pem"].libs = tools.files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libcryptopp-pem"].system_libs = ["pthread", "m"]
         elif self.settings.os == "SunOS":

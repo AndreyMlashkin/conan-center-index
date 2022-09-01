@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 
 
 class DarknetConan(ConanFile):
@@ -44,13 +45,13 @@ class DarknetConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"].get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "Makefile"),
             "SLIB=libdarknet.so",
             "SLIB=libdarknet" + self._shared_lib_extension
         )
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "Makefile"),
             "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
             "all: obj backup results " + self._lib_to_compile
@@ -71,12 +72,12 @@ class DarknetConan(ConanFile):
             self.requires("opencv/2.4.13.7")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder,
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder,
                   strip_root=True)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             with tools.environment_append({"PKG_CONFIG_PATH": self.build_folder}):
                 args = ["OPENCV={}".format("1" if self.options.with_opencv else "0")]
                 env_build = AutoToolsBuildEnvironment(self)

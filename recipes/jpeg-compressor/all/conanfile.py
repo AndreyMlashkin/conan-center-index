@@ -1,7 +1,8 @@
 import os
 import glob
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class JpegCompressorConan(ConanFile):
@@ -44,7 +45,7 @@ class JpegCompressorConan(ConanFile):
                 raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob(self.name + "-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -57,7 +58,7 @@ class JpegCompressorConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -73,7 +74,7 @@ class JpegCompressorConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self._extract_license()
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENCE.txt"), self._extract_license())
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENCE.txt"), self._extract_license())
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)

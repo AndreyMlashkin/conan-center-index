@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -82,7 +83,7 @@ class MongoCDriverConan(ConanFile):
             self.requires("icu/71.1")
 
     def validate(self):
-        if self.options.with_ssl == "darwin" and not tools.is_apple_os(self.settings.os):
+        if self.options.with_ssl == "darwin" and not tools.apple.is_apple_os(self):
             raise ConanInvalidConfiguration("with_ssl=darwin only allowed on Apple os family")
         if self.options.with_ssl == "windows" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("with_ssl=windows only allowed on Windows")
@@ -94,12 +95,12 @@ class MongoCDriverConan(ConanFile):
             self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         to_replace_old_new = [
             # Fix Snappy
             {"old": "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",
@@ -110,10 +111,10 @@ class MongoCDriverConan(ConanFile):
             {"old": "set (SSL_LIBRARIES -ltls -lcrypto)", "new": ""},
         ]
         for old_new in to_replace_old_new:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "libmongoc", "CMakeLists.txt"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "libmongoc", "CMakeLists.txt"),
                                   old_new["old"], old_new["new"])
         # cleanup rpath
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)", "")
 
     @property
@@ -165,7 +166,7 @@ class MongoCDriverConan(ConanFile):
         cmake.definitions["ENABLE_PIC"] = self.options.get_safe("fPIC", True)
         if self.options.with_ssl == "openssl":
             cmake.definitions["OPENSSL_ROOT_DIR"] = self.deps_cpp_info["openssl"].rootpath
-        if tools.Version(self.version) >= "1.20.0":
+        if tools.scm.Version(self.version) >= "1.20.0":
             cmake.definitions["MONGO_USE_CCACHE"] = False
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
@@ -181,9 +182,9 @@ class MongoCDriverConan(ConanFile):
 
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         # FIXME: two CMake module/config files should be generated (mongoc-1.0-config.cmake and bson-1.0-config.cmake),

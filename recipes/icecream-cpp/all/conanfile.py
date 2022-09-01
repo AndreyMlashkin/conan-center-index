@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -20,9 +20,9 @@ class IcecreamcppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "icecream-cpp can't be used by {0} {1}".format(
                     self.settings.compiler,
@@ -34,7 +34,7 @@ class IcecreamcppConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):

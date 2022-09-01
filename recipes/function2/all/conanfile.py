@@ -1,7 +1,7 @@
 import os
 
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class Function2Conan(ConanFile):
@@ -21,7 +21,7 @@ class Function2Conan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "5",
             "clang": "3.4",
@@ -35,12 +35,12 @@ class Function2Conan(ConanFile):
             self.output.warn(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "function2-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

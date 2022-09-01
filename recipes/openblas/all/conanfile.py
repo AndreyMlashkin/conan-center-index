@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -51,11 +52,11 @@ class OpenblasConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             strip_root=True,
             destination=self._source_subfolder
@@ -87,7 +88,7 @@ class OpenblasConan(ConanFile):
         return cmake
 
     def build(self):
-        if tools.Version(self.version) >= "0.3.12":
+        if tools.scm.Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
             replace = (
                 """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
@@ -104,7 +105,7 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        tools.replace_in_file(
+        tools.files.replace_in_file(self, 
             os.path.join(self._source_subfolder, "cmake", "f_check.cmake"),
             search,
             replace,
@@ -116,8 +117,8 @@ endif()"""
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         # CMake config file:
@@ -132,7 +133,7 @@ endif()"""
         self.cpp_info.components["openblas_component"].includedirs.append(
             os.path.join("include", "openblas")
         )
-        self.cpp_info.components["openblas_component"].libs = tools.collect_libs(self)
+        self.cpp_info.components["openblas_component"].libs = tools.files.collect_libs(self, self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
             if self.options.use_thread:

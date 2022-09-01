@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import glob
 import os
@@ -56,13 +56,13 @@ class SubunitConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Cannot build shared subunit libraries on Windows")
-        if self.settings.compiler == "apple-clang" and tools.Version(self.settings.compiler.version) < "10":
+        if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "10":
             # Complete error is:
             # make[2]: *** No rule to make target `/Applications/Xcode-9.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/config.h', needed by `Makefile'.  Stop.
             raise ConanInvalidConfiguration("Due to weird make error involving missing config.h file in sysroot")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextlib.contextmanager
@@ -70,9 +70,9 @@ class SubunitConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self.deps_user_info["automake"].compile)),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
@@ -105,7 +105,7 @@ class SubunitConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -126,15 +126,15 @@ class SubunitConan(ConanFile):
             ]
             autotools.install(args=install_args)
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pod")
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rm(self, "*.pod", os.path.join(self.package_folder, "lib"))
         for d in glob.glob(os.path.join(self.package_folder, "lib", "python*")):
-            tools.rmdir(d)
+            tools.files.rmdir(self, d)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "*")):
             if os.path.isdir(d):
-                tools.rmdir(d)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "Library"))
+                tools.files.rmdir(self, d)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "Library"))
 
     def package_info(self):
         self.cpp_info.components["libsubunit"].libs = ["subunit"]

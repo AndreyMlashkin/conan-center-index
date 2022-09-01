@@ -1,6 +1,7 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.33.0"
@@ -68,17 +69,17 @@ class LibvaultConan(ConanFile):
         if compiler == "clang" and self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"] and self.settings.compiler.version == "11":
             raise ConanInvalidConfiguration("clang 11 with libstdc++ is not supported due to old libstdc++ missing C++17 support")
 
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             os_version = self.settings.get_safe("os.version")
             if os_version and Version(os_version) < self._mac_os_minimum_required_version:
                 raise ConanInvalidConfiguration(
                     "Macos Mojave (10.14) and earlier cannot to be built because C++ standard library too old.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, minimum_cpp_standard)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -94,7 +95,7 @@ class LibvaultConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -103,11 +104,11 @@ class LibvaultConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.names["cmake_find_package"] = "libvault"
         self.cpp_info.names["cmake_find_package_multi"] = "libvault"
         self.cpp_info.names["pkg_config"] = "vault"

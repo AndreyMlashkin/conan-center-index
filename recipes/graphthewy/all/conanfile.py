@@ -1,7 +1,7 @@
 import os
 
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class GraphthewyConan(ConanFile):
@@ -15,7 +15,7 @@ class GraphthewyConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     @property
@@ -33,7 +33,7 @@ class GraphthewyConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

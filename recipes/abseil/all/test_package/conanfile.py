@@ -1,33 +1,22 @@
-from conan import ConanFile
-from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan import ConanFile, tools
 from conan.tools.scm import Version
+from conans import CMake
 import os
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
-
-    def requirements(self):
-        self.requires(self.tested_reference_str)
-
-    def layout(self):
-        cmake_layout(self)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["CXX20_SUPPORTED"] = Version(self.dependencies["abseil"].ref.version) > "20210324.2"
-        tc.generate()
+    generators = "cmake", "cmake_find_package_multi"
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions["CXX20_SUPPORTED"] = tools.scm.Version(self.deps_cpp_info["abseil"].version) > "20210324.2"
         cmake.configure()
         cmake.build()
 
     def test(self):
-        if not cross_building(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
-            self.run(f"{bin_path} -s", env="conanrun")
-            bin_global_path = os.path.join(self.cpp.build.bindirs[0], "test_package_global")
-            self.run(f"{bin_global_path} -s", env="conanrun")
+        if not tools.build.cross_building(self):
+            bin_path = os.path.join("bin", "test_package")
+            self.run("%s -s" % bin_path, run_environment=True)
+            bin_global_path = os.path.join("bin", "test_package_global")
+            self.run("%s -s" % bin_global_path, run_environment=True)

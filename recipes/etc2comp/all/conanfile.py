@@ -1,6 +1,7 @@
 import os
 import glob
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class Etc2compConan(ConanFile):
     name = "etc2comp"
@@ -39,10 +40,10 @@ class Etc2compConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob('etc2comp-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -55,7 +56,7 @@ class Etc2compConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -69,6 +70,6 @@ class Etc2compConan(ConanFile):
         self.copy("*.h", dst=os.path.join("include"), src=os.path.join(self._source_subfolder, "EtcLib"), keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")

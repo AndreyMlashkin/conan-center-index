@@ -1,9 +1,9 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan import ConanFile, tools
+from conans import CMake
+import functools
 import os
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.33.0"
 
 
 class SofaConan(ConanFile):
@@ -25,10 +25,15 @@ class SofaConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt"
+    generators = "cmake"
 
     @property
-    def _sofa_src_dir(self):
-        return os.path.join(self.source_folder, self.version, "c", "src")
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -37,39 +42,31 @@ class SofaConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["SOFA_SRC_DIR"] = self._sofa_src_dir.replace("\\", "/")
-        tc.generate()
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake = self._configure_cmake()
         cmake.build()
 
-    def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
+    @functools.lru_cache(1)
+    def _configure_cmake(self):
         cmake = CMake(self)
+        cmake.definitions["SOFA_VERSION"] = self.version
+        cmake.configure(build_folder=self._build_subfolder)
+        return cmake
+
+    def package(self):
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._get_license())
+        cmake = self._configure_cmake()
         cmake.install()
 
     def _get_license(self):
-        sofa_header = load(self, os.path.join(self._sofa_src_dir, "sofa.h"))
+        sofa_header = tools.files.load(self, os.path.join(self._source_subfolder, self.version, "c", "src", "sofa.h"))
         begin = sofa_header.find("/*----------------------------------------------------------------------")
         return sofa_header[begin:]
 

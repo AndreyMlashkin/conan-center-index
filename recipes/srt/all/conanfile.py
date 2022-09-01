@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -30,7 +31,7 @@ class SrtConan(ConanFile):
 
     @property
     def _has_stdcxx_sync(self):
-        return tools.Version(self.version) >= "1.4.2"
+        return tools.scm.Version(self.version) >= "1.4.2"
 
     @property
     def _has_posix_threads(self):
@@ -51,13 +52,13 @@ class SrtConan(ConanFile):
             self.requires("pthreads4w/3.0.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "set (CMAKE_MODULE_PATH \"${CMAKE_CURRENT_SOURCE_DIR}/scripts\")",
                               "list(APPEND CMAKE_MODULE_PATH \"${CMAKE_CURRENT_SOURCE_DIR}/scripts\")")
 
@@ -89,7 +90,7 @@ class SrtConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "srt"

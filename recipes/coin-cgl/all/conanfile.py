@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import rename
 from contextlib import contextmanager
 import os
@@ -72,11 +72,11 @@ class CoinCglConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("coin-cgl does not support shared builds on Windows")
         # FIXME: This issue likely comes from very old autotools versions used to produce configure.
-        if hasattr(self, "settings_build") and tools.cross_building(self) and self.options.shared:
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self) and self.options.shared:
             raise ConanInvalidConfiguration("coin-cgl shared not supported yet when cross-building")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     @contextmanager
@@ -84,10 +84,10 @@ class CoinCglConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -108,14 +108,14 @@ class CoinCglConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
             configure_args.append("--enable-msvc={}".format(self.settings.compiler.runtime))
-            if tools.Version(self.settings.compiler.version) >= 12:
+            if tools.scm.Version(self.settings.compiler.version) >= 12:
                 self._autotools.flags.append("-FS")
         self._autotools.configure(configure_dir=os.path.join(self.source_folder, self._source_subfolder), args=configure_args)
         return self._autotools
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
                     os.path.join(self._source_subfolder, "config.sub"))
         shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -137,8 +137,8 @@ class CoinCglConan(ConanFile):
                    os.path.join(self.package_folder, "lib", "libCgl.a"),
                    os.path.join(self.package_folder, "lib", "Cgl.lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["Cgl"]

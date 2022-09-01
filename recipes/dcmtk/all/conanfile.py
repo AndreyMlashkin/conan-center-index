@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import textwrap
@@ -103,13 +104,13 @@ class DCMTKConan(ConanFile):
             self.requires("tcp-wrappers/7.6")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self) and \
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self) and \
            self.settings.os == "Macos" and self.settings.arch == "armv8":
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'
             raise ConanInvalidConfiguration("Cross building to Macos M1 is not supported (yet)")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -172,7 +173,7 @@ class DCMTKConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -185,10 +186,10 @@ class DCMTKConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
@@ -205,7 +206,7 @@ class DCMTKConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -241,7 +242,7 @@ class DCMTKConan(ConanFile):
         def xml2():
             return ["libxml2::libxml2"] if self.options.with_libxml2 else []
 
-        charls = "dcmtkcharls" if tools.Version("3.6.6") <= self.version else "charls"
+        charls = "dcmtkcharls" if tools.scm.Version("3.6.6") <= self.version else "charls"
 
         return {
             "ofstd"   : charset_conversion(),

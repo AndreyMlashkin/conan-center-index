@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -47,27 +48,27 @@ class TmxliteConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+            tools.build.check_min_cppstd(self, 14)
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # unvendor miniz
-        tools.remove_files_by_mask(os.path.join(self._source_subfolder, "tmxlite", "src"), "miniz*")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "tmxlite", "src", "CMakeLists.txt"),
+        tools.files.rm(self, "miniz*", os.path.join(self._source_subfolder, "tmxlite", "src"))
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "tmxlite", "src", "CMakeLists.txt"),
                               "${PROJECT_DIR}/miniz.c", "")
         # unvendor pugixml
-        tools.rmdir(os.path.join(self._source_subfolder, "tmxlite", "src", "detail"))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "tmxlite", "src", "CMakeLists.txt"),
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "tmxlite", "src", "detail"))
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "tmxlite", "src", "CMakeLists.txt"),
                               "${PROJECT_DIR}/detail/pugixml.cpp", "")
         # Don't inject -O3 in compile flags
-        tools.replace_in_file(os.path.join(self._source_subfolder, "tmxlite", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "tmxlite", "CMakeLists.txt"),
                               "-O3", "")
 
     def _configure_cmake(self):
@@ -91,7 +92,7 @@ class TmxliteConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.defines.append("TMXLITE_STATIC")
         if self.settings.os == "Android":

@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -18,7 +19,7 @@ class DirectShowBaseClassesConan(ConanFile):
     short_paths = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename('Windows-classic-samples-%s' % self.version, self._source_subfolder)
 
     def _configure_cmake(self):

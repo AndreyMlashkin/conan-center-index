@@ -1,8 +1,9 @@
 import os
 import glob
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class AcadoConan(ConanFile):
@@ -41,7 +42,7 @@ class AcadoConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob("acado-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -68,7 +69,7 @@ class AcadoConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -89,8 +90,8 @@ class AcadoConan(ConanFile):
         qpoases_sources_from = os.path.join(self.package_folder, "share", "acado", "external_packages", "qpoases")
         self.copy("*", src=qpoases_sources_from, dst=self._qpoases_sources)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         acado_template_paths = os.path.join(self.package_folder, "include", "acado", "code_generation", "templates")

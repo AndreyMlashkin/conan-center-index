@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 from contextlib import contextmanager
 import os
 
@@ -40,7 +41,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _target_os(self):
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             return "mac"
         # Assume gn knows about the os
         return {
@@ -54,16 +55,16 @@ class TestPackageConan(ConanFile):
         }.get(str(self.settings.arch), str(self.settings.arch))
 
     def build(self):
-        if not tools.cross_building(self.settings):
-            with tools.chdir(self.source_folder):
+        if not tools.build.cross_building(self, self.settings):
+            with tools.files.chdir(self, self.source_folder):
                 gn_args = [
                     os.path.relpath(os.path.join(self.build_folder, "bin"), os.getcwd()).replace("\\", "/"),
                     "--args=\"target_os=\\\"{os_}\\\" target_cpu=\\\"{cpu}\\\"\"".format(os_=self._target_os, cpu=self._target_cpu),
                 ]
                 self.run("gn gen {}".format(" ".join(gn_args)), run_environment=True)
             with self._build_context():
-                self.run("ninja -v -j{} -C bin".format(tools.cpu_count()), run_environment=True)
+                self.run("ninja -v -j{} -C bin".format(tools.cpu_count(self, )), run_environment=True)
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if not tools.build.cross_building(self, self.settings):
             self.run(os.path.join("bin", "test_package"), run_environment=True)

@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from conans.tools import check_min_cppstd
 import os
 import glob
@@ -45,14 +45,14 @@ class ResourcePool(ConanFile):
 
         if not minimum_version:
             self.output.warn("resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
 
     def validate(self):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob.glob(self.name + "-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 

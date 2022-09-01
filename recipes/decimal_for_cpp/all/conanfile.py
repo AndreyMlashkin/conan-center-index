@@ -1,9 +1,7 @@
-from conan import ConanFile
-from conan.tools.files import copy, get
-from conan.tools.layout import basic_layout
+from conan import ConanFile, tools
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.33.0"
 
 
 class DecimalforcppConan(ConanFile):
@@ -13,28 +11,19 @@ class DecimalforcppConan(ConanFile):
     topics = ("decimal_for_cpp", "currency", "money-library", "decimal-numbers")
     homepage = "https://github.com/vpiotr/decimal_for_cpp"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    def package_id(self):
-        self.info.clear()
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def package_id(self):
+        self.info.header_only()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def build(self):
-        pass
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def package(self):
-        copy(self, "license.txt", src=os.path.join(self.source_folder, "doc"), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-
-    def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
+        self.copy("license.txt", dst="licenses", src=os.path.join(self._source_subfolder, "doc"))
+        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))

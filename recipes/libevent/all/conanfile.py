@@ -1,5 +1,6 @@
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import functools
 
@@ -60,13 +61,13 @@ class LibeventConan(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # relocatable shared libs on macOS
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "AddEventLibrary.cmake"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "AddEventLibrary.cmake"),
                               "INSTALL_NAME_DIR \"${CMAKE_INSTALL_PREFIX}/lib\"",
                               "")
 
@@ -99,9 +100,9 @@ class LibeventConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Libevent")

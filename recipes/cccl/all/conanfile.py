@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -32,20 +32,20 @@ class CcclConan(ConanFile):
         del self.info.options.verbose
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
         cccl_path = os.path.join(self.source_folder, self._source_subfolder, "cccl")
-        tools.replace_in_file(cccl_path,
+        tools.files.replace_in_file(self, cccl_path,
                               "    --help)",
                               "    *.lib)\n"
                               "        linkopt+=(\"$lib\")"
                               "        ;;\n\n"
                               "    --help)")
-        tools.replace_in_file(cccl_path,
+        tools.files.replace_in_file(self, cccl_path,
                               "clopt+=(\"$lib\")",
                               "linkopt+=(\"$lib\")")
-        tools.replace_in_file(cccl_path,
+        tools.files.replace_in_file(self, cccl_path,
                               "    -L*)",
                               "    -LIBPATH:*)\n"
                               "        linkopt+=(\"$1\")\n"

@@ -1,5 +1,7 @@
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.tools.scm import Version
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -73,9 +75,9 @@ class VulkanLoaderConan(ConanFile):
         if self.options.get_safe("with_wsi_directfb"):
             # TODO: directfb package
             raise ConanInvalidConfiguration("Conan recipe for DirectFB is not available yet.")
-        if not tools.is_apple_os(self.settings.os) and not self.options.shared:
+        if not tools.apple.is_apple_os(self) and not self.options.shared:
             raise ConanInvalidConfiguration("Static builds are not supported on {}".format(self.settings.os))
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < 15:
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) < 15:
             # FIXME: It should build but Visual Studio 2015 container in CI of CCI seems to lack some Win SDK headers
             raise ConanInvalidConfiguration("Visual Studio < 2017 not yet supported in this recipe")
 
@@ -87,21 +89,21 @@ class VulkanLoaderConan(ConanFile):
             self.build_requires("jwasm/2.13")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
+            tools.files.patch(self, **patch)
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "cmake", "FindVulkanHeaders.cmake"),
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",
                               "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/res/vulkan/registry")
         # Honor settings.compiler.runtime
-        tools.replace_in_file(os.path.join(self._source_subfolder, "loader", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "loader", "CMakeLists.txt"),
                               "if(${configuration} MATCHES \"/MD\")",
                               "if(FALSE)")
         # No warnings as errors
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "/WX", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "/WX", "")
 
     def _configure_cmake(self):
         if self._cmake:
@@ -117,7 +119,7 @@ class VulkanLoaderConan(ConanFile):
             self._cmake.definitions["BUILD_WSI_DIRECTFB_SUPPORT"] = self.options.with_wsi_directfb
         if self.settings.os == "Windows":
             self._cmake.definitions["ENABLE_WIN10_ONECORE"] = False
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self._cmake.definitions["BUILD_STATIC_LOADER"] = not self.options.shared
         self._cmake.definitions["BUILD_LOADER"] = True
         if self.settings.os == "Windows":
@@ -136,8 +138,8 @@ class VulkanLoaderConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "loader"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "loader"))
 
     def package_info(self):
         if self.deps_cpp_info["vulkan-headers"].version != self.version:

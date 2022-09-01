@@ -1,5 +1,5 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -23,11 +23,11 @@ class PatchElfConan(ConanFile):
         self.build_requires("libtool/2.4.6")
 
     def validate(self):
-        if not tools.is_apple_os(self.settings.os) and self.settings.os not in ("FreeBSD", "Linux"):
+        if not tools.apple.is_apple_os(self) and self.settings.os not in ("FreeBSD", "Linux"):
             raise ConanInvalidConfiguration("PatchELF is only available for GNU-like operating systems (e.g. Linux)")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -37,7 +37,7 @@ class PatchElfConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv --warnings=all".format(tools.get_env("AUTORECONF")), run_environment=True)
         autotools = self._configure_autotools()
         autotools.make()
@@ -46,7 +46,7 @@ class PatchElfConan(ConanFile):
         self.copy(pattern="COPYING", src=self._source_subfolder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         del self.info.settings.compiler

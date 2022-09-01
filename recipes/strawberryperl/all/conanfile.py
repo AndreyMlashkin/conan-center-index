@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 
 class StrawberryperlConan(ConanFile):
@@ -19,14 +19,14 @@ class StrawberryperlConan(ConanFile):
 
     def build(self):
         arch = str(self.settings.arch)
-        tools.get(**self.conan_data["sources"][self.version][arch])
+        tools.files.get(self, **self.conan_data["sources"][self.version][arch])
 
     def package(self):
         self.copy(pattern="License.rtf*", dst="licenses", src="licenses")
         self.copy(pattern="*", src=os.path.join("perl", "bin"), dst="bin")
         self.copy(pattern="*", src=os.path.join("perl", "lib"), dst="lib")
         self.copy(pattern="*", src=os.path.join("perl", "vendor", "lib"), dst="lib")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

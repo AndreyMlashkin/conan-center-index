@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import msvc_runtime_flag
 import os, glob
 
@@ -60,7 +60,7 @@ class NSSConan(ConanFile):
 
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     @property
     def _make_args(self):
@@ -143,21 +143,21 @@ class NSSConan(ConanFile):
         args.append("SQLITE_INCLUDE_DIR=%s" % self.deps_cpp_info["sqlite3"].include_paths[0])
         args.append("SQLITE_LIB_DIR=%s" % self.deps_cpp_info["sqlite3"].lib_paths[0])
         args.append("NSDISTMODE=copy")
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             args.append("CROSS_COMPILE=1")
         return args
 
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(os.path.join(self._source_subfolder, "nss")):
+            tools.files.patch(self, **patch)
+        with tools.files.chdir(self, os.path.join(self._source_subfolder, "nss")):
             with tools.vcvars(self) if self.settings.compiler == "Visual Studio" else tools.no_op():
                 self.run("make %s" % " ".join(self._make_args), run_environment=True)
 
     def package(self):
         self.copy("COPYING", src = os.path.join(self._source_subfolder, "nss"), dst = "licenses")
-        with tools.chdir(os.path.join(self._source_subfolder, "nss")):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder, "nss")):
             self.run("make install %s" % " ".join(self._make_args))
         self.copy("*",
                   src=os.path.join(self._source_subfolder, "dist", "public", "nss"),
@@ -171,13 +171,13 @@ class NSSConan(ConanFile):
             self.copy("*", src = f)
 
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-            tools.rename(dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
+            tools.files.rename(self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
 
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.dll")
+            tools.files.rm(self, "*.so", os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
 
 
 

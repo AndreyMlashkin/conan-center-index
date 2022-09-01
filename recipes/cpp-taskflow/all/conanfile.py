@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.28.0"
 
@@ -21,11 +21,11 @@ class CppTaskflowConan(ConanFile):
 
     def configure(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
-        min_req_cppstd = "17" if tools.Version(self.version) <= "2.2.0" else "14"
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
+        min_req_cppstd = "17" if tools.scm.Version(self.version) <= "2.2.0" else "14"
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            tools.build.check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn("%s recipe lacks information about the %s compiler"
                              " standard version support" % (self.name, compiler))
@@ -53,10 +53,10 @@ class CppTaskflowConan(ConanFile):
         if compiler_version < minimal_version[min_req_cppstd][compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports"
                                             " at least C++%s. %s %s is not"
-                                            " supported." % (self.name, min_req_cppstd, compiler, tools.Version(self.settings.compiler.version.value)))
+                                            " supported." % (self.name, min_req_cppstd, compiler, tools.scm.Version(self.settings.compiler.version.value)))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("taskflow-" + self.version, self._source_subfolder)
 
     def package(self):

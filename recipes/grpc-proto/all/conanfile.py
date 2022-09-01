@@ -1,9 +1,10 @@
 import os
 import functools
 from conan import ConanFile
-from conans import CMake, tools
+from conan import ConanFile
+from conans import CMake
 from conan.tools.files import get, copy
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 from helpers import parse_proto_libraries
 
@@ -45,7 +46,7 @@ class GRPCProto(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
         if self.options.shared and (not self.options["protobuf"].shared or not self.options["googleapis"].shared):
             raise ConanInvalidConfiguration("If built as shared, protobuf and googleapis must be shared as well. Please, use `protobuf:shared=True` and `googleapis:shared=True`")
@@ -113,6 +114,6 @@ class GRPCProto(ConanFile):
 
     def package_info(self):
         # We are not creating components, we can just collect the libraries
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m"])

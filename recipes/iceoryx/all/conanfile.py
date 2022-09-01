@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -53,15 +54,15 @@ class IceoryxConan(ConanFile):
             self.requires("acl/2.3.1")
 
     def build_requirements(self):
-        if tools.Version(self.version) >= "2.0.0":
+        if tools.scm.Version(self.version) >= "2.0.0":
             self.tool_requires("cmake/3.16.2")
 
     def validate(self):
         compiler = self.settings.compiler
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
 
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
         if compiler == "Visual Studio":
             if version < "16":
@@ -85,26 +86,26 @@ class IceoryxConan(ConanFile):
                 raise ConanInvalidConfiguration("shared Debug with clang 7.0 and libc++ not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Honor fPIC option
-        iceoryx_utils = "iceoryx_hoofs" if tools.Version(self.version) >= "2.0.0" else "iceoryx_utils"
+        iceoryx_utils = "iceoryx_hoofs" if tools.scm.Version(self.version) >= "2.0.0" else "iceoryx_utils"
         for cmake_file in [
                 os.path.join("iceoryx_binding_c", "CMakeLists.txt"),
                 os.path.join("iceoryx_posh", "CMakeLists.txt"),
                 os.path.join(iceoryx_utils, "CMakeLists.txt")
         ]:
-            tools.replace_in_file(os.path.join(self._source_subfolder, cmake_file), "POSITION_INDEPENDENT_CODE ON", "")
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, cmake_file), "POSITION_INDEPENDENT_CODE ON", "")
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["TOML_CONFIG"] = self.options.toml_config
-        if tools.Version(self.version) >= "2.0.0":
+        if tools.scm.Version(self.version) >= "2.0.0":
             self._cmake.definitions["DOWNLOAD_TOML_LIB"] = False
         self._cmake.configure()
         return self._cmake
@@ -118,23 +119,23 @@ class IceoryxConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.toml_config:
-            tools.mkdir(os.path.join(self.package_folder, "res"))
-            tools.rename(os.path.join(self.package_folder, "etc", "roudi_config_example.toml"),
+            tools.files.mkdir(self, os.path.join(self.package_folder, "res"))
+            tools.files.rename(self, os.path.join(self.package_folder, "etc", "roudi_config_example.toml"),
                          os.path.join(self.package_folder, "res", "roudi_config.toml"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "etc"))
         # bring to default package structure
-        if (tools.Version(self.version) >= "2.0.0"):
+        if (tools.scm.Version(self.version) >= "2.0.0"):
             include_paths = ["iceoryx_binding_c", "iceoryx_hoofs", "iceoryx_posh", "iceoryx_versions.hpp"]
             for include_path in include_paths:
-                tools.rename(
+                tools.files.rename(self, 
                     os.path.join(self.package_folder, "include", "iceoryx", "v{}".format(self.version), include_path),
                     os.path.join(self.package_folder, "include", include_path))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        if (tools.Version(self.version) >= "2.0.0"):
+        if (tools.scm.Version(self.version) >= "2.0.0"):
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
                 {v["target"]: "iceoryx::{}".format(k)
@@ -261,7 +262,7 @@ class IceoryxConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -288,7 +289,7 @@ class IceoryxConan(ConanFile):
                     self._module_file_rel_path
                 ]
 
-        if tools.Version(self.version) >= "2.0.0":
+        if tools.scm.Version(self.version) >= "2.0.0":
             _register_components(self._iceoryx_components["2.0.0"])
         else:
             _register_components(self._iceoryx_components["1.0.X"])

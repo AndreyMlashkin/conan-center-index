@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake, AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 import glob
 import os
@@ -58,7 +59,7 @@ class CapnprotoConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "0.8.0":
+        if tools.scm.Version(self.version) < "0.8.0":
             del self.options.with_zlib
 
     def configure(self):
@@ -73,15 +74,15 @@ class CapnprotoConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("Cap'n Proto requires C++14. Your compiler is unknown. Assuming it supports C++14.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("Cap'n Proto requires C++14, which your compiler does not support.")
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("Cap'n Proto doesn't support shared libraries for Visual Studio")
-        if self.settings.os == "Windows" and tools.Version(self.version) < "0.8.0" and self.options.with_openssl:
+        if self.settings.os == "Windows" and tools.scm.Version(self.version) < "0.8.0" and self.options.with_openssl:
             raise ConanInvalidConfiguration("Cap'n Proto doesn't support OpenSSL on Windows pre 0.8.0")
 
     def build_requirements(self):
@@ -89,7 +90,7 @@ class CapnprotoConan(ConanFile):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -110,7 +111,7 @@ class CapnprotoConan(ConanFile):
             "--with-openssl" if self.options.with_openssl else "--without-openssl",
             "--enable-reflection",
         ]
-        if tools.Version(self.version) >= "0.8.0":
+        if tools.scm.Version(self.version) >= "0.8.0":
             args.append("--with-zlib" if self.options.with_zlib else "--without-zlib")
         autotools = AutoToolsBuildEnvironment(self)
         # Fix rpath on macOS
@@ -121,19 +122,19 @@ class CapnprotoConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.settings.os == "Windows":
             cmake = self._configure_cmake()
             cmake.build()
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "c++")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "c++")):
                 self.run("{} -fiv".format(tools.get_env("AUTORECONF")))
                 # relocatable shared libs on macOS
-                tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+                tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
                 # avoid SIP issues on macOS when dependencies are shared
-                if tools.is_apple_os(self.settings.os):
+                if tools.apple.is_apple_os(self):
                     libpaths = ":".join(self.deps_cpp_info.lib_paths)
-                    tools.replace_in_file(
+                    tools.files.replace_in_file(self, 
                         "configure",
                         "#! /bin/sh\n",
                         "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -151,11 +152,11 @@ class CapnprotoConan(ConanFile):
             cmake = self._configure_cmake()
             cmake.install()
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "c++")):
+            with tools.files.chdir(self, os.path.join(self._source_subfolder, "c++")):
                 autotools = self._configure_autotools()
                 autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for cmake_file in glob.glob(os.path.join(self.package_folder, self._cmake_folder, "*")):
             if os.path.basename(cmake_file) != "CapnProtoMacros.cmake":
                 os.remove(cmake_file)
@@ -175,7 +176,7 @@ class CapnprotoConan(ConanFile):
             set(CAPNP_INCLUDE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../../../include")
             function(CAPNP_GENERATE_CPP SOURCES HEADERS)
         """)
-        tools.replace_in_file(os.path.join(self.package_folder, self._cmake_folder, "CapnProtoMacros.cmake"),
+        tools.files.replace_in_file(self, os.path.join(self.package_folder, self._cmake_folder, "CapnProtoMacros.cmake"),
                               "function(CAPNP_GENERATE_CPP SOURCES HEADERS)",
                               find_execs)
 
@@ -198,7 +199,7 @@ class CapnprotoConan(ConanFile):
             components.append({"name": "kj-gzip", "requires": ["kj", "kj-async", "zlib::zlib"]})
         if self.options.with_openssl:
             components.append({"name": "kj-tls", "requires": ["kj", "kj-async", "openssl::openssl"]})
-        if tools.Version(self.version) >= "0.9.0":
+        if tools.scm.Version(self.version) >= "0.9.0":
             components.append({
                 "name": "capnp-websocket",
                 "requires": ["capnp", "capnp-rpc", "kj-http", "kj-async", "kj"],

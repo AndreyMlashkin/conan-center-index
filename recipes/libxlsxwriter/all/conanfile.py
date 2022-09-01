@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
@@ -50,7 +51,7 @@ class LibxlsxwriterConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def validate(self):
-        if tools.Version(self.version) <= "1.0.5" and self.options.md5 == "openssl":
+        if tools.scm.Version(self.version) <= "1.0.5" and self.options.md5 == "openssl":
             raise ConanInvalidConfiguration("{0}:md5=openssl is not suppported in {0}/{1}".format(self.name, self.version))
 
     def requirements(self):
@@ -60,11 +61,11 @@ class LibxlsxwriterConan(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -97,7 +98,7 @@ class LibxlsxwriterConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("License.txt", src=self._source_subfolder, dst="licenses")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pc")
+        tools.files.rm(self, "*.pc", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["xlsxwriter"]

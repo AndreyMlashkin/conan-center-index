@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -57,24 +58,24 @@ class PdfiumConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
         minimum_compiler_versions = {
             "gcc": 8,
             "Visual Studio": 15,
         }
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version:
-            if tools.Version(self.settings.compiler.version) < min_compiler_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_compiler_version:
                 raise ConanInvalidConfiguration("pdfium needs at least compiler version {}".format(min_compiler_version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version]["pdfium-cmake"],
+        tools.files.get(self, **self.conan_data["sources"][self.version]["pdfium-cmake"],
                   destination="pdfium-cmake", strip_root=True)
-        tools.get(**self.conan_data["sources"][self.version]["pdfium"],
+        tools.files.get(self, **self.conan_data["sources"][self.version]["pdfium"],
                   destination=self._source_subfolder)
-        tools.get(**self.conan_data["sources"][self.version]["trace_event"],
+        tools.files.get(self, **self.conan_data["sources"][self.version]["trace_event"],
                   destination=os.path.join(self._source_subfolder, "base", "trace_event", "common"))
-        tools.get(**self.conan_data["sources"][self.version]["chromium_build"],
+        tools.files.get(self, **self.conan_data["sources"][self.version]["chromium_build"],
                   destination=os.path.join(self._source_subfolder, "build"))
 
     def _configure_cmake(self):
@@ -99,7 +100,7 @@ class PdfiumConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["pdfium"]
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks.extend(["Appkit", "CoreFoundation", "CoreGraphics"])
 
         stdcpp_library = tools.stdcpp_library(self)

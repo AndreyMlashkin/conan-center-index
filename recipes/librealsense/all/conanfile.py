@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import urllib
 
@@ -52,18 +53,18 @@ class LibrealsenseConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
-        tools.get(**sources["source"], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **sources["source"], strip_root=True, destination=self._source_subfolder)
         for firmware in sources["firmware"]:
             filename = os.path.basename(urllib.parse.urlparse(firmware["url"]).path)
-            tools.download(filename=filename, **firmware)
+            tools.files.download(self, filename=filename, **firmware)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -113,10 +114,10 @@ class LibrealsenseConan(ConanFile):
         cmake.install()
         if self.options.shared:
             postfix = "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "libfw{}.*".format(postfix))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "librealsense-file{}.*".format(postfix))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+            tools.files.rm(self, "libfw{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "librealsense-file{}.*".format(postfix), os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         postfix = "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""

@@ -47,14 +47,14 @@ class LibConfuseConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) >= "12":
+        if self.settings.compiler == "Visual Studio" and tools.scm.Version(self.settings.compiler.version) >= "12":
             self._autotools.flags.append("-FS")
         conf_args = []
         if self.options.shared:
@@ -76,11 +76,11 @@ class LibConfuseConan(ConanFile):
             yield
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.in"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Makefile.in"),
                               "SUBDIRS = m4 po src $(EXAMPLES) tests doc",
                               "SUBDIRS = m4 src")
         if not self.options.shared:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "confuse.h"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "confuse.h"),
                                   "__declspec (dllimport)", "")
 
     def build(self):
@@ -96,10 +96,10 @@ class LibConfuseConan(ConanFile):
             autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libconfuse.la"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
                          os.path.join(self.package_folder, "lib", "confuse.lib"))
 
     def package_info(self):

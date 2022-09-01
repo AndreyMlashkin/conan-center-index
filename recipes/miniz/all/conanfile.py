@@ -1,10 +1,9 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get, rmdir
-from conan.tools.scm import Version
+from conan import ConanFile, tools
+from conans import CMake
+import functools
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class MinizConan(ConanFile):
@@ -27,9 +26,20 @@ class MinizConan(ConanFile):
         "fPIC": True,
     }
 
+    generators = "cmake"
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
+
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -38,50 +48,41 @@ class MinizConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        if Version(self.version) >= "2.2.0":
-            tc.variables["BUILD_EXAMPLES"] = False
-            tc.variables["BUILD_FUZZERS"] = False
-            tc.variables["AMALGAMATE_SOURCES"] = False
-            tc.variables["BUILD_HEADER_ONLY"] = False
-            tc.variables["INSTALL_PROJECT"] = True
-        # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.generate()
+    @functools.lru_cache(1)
+    def _configure_cmake(self):
+        cmake = CMake(self)
+        if tools.scm.Version(self.version) >= "2.2.0":
+            cmake.definitions["BUILD_EXAMPLES"] = False
+            cmake.definitions["BUILD_FUZZERS"] = False
+            cmake.definitions["AMALGAMATE_SOURCES"] = False
+            cmake.definitions["BUILD_HEADER_ONLY"] = False
+            cmake.definitions["INSTALL_PROJECT"] = True
+        cmake.configure(build_folder=self._build_subfolder)
+        return cmake
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "miniz")
         self.cpp_info.set_property("cmake_target_name", "miniz::miniz")
         self.cpp_info.set_property("pkg_config_name", "miniz")
         self.cpp_info.libs = ["miniz"]
-        self.cpp_info.includedirs.append(os.path.join("include", "miniz"))
+        self.cpp_info.includedirs = ["include", os.path.join("include", "miniz")]

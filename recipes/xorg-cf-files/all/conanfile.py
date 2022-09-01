@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
@@ -44,7 +45,7 @@ class XorgCfFilesConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def validate(self):
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             raise ConanInvalidConfiguration("This recipe does not support Apple operating systems.")
 
     def package_id(self):
@@ -52,7 +53,7 @@ class XorgCfFilesConan(ConanFile):
         # self.info.settings.os  # FIXME: can be removed once c3i is able to test multiple os'es from one common package
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -64,9 +65,9 @@ class XorgCfFilesConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CPP": "{} cl -E".format(tools.unix_path(self._user_info_build["automake"].compile)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CPP": "{} cl -E".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -83,7 +84,7 @@ class XorgCfFilesConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
@@ -93,7 +94,7 @@ class XorgCfFilesConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

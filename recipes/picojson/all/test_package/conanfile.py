@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 import os
 
@@ -19,7 +20,7 @@ class PicoJSONTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if not tools.build.cross_building(self, self.settings):
             bin_path = "example"
             if self._is_multi_configuration:
                 bin_path = os.path.join(str(self.settings.build_type), bin_path)

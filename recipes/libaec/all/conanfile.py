@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -52,9 +53,9 @@ class LibaecConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def validate(self):
-        if tools.Version(self.version) >= "1.0.6" and self._is_msvc:
+        if tools.scm.Version(self.version) >= "1.0.6" and self._is_msvc:
             # libaec/1.0.6 uses "restrict" keyword which seems to be supported since Visual Studio 16.
-            if tools.Version(self.settings.compiler.version) < "16":
+            if tools.scm.Version(self.settings.compiler.version) < "16":
                 raise ConanInvalidConfiguration("{} does not support Visual Studio {}".format(self.name, self.settings.compiler.version))
             # In libaec/1.0.6, fail to build aec_client command with debug and shared settings in Visual Studio.
             # Temporary, this recipe doesn't support these settings.
@@ -62,14 +63,14 @@ class LibaecConan(ConanFile):
                 raise ConanInvalidConfiguration("{} does not support debug and shared build in Visual Studio(currently)".format(self.name))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        if tools.Version(self.version) < "1.0.6":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            tools.files.patch(self, **patch)
+        if tools.scm.Version(self.version) < "1.0.6":
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                                   "add_subdirectory(tests)", "")
 
     def _configure_cmake(self):
@@ -85,23 +86,23 @@ class LibaecConan(ConanFile):
         cmake.build()
 
     def package(self):
-        if tools.Version(self.version) < "1.0.6":
+        if tools.scm.Version(self.version) < "1.0.6":
             self.copy(pattern="Copyright.txt", dst="licenses", src=self._source_subfolder)
         else:
             self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         aec_name = "aec"
-        if self.settings.os == "Windows" and tools.Version(self.version) >= "1.0.6" and not self.options.shared:
+        if self.settings.os == "Windows" and tools.scm.Version(self.version) >= "1.0.6" and not self.options.shared:
             aec_name = "aec_static" 
         szip_name = "sz"
         if self.settings.os == "Windows":
-            if tools.Version(self.version) >= "1.0.6":
+            if tools.scm.Version(self.version) >= "1.0.6":
                 szip_name = "szip" if self.options.shared else "szip_static"
             elif self.options.shared:
                 szip_name = "szip"

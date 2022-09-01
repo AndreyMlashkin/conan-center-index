@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 import os
 import functools
@@ -97,7 +98,7 @@ class LibjpegTurboConan(ConanFile):
             self.build_requires("nasm/2.14")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -117,10 +118,10 @@ class LibjpegTurboConan(ConanFile):
         if is_msvc(self):
             cmake.definitions["WITH_CRT_DLL"] = True # avoid replacing /MD by /MT in compiler flags
 
-        if tools.Version(self.version) <= "2.1.0":
+        if tools.scm.Version(self.version) <= "2.1.0":
             cmake.definitions["CMAKE_MACOSX_BUNDLE"] = False # avoid configuration error if building for iOS/tvOS/watchOS
 
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             # TODO: too specific and error prone, should be delegated to a conan helper function
             cmake_system_processor = {
                 "armv8": "aarch64",
@@ -133,14 +134,14 @@ class LibjpegTurboConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         # use standard GNUInstallDirs.cmake - custom one is broken
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "include(cmakescripts/GNUInstallDirs.cmake)",
                               "include(GNUInstallDirs)")
         # do not override /MT by /MD if shared
-        tools.replace_in_file(os.path.join(self._source_subfolder, "sharedlib", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "sharedlib", "CMakeLists.txt"),
                               """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
                               "")
 
@@ -154,13 +155,13 @@ class LibjpegTurboConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # remove unneeded directories
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "doc"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "doc"))
         # remove binaries and pdb files
         for pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), pattern_to_remove)
+            tools.files.rm(self, pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libjpeg-turbo")

@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
 import os
 
 required_conan_version = ">=1.33.0"
@@ -28,7 +29,7 @@ class AutoconfArchiveConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -38,22 +39,22 @@ class AutoconfArchiveConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
             self._autotools = self._configure_autotools()
             self._autotools.make()
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
             self._autotools = self._configure_autotools()
             self._autotools.install()
 
-        tools.mkdir(os.path.join(self.package_folder, "res"))
-        tools.rename(os.path.join(self.package_folder, "share", "aclocal"),
+        tools.files.mkdir(self, os.path.join(self.package_folder, "res"))
+        tools.files.rename(self, os.path.join(self.package_folder, "share", "aclocal"),
                      os.path.join(self.package_folder, "res", "aclocal"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        aclocal_path = tools.unix_path(os.path.join(self.package_folder, "res", "aclocal"))
+        aclocal_path = tools.microsoft.unix_path(self, os.path.join(self.package_folder, "res", "aclocal"))
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment var: {}".format(aclocal_path))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal_path)

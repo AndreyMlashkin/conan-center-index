@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -26,9 +27,9 @@ class PackageConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][str(self.settings.os)],
+        tools.files.get(self, **self.conan_data["sources"][self.version][str(self.settings.os)],
                   destination=self.source_folder)
-        tools.download(**self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
+        tools.files.download(self, **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
 
     def package(self):
         if self.settings.os != "Windows":

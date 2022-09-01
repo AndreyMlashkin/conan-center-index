@@ -1,6 +1,6 @@
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 
 class SeqanConan(ConanFile):
     name = "seqan"
@@ -33,17 +33,17 @@ SeqAn is easy to use and simplifies the development of new software tools with a
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if tools.scm.Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration("seqan requires C++14, which your compiler does not fully support.")
         else:
             self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "seqan-seqan-v" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

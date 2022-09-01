@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 from conan.tools.microsoft import is_msvc
 import functools
 
@@ -48,15 +49,15 @@ class LightGBMConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

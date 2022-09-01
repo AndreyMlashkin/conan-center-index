@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -31,7 +32,7 @@ class AwsCCal(ConanFile):
 
     @property
     def _needs_openssl(self):
-        return self.settings.os != "Windows" and not tools.is_apple_os(self.settings.os)
+        return self.settings.os != "Windows" and not tools.apple.is_apple_os(self)
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -49,7 +50,7 @@ class AwsCCal(ConanFile):
         del self.settings.compiler.libcxx
 
     def requirements(self):
-        if tools.Version(self.version) <= "0.5.11":
+        if tools.scm.Version(self.version) <= "0.5.11":
             self.requires("aws-c-common/0.6.11")
         else:
             self.requires("aws-c-common/0.7.4")
@@ -57,7 +58,7 @@ class AwsCCal(ConanFile):
             self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -71,7 +72,7 @@ class AwsCCal(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -79,7 +80,7 @@ class AwsCCal(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "aws-c-cal"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-cal"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-cal")
@@ -97,7 +98,7 @@ class AwsCCal(ConanFile):
         self.cpp_info.components["aws-c-cal-lib"].requires = ["aws-c-common::aws-c-common-lib"]
         if self.settings.os == "Windows":
             self.cpp_info.components["aws-c-cal-lib"].system_libs.append("ncrypt")
-        elif tools.is_apple_os(self.settings.os):
+        elif tools.apple.is_apple_os(self):
             self.cpp_info.components["aws-c-cal-lib"].frameworks.append("Security")
         elif self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.components["aws-c-cal-lib"].system_libs.append("dl")
@@ -112,7 +113,7 @@ class AwsCCal(ConanFile):
                 crypto_symbols = [
                     "HMAC_Update", "HMAC_Final", "HMAC_Init_ex",
                 ]
-                if tools.Version(self.deps_cpp_info["openssl"].version) >= "1.1":
+                if tools.scm.Version(self.deps_cpp_info["openssl"].version) >= "1.1":
                     crypto_symbols.extend([
                         "HMAC_CTX_new", "HMAC_CTX_free", "HMAC_CTX_reset",
                     ])

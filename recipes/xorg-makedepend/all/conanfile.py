@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 import re
 
@@ -47,7 +48,7 @@ class XorgMakedepend(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -64,19 +65,19 @@ class XorgMakedepend(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         autotools = self._configure_autotools()
         autotools.make()
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        def_h_text = tools.load(os.path.join(self._source_subfolder, "def.h"))
+        def_h_text = tools.files.load(self, os.path.join(self._source_subfolder, "def.h"))
         license_text = next(re.finditer(r"/\*([^*]+)\*/", def_h_text)).group(1)
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), license_text)
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_text)
 
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

@@ -1,4 +1,5 @@
-from conans import CMake, ConanFile, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -82,7 +83,7 @@ class NetcdfConan(ConanFile):
             self.requires("libcurl/7.83.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -105,7 +106,7 @@ class NetcdfConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         cmake = self._configure_cmake()
         cmake.build()
@@ -116,16 +117,16 @@ class NetcdfConan(ConanFile):
         cmake.install()
 
         os.unlink(os.path.join(self.package_folder, "bin", "nc-config"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.settings")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rm(self, "*.settings", os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.os == "Windows" and self.options.shared:
             for vc_file in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-                tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), vc_file)
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*[!.dll]")
+                tools.files.rm(self, vc_file, os.path.join(self.package_folder, "bin"))
+            tools.files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
         else:
-            tools.rmdir(os.path.join(self.package_folder, "bin"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "netCDF")

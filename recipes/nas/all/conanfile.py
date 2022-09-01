@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -52,8 +53,8 @@ class NasRecipe(ConanFile):
         self.build_requires("xorg-gccmakedep/1.0.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0], destination=self._source_subfolder, strip_root=True)
-        tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        tools.files.get(self, **self.conan_data["sources"][self.version][0], destination=self._source_subfolder, strip_root=True)
+        tools.files.download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     @property
     def _user_info_build(self):
@@ -77,9 +78,9 @@ class NasRecipe(ConanFile):
         return ["IRULESRC={}".format(self._imake_irulesrc), "IMAKE_DEFINES={}".format(self._imake_defines)]
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "server", "dia", "main.c"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "server", "dia", "main.c"),
                               "\nFILE *yyin", "\nextern FILE *yyin")
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("imake -DUseInstalled -I{} {}".format(self._imake_irulesrc, self._imake_defines), run_environment=True)
             autotools = self._configure_autotools()
             autotools.make(target="World",args=["-j1"] + self._imake_make_args)
@@ -87,7 +88,7 @@ class NasRecipe(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses")
 
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
             tmp_install = os.path.join(self.build_folder, "prefix")
             install_args = [
@@ -104,9 +105,9 @@ class NasRecipe(ConanFile):
         self.copy("*", src=os.path.join(tmp_install, "lib"), dst="lib")
 
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+            tools.files.rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so*")
+            tools.files.rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["audio"]

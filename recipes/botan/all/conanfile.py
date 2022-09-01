@@ -1,6 +1,6 @@
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.45.0"
@@ -117,7 +117,7 @@ class BotanConan(ConanFile):
 
         # --single-amalgamation option is no longer available
         # See also https://github.com/randombit/botan/pull/2246
-        if tools.Version(self.version) >= '2.14.0':
+        if tools.scm.Version(self.version) >= '2.14.0':
             del self.options.single_amalgamation
 
     def configure(self):
@@ -147,7 +147,7 @@ class BotanConan(ConanFile):
                 raise ConanInvalidConfiguration('{0} requires non-header-only static boost, without magic_autolink, and with these components: {1}'.format(self.name, ', '.join(self._required_boost_components)))
 
         compiler = self.settings.compiler
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
 
         if compiler == 'Visual Studio' and version < '14':
             raise ConanInvalidConfiguration("Botan doesn't support MSVC < 14")
@@ -163,7 +163,7 @@ class BotanConan(ConanFile):
 
         # Some older compilers cannot handle the amalgamated build anymore
         # See also https://github.com/randombit/botan/issues/2328
-        if tools.Version(self.version) >= '2.14.0' and self.options.amalgamation:
+        if tools.scm.Version(self.version) >= '2.14.0' and self.options.amalgamation:
             if (compiler == 'apple-clang' and version < '10') or \
                (compiler == 'gcc' and version < '8') or \
                (compiler == 'clang' and version < '7'):
@@ -174,22 +174,22 @@ class BotanConan(ConanFile):
             raise ConanInvalidConfiguration("botan:single_amalgamation=True requires botan:amalgamation=True")
 
     def source(self):
-        tools.get(**self.conan_data['sources'][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data['sources'][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get('patches', {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+            tools.files.patch(self, **patch)
+        with tools.files.chdir(self, self._source_subfolder):
             self.run(self._configure_cmd)
             self.run(self._make_cmd)
 
     def package(self):
         self.copy(pattern='license.txt', dst='licenses', src=self._source_subfolder)
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run(self._make_install_cmd)
 
     def package_info(self):
-        major_version = tools.Version(self.version).major
+        major_version = tools.scm.Version(self.version).major
         self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
         self.cpp_info.names["pkg_config"] = f"botan-{major_version}"
         self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
@@ -259,7 +259,7 @@ class BotanConan(ConanFile):
         if self.options.get_safe('fPIC', True):
             botan_extra_cxx_flags.append('-fPIC')
 
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             if self.settings.get_safe('os.version'):
                 # Required, see https://github.com/conan-io/conan-center-index/pull/3456
                 macos_min_version = tools.apple_deployment_target_flag(self.settings.os,
@@ -379,7 +379,7 @@ class BotanConan(ConanFile):
 
         call_python = 'python' if self.settings.os == 'Windows' else ''
 
-        prefix = tools.unix_path(self.package_folder) if self._is_mingw_windows else self.package_folder
+        prefix = tools.microsoft.unix_path(self, self.package_folder) if self._is_mingw_windows else self.package_folder
 
         botan_abi = ' '.join(botan_abi_flags) if botan_abi_flags else ' '
         botan_cxx_extras = ' '.join(botan_extra_cxx_flags) if botan_extra_cxx_flags else ' '
@@ -420,7 +420,7 @@ class BotanConan(ConanFile):
         make_ldflags = 'LDFLAGS=-lc++abi' if self._is_linux_clang_libcxx else ''
 
         make_cmd = ('{ldflags}' ' {make}' ' -j{cpucount}').format(
-                        ldflags=make_ldflags, make=self._make_program, cpucount=tools.cpu_count())
+                        ldflags=make_ldflags, make=self._make_program, cpucount=tools.cpu_count(self, ))
         return make_cmd
 
     @property

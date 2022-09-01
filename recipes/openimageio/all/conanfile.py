@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -109,7 +110,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/1.12.1")
         if self.options.with_opencolorio:
-            if tools.Version(self.version) < "2.3.7.2":
+            if tools.scm.Version(self.version) < "2.3.7.2":
                 self.requires("opencolorio/1.1.1")
             else:
                 self.requires("opencolorio/2.1.0")
@@ -141,19 +142,19 @@ class OpenImageIOConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            if tools.Version(self.version) >= "2.3.0.0" or self.options.with_openvdb:
-                tools.check_min_cppstd(self, 14)
+            if tools.scm.Version(self.version) >= "2.3.0.0" or self.options.with_openvdb:
+                tools.build.check_min_cppstd(self, 14)
             else:
-                tools.check_min_cppstd(self, 11)
+                tools.build.check_min_cppstd(self, 11)
         if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration("Building shared library with static runtime is not supported!")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
          for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -211,9 +212,9 @@ class OpenImageIOConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")
 

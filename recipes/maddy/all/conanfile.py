@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 import os
 
 required_conan_version = ">=1.33.0"
@@ -22,10 +22,10 @@ class MaddyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
 
     def source(self):
-        tools.get(
+        tools.files.get(self, 
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
             strip_root=True

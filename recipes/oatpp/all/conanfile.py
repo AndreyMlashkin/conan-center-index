@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -36,15 +37,15 @@ class OatppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("oatpp can not be built as shared library on Windows")
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("oatpp requires GCC >=5")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -53,7 +54,7 @@ class OatppConan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.definitions["OATPP_BUILD_TESTS"] = False
         self._cmake.definitions["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        if self.settings.os == "Windows" and tools.Version(self.version) >= "1.3.0":
+        if self.settings.os == "Windows" and tools.scm.Version(self.version) >= "1.3.0":
             self._cmake.definitions["OATPP_MSVC_LINK_STATIC_RUNTIME"] = self.settings.compiler.runtime in ["MT", "MTd"]
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -66,7 +67,7 @@ class OatppConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         include_dir = os.path.join("include", "oatpp-{}".format(self.version), "oatpp")

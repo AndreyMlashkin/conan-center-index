@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 required_conan_version = ">=1.43.0"
 
 
@@ -36,7 +36,7 @@ class OpenldapConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def requirements(self):
@@ -81,7 +81,7 @@ class OpenldapConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         autotools = self._configure_autotools()
 
         autotools.make(vars=self._configure_vars)
@@ -92,8 +92,8 @@ class OpenldapConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
-            tools.rmdir(os.path.join(self.package_folder, folder))
-        tools.remove_files_by_mask(
+            tools.files.rmdir(self, os.path.join(self.package_folder, folder))
+        tools.files.rm(self, 
             os.path.join(
                 self.package_folder,
                 "lib"),

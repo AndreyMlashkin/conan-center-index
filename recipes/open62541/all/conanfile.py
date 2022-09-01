@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import rename, get
 import glob
 import os
@@ -150,7 +151,7 @@ class Open62541Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) >= "1.3.1":
+        if tools.scm.Version(self.version) >= "1.3.1":
             del self.options.embedded_profile
 
     def configure(self):
@@ -161,7 +162,7 @@ class Open62541Conan(ConanFile):
             del self.settings.compiler.libcxx
 
         # Due to https://github.com/open62541/open62541/issues/4687 we cannot build with 1.2.2 + Windows + shared
-        if tools.Version(self.version) >= "1.2.2" and self.settings.os == "Windows" and self.options.shared:
+        if tools.scm.Version(self.version) >= "1.2.2" and self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("{0} {1} doesn't properly support shared lib on Windows".format(self.name,
                                                                                                             self.version))
 
@@ -192,7 +193,7 @@ class Open62541Conan(ConanFile):
                 raise ConanInvalidConfiguration(
                     "Open62541 discovery sempahore option requires discovery option to be enabled")
 
-        if tools.Version(self.version) < "1.1.0":
+        if tools.scm.Version(self.version) < "1.1.0":
             if self.options.encryption == "openssl":
                 raise ConanInvalidConfiguration(
                     "Lower Open62541 versions than 1.1.0 do not support openssl")
@@ -210,13 +211,13 @@ class Open62541Conan(ConanFile):
                     "Lower Open62541 versions than 1.1.0 are not cpp compatible due to -fpermisive flags")
 
         # FIXME: correct clang versions condition
-        max_clang_version = "8" if tools.Version(self.version) < "1.1.0" else "9"
-        if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) > max_clang_version:
+        max_clang_version = "8" if tools.scm.Version(self.version) < "1.1.0" else "9"
+        if self.settings.compiler == "clang" and tools.scm.Version(self.settings.compiler.version) > max_clang_version:
             raise ConanInvalidConfiguration(
                 "Open62541 supports Clang up to {} compiler version".format(max_clang_version))
 
         if self.settings.compiler == "clang":
-            if tools.Version(self.settings.compiler.version) < "5":
+            if tools.scm.Version(self.settings.compiler.version) < "5":
                 raise ConanInvalidConfiguration(
                     "Older clang compiler version than 5.0 are not supported")
 
@@ -249,7 +250,7 @@ class Open62541Conan(ConanFile):
 
                 get(self, **submodule_data)
                 submodule_source = os.path.join(self._source_subfolder, path)
-                tools.rmdir(submodule_source)
+                tools.files.rmdir(self, submodule_source)
                 rename(self, archive_name, submodule_source)
 
     def _get_log_level(self):
@@ -276,7 +277,7 @@ class Open62541Conan(ConanFile):
 
         self._cmake = CMake(self)
 
-        version = tools.Version(self.version)
+        version = tools.scm.Version(self.version)
         self._cmake.definitions["OPEN62541_VER_MAJOR"] = version.major
         self._cmake.definitions["OPEN62541_VER_MINOR"] = version.minor
         self._cmake.definitions["OPEN62541_VER_PATCH"] = version.patch
@@ -307,7 +308,7 @@ class Open62541Conan(ConanFile):
             self._cmake.definitions["UA_ENABLE_DISCOVERY_SEMAPHORE"] = \
                 self.options.discovery_semaphore or "semaphore" in str(self.options.discovery)
         self._cmake.definitions["UA_ENABLE_QUERY"] = self.options.query
-        if tools.Version(self.version) >= "1.3.1":
+        if tools.scm.Version(self.version) >= "1.3.1":
             if self.options.encryption == "openssl":
                 self._cmake.definitions["UA_ENABLE_ENCRYPTION"] = "OPENSSL"
             elif self.options.encryption == "mbedtls":
@@ -333,7 +334,7 @@ class Open62541Conan(ConanFile):
             self._cmake.definitions["UA_NAMESPACE_ZERO"] = "FULL"
         else:
             self._cmake.definitions["UA_NAMESPACE_ZERO"] = self.options.namespace_zero
-        if tools.Version(self.version) < "1.3.1":
+        if tools.scm.Version(self.version) < "1.3.1":
             self._cmake.definitions["UA_ENABLE_MICRO_EMB_DEV_PROFILE"] = self.options.embedded_profile
         self._cmake.definitions["UA_ENABLE_TYPENAMES"] = self.options.typenames
         self._cmake.definitions["UA_ENABLE_STATUSCODE_DESCRIPTIONS"] = self.options.readable_statuscodes
@@ -347,8 +348,8 @@ class Open62541Conan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        if tools.Version(self.version) >= "1.3.1":
+            tools.files.patch(self, **patch)
+        if tools.scm.Version(self.version) >= "1.3.1":
             os.unlink(os.path.join(self._source_subfolder, "tools", "cmake", "FindPython3.cmake"))
 
     def build(self):
@@ -366,16 +367,16 @@ class Open62541Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.remove_files_by_mask(os.path.join(
+        tools.files.rm(self, os.path.join(
             self.package_folder, "bin"), '*.pdb')
-        tools.remove_files_by_mask(os.path.join(
+        tools.files.rm(self, os.path.join(
             self.package_folder, "lib"), '*.pdb')
 
         for cmake_file in glob.glob(os.path.join(self.package_folder, self._module_subfolder, "*")):
             if not cmake_file.endswith(self._module_file_rel_path):
                 os.remove(cmake_file)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self.copy("generate_*.py", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
         self.copy("nodeset_compiler/*", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
 
@@ -396,7 +397,7 @@ class Open62541Conan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "open62541"
         self.cpp_info.names["cmake_find_package_multi"] = "open62541"
         self.cpp_info.names["pkg_config"] = "open62541"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.includedirs = [
             "include",
             os.path.join("include", "open62541", "plugin")

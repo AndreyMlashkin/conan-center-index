@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.32.0"
@@ -49,11 +50,11 @@ class LibSELinuxConan(ConanFile):
 
     def source(self):
         for download in self.conan_data["sources"][self.version]:
-            tools.get(**download)
+            tools.files.get(self, **download)
 
     @property
     def _sepol_soversion(self):
-        return "2" if tools.Version(self.version) >= "3.2" else "1"
+        return "2" if tools.scm.Version(self.version) >= "3.2" else "1"
 
     @property
     def _selinux_soversion(self):
@@ -67,17 +68,17 @@ class LibSELinuxConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         _sepol_subfolder, _selinux_subfolder = self._subfolders
         pcre_inc = os.path.join(self.deps_cpp_info["pcre2"].rootpath,
                                 self.deps_cpp_info["pcre2"].includedirs[0])
         pcre_libs = ' '.join(["-l%s" % lib for lib in self.deps_cpp_info["pcre2"].libs])
         sepol_inc = os.path.join(self.source_folder, _sepol_subfolder, "include")
-        with tools.chdir(os.path.join(_sepol_subfolder, "src")):
+        with tools.files.chdir(self, os.path.join(_sepol_subfolder, "src")):
             args = ["libsepol.so.{}".format(self._sepol_soversion) if self.options.shared else "libsepol.a"]
             env_build = AutoToolsBuildEnvironment(self)
             env_build.make(args=args)
-        with tools.chdir(os.path.join(_selinux_subfolder, "src")):
+        with tools.files.chdir(self, os.path.join(_selinux_subfolder, "src")):
             args = ["libselinux.so.{}".format(self._selinux_soversion) if self.options.shared else "libselinux.a",
                     'PCRE_CFLAGS=-DPCRE2_CODE_UNIT_WIDTH=8 -DUSE_PCRE2=1 -I%s -I%s' % (pcre_inc, sepol_inc),
                     'PCRE_LDLIBS=%s' % pcre_libs]

@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -17,7 +18,7 @@ class DoctestConan(ConanFile):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

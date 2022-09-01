@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 
@@ -32,11 +33,11 @@ class MysqlConnectorCConan(ConanFile):
             self.requires("zlib/1.2.11")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self, self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross compilation not yet supported by the recipe. contributions are welcome.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -66,11 +67,11 @@ class MysqlConnectorCConan(ConanFile):
         sources_cmake = os.path.join(self._source_subfolder, "CMakeLists.txt")
         sources_cmake_orig = os.path.join(self._source_subfolder, "CMakeListsOriginal.txt")
 
-        tools.rename(sources_cmake, sources_cmake_orig)
-        tools.rename("CMakeLists.txt", sources_cmake)
+        tools.files.rename(self, sources_cmake, sources_cmake_orig)
+        tools.files.rename(self, "CMakeLists.txt", sources_cmake)
 
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -80,12 +81,12 @@ class MysqlConnectorCConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.mkdir(os.path.join(self.package_folder, "licenses"))
-        tools.rename(os.path.join(self.package_folder, "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING"))
-        tools.rename(os.path.join(self.package_folder, "COPYING-debug"), os.path.join(self.package_folder, "licenses", "COPYING-debug"))
-        tools.remove_files_by_mask(self.package_folder, "README*")
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
-        tools.rmdir(os.path.join(self.package_folder, "docs"))
+        tools.files.mkdir(self, os.path.join(self.package_folder, "licenses"))
+        tools.files.rename(self, os.path.join(self.package_folder, "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING"))
+        tools.files.rename(self, os.path.join(self.package_folder, "COPYING-debug"), os.path.join(self.package_folder, "licenses", "COPYING-debug"))
+        tools.files.rm(self, "README*", self.package_folder)
+        tools.files.rm(self, "*.pdb", self.package_folder)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "docs"))
 
     def package_info(self):
         self.cpp_info.libs = ["libmysql" if self.options.shared and self.settings.os == "Windows" else "mysqlclient"]

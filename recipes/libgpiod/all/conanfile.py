@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -49,7 +50,7 @@ class LibgpiodConan(ConanFile):
         self.build_requires("linux-headers-generic/5.13.9")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -66,7 +67,7 @@ class LibgpiodConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
         autotools = self._configure_autotools()
         autotools.make()
@@ -75,8 +76,8 @@ class LibgpiodConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.remove_files_by_mask(self.package_folder, "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.la", self.package_folder)
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["gpiod"].libs = ["gpiod"]

@@ -1,4 +1,4 @@
-from conans import ConanFile, tools
+from conan import ConanFile, tools
 
 required_conan_version = ">=1.33.0"
 
@@ -31,7 +31,7 @@ class LibdivideConan(ConanFile):
         return "source_subfolder"
 
     def config_options(self):
-        if tools.Version(self.version) < "4.0.0":
+        if tools.scm.Version(self.version) < "4.0.0":
             del self.options.sse2
             del self.options.avx2
             del self.options.avx512
@@ -48,14 +48,14 @@ class LibdivideConan(ConanFile):
                 del self.options.neon
 
     def configure(self):
-        if tools.Version(self.version) < "4.0.0" and self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+        if tools.scm.Version(self.version) < "4.0.0" and self.settings.compiler.cppstd:
+            tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def package(self):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)

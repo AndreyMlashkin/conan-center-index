@@ -1,6 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.33.0"
@@ -28,14 +28,14 @@ class StduuidConan(ConanFile):
     def requirements(self):
         if not self.options.with_cxx20_span:
             self.requires("ms-gsl/2.0.0")
-        if self.settings.os == "Linux" and tools.Version(self.version) <= "1.0":
+        if self.settings.os == "Linux" and tools.scm.Version(self.version) <= "1.0":
             self.requires("libuuid/1.0.3")
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def validate(self):

@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 import shutil
 
@@ -42,10 +43,10 @@ class WasmtimeCppConan(ConanFile):
     def validate(self):
         compiler = self.settings.compiler
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            tools.build.check_min_cppstd(self, 17)
         min_version = self._minimum_compilers_version[str(compiler)]
         try:
-            if tools.Version(compiler.version) < min_version:
+            if tools.scm.Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {} !!"
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -58,7 +59,7 @@ class WasmtimeCppConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         shutil.copytree(os.path.join(self.source_folder, "include"),

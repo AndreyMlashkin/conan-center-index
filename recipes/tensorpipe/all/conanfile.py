@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
@@ -66,7 +67,7 @@ class TensorpipeConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            tools.build.check_min_cppstd(self, 14)
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("tensorpipe doesn't support Windows")
 
@@ -74,7 +75,7 @@ class TensorpipeConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -103,7 +104,7 @@ class TensorpipeConan(ConanFile):
         with tools.run_environment(self):
             cmake = self._configure_cmake()
             cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
@@ -120,7 +121,7 @@ class TensorpipeConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -130,7 +131,7 @@ class TensorpipeConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Tensorpipe")
         self.cpp_info.set_property("cmake_target_name", "tensorpipe")
         self.cpp_info.libs = ["tensorpipe"]
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "IOKit"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

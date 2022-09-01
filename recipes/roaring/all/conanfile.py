@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import functools
 
@@ -54,13 +55,13 @@ class RoaringConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
-        if tools.Version(self.version) >= "0.3.0":
-            if self.settings.compiler == "apple-clang" and tools.Version(self.settings.compiler.version) < "11":
+            tools.build.check_min_cppstd(self, "11")
+        if tools.scm.Version(self.version) >= "0.3.0":
+            if self.settings.compiler == "apple-clang" and tools.scm.Version(self.settings.compiler.version) < "11":
                 raise ConanInvalidConfiguration("roaring >= 3.0.0 requires at least apple-clang 11 to support runtime dispatching.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -77,15 +78,15 @@ class RoaringConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "set(CMAKE_MACOSX_RPATH OFF)", "")
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "set(CMAKE_MACOSX_RPATH OFF)", "")
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):

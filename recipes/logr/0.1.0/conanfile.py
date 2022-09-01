@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 class LogrConan(ConanFile):
@@ -41,7 +42,7 @@ class LogrConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            tools.build.check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "7",
             "clang": "7",
@@ -56,7 +57,7 @@ class LogrConan(ConanFile):
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = tools.scm.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
@@ -76,7 +77,7 @@ class LogrConan(ConanFile):
         return self._cmake
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -91,7 +92,7 @@ class LogrConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

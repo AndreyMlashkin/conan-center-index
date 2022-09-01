@@ -1,8 +1,9 @@
 from conan.tools.files import rename
 from conan.tools.microsoft import is_msvc
 from conan.tools.microsoft.visual import msvc_version_to_vs_ide_version
+from conan.tools.scm import Version
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import functools
 import os
@@ -66,7 +67,7 @@ class XapianCoreConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @contextmanager
@@ -105,7 +106,7 @@ class XapianCoreConan(ConanFile):
                 vs_ide_version = self.settings.compiler.version
             else:
                 vs_ide_version = msvc_version_to_vs_ide_version(self.settings.compiler.version)
-            if tools.Version(vs_ide_version) >= "12":
+            if tools.scm.Version(vs_ide_version) >= "12":
                 autotools.flags.append("-FS")
         conf_args = [
             "--datarootdir={}".format(self._datarootdir.replace("\\", "/")),
@@ -120,9 +121,9 @@ class XapianCoreConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Relocatable shared lib on macOS
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                               "-install_name \\$rpath/",
                               "-install_name @rpath/")
 
@@ -144,10 +145,10 @@ class XapianCoreConan(ConanFile):
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "bin", "xapian-config")))
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libxapian.la")))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self._datarootdir, "doc"))
-        tools.rmdir(os.path.join(self._datarootdir, "man"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self._datarootdir, "doc"))
+        tools.files.rmdir(self, os.path.join(self._datarootdir, "man"))
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path)
         )
@@ -167,7 +168,7 @@ class XapianCoreConan(ConanFile):
                                  ${xapian_LIBRARIES_MINSIZEREL}
                                  ${xapian_LIBRARIES_DEBUG})
         """)
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -191,9 +192,9 @@ class XapianCoreConan(ConanFile):
         self.output.info("Appending PATH environment variable: {}".format(binpath))
         self.env_info.PATH.append(binpath)
 
-        xapian_aclocal = tools.unix_path(os.path.join(self._datarootdir, "aclocal"))
+        xapian_aclocal = tools.microsoft.unix_path(self, os.path.join(self._datarootdir, "aclocal"))
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(xapian_aclocal))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(tools.unix_path(xapian_aclocal))
+        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(tools.microsoft.unix_path(self, xapian_aclocal))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "xapian"

@@ -1,11 +1,9 @@
-from conan import ConanFile
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, save
+from conan import ConanFile, tools
+from conans import CMake
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class AdeConan(ConanFile):
@@ -24,65 +22,86 @@ class AdeConan(ConanFile):
         "fPIC": True,
     }
 
+    exports_sources = "CMakeLists.txt"
+    generators = "cmake"
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        if self.settings.compiler.get_safe("cppstd"):
+            tools.build.check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.generate()
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.configure(build_folder=self._build_subfolder)
+        return self._cmake
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "    if(UNIX)", "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
-        cmake = CMake(self)
-        cmake.configure()
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"), "    if(UNIX)", "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
-
-        # TODO: to remove in conan v2 once legacy generators removed
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {"ade": "ade::ade"}
         )
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
+    @staticmethod
+    def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
-        save(self, module_file, content)
+            """.format(alias=alias, aliased=aliased))
+        tools.files.save(self, module_file, content)
+
+    @property
+    def _module_subfolder(self):
+        return os.path.join("lib", "cmake")
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+        return os.path.join(self._module_subfolder,
+                            "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ade")
         self.cpp_info.set_property("cmake_target_name", "ade")
-        self.cpp_info.libs = ["ade"]
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            self.cpp_info.system_libs.append("ssp")
 
-        # TODO: to remove in conan v2 once legacy generators removed
+        self.cpp_info.names["cmake_find_package"] = "ade"
+        self.cpp_info.names["cmake_find_package_multi"] = "ade"
+        self.cpp_info.filenames["cmake_find_package"] = "ade"
+        self.cpp_info.filenames["cmake_find_package_multi"] = "ade"
+
+        self.cpp_info.builddirs.append(self._module_subfolder)
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+
+        self.cpp_info.libs = ["ade"]
+        if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
+            self.cpp_info.system_libs = ["ssp"]

@@ -1,7 +1,8 @@
 """Conan recipe package for Google FlatBuffers - Flatc
 """
 import os
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 
 class FlatcConan(ConanFile):
@@ -26,10 +27,10 @@ class FlatcConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "flatbuffers-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

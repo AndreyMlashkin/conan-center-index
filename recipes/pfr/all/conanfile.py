@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import rename
 import os
 
@@ -33,12 +33,12 @@ class PfrConan(ConanFile):
 
     def configure(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
 
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.Version(compiler.version) < min_version:
+            if tools.scm.Version(compiler.version) < min_version:
                 msg = (
                     "{} requires C++{} features which are not supported by compiler {} {}."
                 ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
@@ -51,13 +51,13 @@ class PfrConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0])
+        tools.files.get(self, **self.conan_data["sources"][self.version][0])
         extracted_dir = self.name + "-" + self.version
         rename(self, extracted_dir, self._source_subfolder)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def package(self):
         include_folder = os.path.join(self._source_subfolder, "include")

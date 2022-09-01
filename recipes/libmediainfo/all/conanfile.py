@@ -1,6 +1,7 @@
 from conan.tools.files import rename
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 import textwrap
@@ -56,7 +57,7 @@ class LibmediainfoConan(ConanFile):
             raise ConanInvalidConfiguration("This package requires libzen with unicode support")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -71,22 +72,22 @@ class LibmediainfoConan(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
         rename(self, "Findtinyxml2.cmake", "FindTinyXML.cmake")
-        tools.replace_in_file("FindTinyXML.cmake", "tinyxml2_LIBRARIES", "TinyXML_LIBRARIES")
+        tools.files.replace_in_file(self, "FindTinyXML.cmake", "tinyxml2_LIBRARIES", "TinyXML_LIBRARIES")
 
         # TODO: move this to a patch (see how https://github.com/MediaArea/MediaInfoLib/issues/1408 if addressed by upstream)
         postfix = ""
         if self.settings.build_type == "Debug":
             if self.settings.os == "Windows":
                 postfix += "d"
-            elif tools.is_apple_os(self.settings.os):
+            elif tools.apple.is_apple_os(self):
                 postfix += "_debug"
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Source", "MediaInfoDLL", "MediaInfoDLL.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Source", "MediaInfoDLL", "MediaInfoDLL.h"),
                               "MediaInfo.dll",
                               "MediaInfo{}.dll".format(postfix))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Source", "MediaInfoDLL", "MediaInfoDLL.h"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "Source", "MediaInfoDLL", "MediaInfoDLL.h"),
                               "libmediainfo.0.dylib",
                               "libmediainfo{}.0.dylib".format(postfix))
 
@@ -100,10 +101,10 @@ class LibmediainfoConan(ConanFile):
         self.copy("License.html", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -121,7 +122,7 @@ class LibmediainfoConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -135,7 +136,7 @@ class LibmediainfoConan(ConanFile):
         if self.settings.build_type == "Debug":
             if self.settings.os == "Windows":
                 postfix += "d"
-            elif tools.is_apple_os(self.settings.os):
+            elif tools.apple.is_apple_os(self):
                 postfix += "_debug"
         self.cpp_info.libs = ["mediainfo" + postfix]
         if self.settings.os in ["Linux", "FreeBSD"]:

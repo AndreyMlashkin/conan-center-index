@@ -49,7 +49,7 @@ class LibltcConan(ConanFile):
             self.build_requires("automake/1.16.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -61,10 +61,10 @@ class LibltcConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].compile)),
+                    "AR": "{} lib".format(tools.microsoft.unix_path(self, self._user_info_build["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -82,7 +82,7 @@ class LibltcConan(ConanFile):
         ]
         if self.settings.compiler == "Visual Studio":
             self._autotools.cxx_flags.append("-EHsc")
-            if tools.Version(self.settings.compiler.version) >= "12":
+            if tools.scm.Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
         self._autotools.configure(args=args, configure_dir=self._source_subfolder)
         return self._autotools
@@ -97,11 +97,11 @@ class LibltcConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         os.unlink(os.path.join(self.package_folder, "lib", "libltc.la"))
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
+            tools.files.rename(self, os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
                     os.path.join(self.package_folder, "lib", "ltc.lib"))
 
     def package_info(self):

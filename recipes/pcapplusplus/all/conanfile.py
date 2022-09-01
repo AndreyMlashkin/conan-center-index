@@ -1,5 +1,6 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -45,7 +46,7 @@ class PcapplusplusConan(ConanFile):
             raise ConanInvalidConfiguration("%s is not supported" % self.settings.os)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     @property
@@ -59,22 +60,22 @@ class PcapplusplusConan(ConanFile):
 
     def _patch_sources(self):
         if not self.options.get_safe("fPIC"):
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PcapPlusPlus.mk.common"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "PcapPlusPlus.mk.common"),
                                   "-fPIC", "")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             config_args = [
                 "./{}".format(self._configure_sh_script),
-                "--libpcap-include-dir", tools.unix_path(self.deps_cpp_info["libpcap"].include_paths[0]),
-                "--libpcap-lib-dir", tools.unix_path(self.deps_cpp_info["libpcap"].lib_paths[0]),
+                "--libpcap-include-dir", tools.microsoft.unix_path(self, self.deps_cpp_info["libpcap"].include_paths[0]),
+                "--libpcap-lib-dir", tools.microsoft.unix_path(self, self.deps_cpp_info["libpcap"].lib_paths[0]),
             ]
             if self.options.immediate_mode:
                 config_args.append("--use-immediate-mode")
-            if tools.is_apple_os(self.settings.os) and "arm" in self.settings.arch:
+            if tools.apple.is_apple_os(self) and "arm" in self.settings.arch:
                 config_args.append("--arm64")
 
             autotools = AutoToolsBuildEnvironment(self)

@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 class OpenvrConan(ConanFile):
     name = "openvr"
@@ -36,9 +37,9 @@ class OpenvrConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            tools.build.check_min_cppstd(self, "11")
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("OpenVR can't be compiled by {0} {1}".format(self.settings.compiler,
                                                                                          self.settings.compiler.version))
 
@@ -46,20 +47,20 @@ class OpenvrConan(ConanFile):
         self.requires("jsoncpp/1.9.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "{}-{}".format(self.name, self.version)
         os.rename(extracted_dir, self._source_subfolder)
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         # Honor fPIC=False
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "CMakeLists.txt"),
                               "-fPIC", "")
         # Unvendor jsoncpp (we rely on our CMake wrapper for jsoncpp injection)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
                               "jsoncpp.cpp", "")
-        tools.rmdir(os.path.join(self._source_subfolder, "src", "json"))
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "src", "json"))
 
     def _configure_cmake(self):
         if self._cmake:
@@ -82,11 +83,11 @@ class OpenvrConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="openvr_api*.dll", dst="bin", src="bin", keep_path=False)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "openvr"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         self.cpp_info.includedirs.append(os.path.join("include", "openvr"))
 
         if not self.options.shared:
@@ -98,5 +99,5 @@ class OpenvrConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("dl")
 
-        if tools.is_apple_os(self.settings.os):
+        if tools.apple.is_apple_os(self):
             self.cpp_info.frameworks.append("Foundation")

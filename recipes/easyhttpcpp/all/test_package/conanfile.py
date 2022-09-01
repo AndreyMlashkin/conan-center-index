@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -12,6 +13,6 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if not tools.build.cross_building(self, self.settings):
             bin_path = os.path.join("bin", "test_package")
             self.run("{} {}".format(bin_path, "http://localhost:80"), run_environment=True)

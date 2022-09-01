@@ -1,7 +1,8 @@
 import os
 import glob
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 class OisConan(ConanFile):
     name = "ois"
@@ -45,7 +46,7 @@ class OisConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "OIS-{}".format(self.version)
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -61,7 +62,7 @@ class OisConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -69,12 +70,12 @@ class OisConan(ConanFile):
         self.copy("LICENSE.md", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.unlink(pdb_file)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         self.cpp_info.names["pkg_config"] = "OIS"
         self.cpp_info.names["cmake_find_package"] = "OIS"

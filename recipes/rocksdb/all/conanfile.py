@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import glob
 import shutil
@@ -96,35 +97,35 @@ class RocksDB(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
         if self.settings.arch not in ["x86_64", "ppc64le", "ppc64", "mips64", "armv8"]:
             raise ConanInvalidConfiguration("Rocksdb requires 64 bits")
 
         if self.settings.os == "Windows" and \
            self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) < "15":
+           tools.scm.Version(self.settings.compiler.version) < "15":
             raise ConanInvalidConfiguration("Rocksdb requires Visual Studio 15 or later.")
 
         if self.version == "6.0.2" and \
            self.settings.os == "Windows" and \
            self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) > "15":
+           tools.scm.Version(self.settings.compiler.version) > "15":
             raise ConanInvalidConfiguration("Rocksdb 6.0.2 is not compilable with Visual Studio >15.") # See https://github.com/facebook/rocksdb/issues/6048
 
         if self.version == "6.0.2" and \
            self.settings.os == "Linux" and \
            self.settings.compiler == "clang" and \
-           tools.Version(self.settings.compiler.version) > "9":
+           tools.scm.Version(self.settings.compiler.version) > "9":
             raise ConanInvalidConfiguration("Rocksdb 6.0.2 is not compilable with clang >9.") # See https://github.com/facebook/rocksdb/pull/7265
 
         if self.version == "6.20.3" and \
            self.settings.os == "Linux" and \
            self.settings.compiler == "gcc" and \
-           tools.Version(self.settings.compiler.version) < "5":
+           tools.scm.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("Rocksdb 6.20.3 is not compilable with gcc <5.") # See https://github.com/facebook/rocksdb/issues/3522
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -175,7 +176,7 @@ class RocksDB(ConanFile):
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -184,7 +185,7 @@ class RocksDB(ConanFile):
 
     def _remove_static_libraries(self):
         for static_lib_name in ["lib*.a", "rocksdb.lib"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), static_lib_name)
+            tools.files.rm(self, static_lib_name, os.path.join(self.package_folder, "lib"))
 
     def _remove_cpp_headers(self):
         for path in glob.glob(os.path.join(self.package_folder, "include", "rocksdb", "*")):
@@ -202,14 +203,14 @@ class RocksDB(ConanFile):
         if self.options.shared:
             self._remove_static_libraries()
             self._remove_cpp_headers() # Force stable ABI for shared libraries
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         cmake_target = "rocksdb-shared" if self.options.shared else "rocksdb"
         self.cpp_info.set_property("cmake_file_name", "RocksDB")
         self.cpp_info.set_property("cmake_target_name", "RocksDB::{}".format(cmake_target))
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["librocksdb"].libs = tools.collect_libs(self)
+        self.cpp_info.components["librocksdb"].libs = tools.files.collect_libs(self, self)
         if self.settings.os == "Windows":
             self.cpp_info.components["librocksdb"].system_libs = ["shlwapi", "rpcrt4"]
             if self.options.shared:

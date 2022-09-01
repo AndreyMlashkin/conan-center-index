@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 
@@ -29,7 +30,7 @@ class ChaiScriptConan(ConanFile):
         return "build_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "ChaiScript-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -61,9 +62,9 @@ class ChaiScriptConan(ConanFile):
         else:
             cmake = self._configure_cmake()
             cmake.install()
-            tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         if self.options.header_only:
@@ -71,7 +72,7 @@ class ChaiScriptConan(ConanFile):
 
     def package_info(self):
         if not self.options.header_only:
-            self.cpp_info.libs = tools.collect_libs(self)
+            self.cpp_info.libs = tools.files.collect_libs(self, self)
         if self.options.use_std_make_shared:
             self.cpp_info.defines.append("CHAISCRIPT_USE_STD_MAKE_SHARED")
         if self.settings.os == "Linux":

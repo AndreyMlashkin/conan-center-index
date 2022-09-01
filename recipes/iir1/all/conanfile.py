@@ -1,5 +1,6 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.43.0"
@@ -52,7 +53,7 @@ class Iir1Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "1.9.1":
+        if tools.scm.Version(self.version) < "1.9.1":
             del self.options.noexceptions
 
     def configure(self):
@@ -61,14 +62,14 @@ class Iir1Conan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            tools.build.check_min_cppstd(self, self._min_cppstd)
 
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = tools.scm.Version(self.settings.compiler.version)
         if self.settings.compiler == "gcc" and compiler_version <= 5:
             raise ConanInvalidConfiguration("GCC version < 5 not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -82,7 +83,7 @@ class Iir1Conan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -90,17 +91,17 @@ class Iir1Conan(ConanFile):
         self.copy('COPYING', dst='licenses', src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "libiir_static.*")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "iir_static.*")
+            tools.files.rm(self, "libiir_static.*", os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "iir_static.*", os.path.join(self.package_folder, "lib"))
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "iir.*")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "iir.*")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "libiir.*")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "libiir.*")
+            tools.files.rm(self, "iir.*", os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "iir.*", os.path.join(self.package_folder, "bin"))
+            tools.files.rm(self, "libiir.*", os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "libiir.*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         name = "iir" if self.options.shared else "iir_static"

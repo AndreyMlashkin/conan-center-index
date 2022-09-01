@@ -1,5 +1,6 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 from glob import glob
 import os
 
@@ -34,7 +35,7 @@ class SshtConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = glob('ssht-*/')[0]
         os.rename(extracted_dir, self._source_subfolder)
 

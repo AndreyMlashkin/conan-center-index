@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 
@@ -53,7 +54,7 @@ class LibdwarfConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -63,7 +64,7 @@ class LibdwarfConan(ConanFile):
         cmake.definitions["BUILD_SHARED"] = self.options.shared
         cmake.definitions["BUILD_DWARFGEN"] = False
         cmake.definitions["BUILD_DWARFEXAMPLE"] = False
-        if tools.cross_building(self):
+        if tools.build.cross_building(self):
             cmake.definitions["HAVE_UNUSED_ATTRIBUTE_EXITCODE"] = "0"
             cmake.definitions["HAVE_UNUSED_ATTRIBUTE_EXITCODE__TRYRUN_OUTPUT"] = ""
         cmake.configure(build_folder=self._build_subfolder)
@@ -71,7 +72,7 @@ class LibdwarfConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 

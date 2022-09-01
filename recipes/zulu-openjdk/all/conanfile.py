@@ -1,6 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
-from conans.tools import Version
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os, glob
 
 
@@ -45,10 +45,10 @@ class ZuluOpenJDK(ConanFile):
 
     def build(self):
         if Version(self.version) < Version("11.0.12"):
-            tools.get(**self.conan_data["sources"][self.version][str(self._settings_build.os)],
+            tools.files.get(self, **self.conan_data["sources"][self.version][str(self._settings_build.os)],
                     destination=self._source_subfolder, strip_root=True)
         else:
-            tools.get(**self.conan_data["sources"][self.version][str(self._settings_build.os)][str(self._settings_build.arch)],
+            tools.files.get(self, **self.conan_data["sources"][self.version][str(self._settings_build.os)][str(self._settings_build.arch)],
                     destination=self._source_subfolder, strip_root=True)
 
     def package(self):

@@ -1,13 +1,10 @@
-from conan import ConanFile
+from conan import ConanFile, tools
+from conans import CMake
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, get, rmdir, save
-from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.43.0"
 
 
 class CeleroConan(ConanFile):
@@ -28,6 +25,13 @@ class CeleroConan(ConanFile):
         "fPIC": True,
     }
 
+    generators = "cmake"
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
     @property
     def _compilers_minimum_version(self):
         return {
@@ -38,8 +42,9 @@ class CeleroConan(ConanFile):
         }
 
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        self.copy("CMakeLists.txt")
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,40 +55,41 @@ class CeleroConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
+        if self.settings.compiler.cppstd:
+            tools.build.check_min_cppstd(self, 14)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if not minimum_version:
+            self.output.warn("celero requires C++14. Your compiler is unknown. Assuming it supports C++14.")
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("celero requires C++14, which your compiler does not support.")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["CELERO_COMPILE_DYNAMIC_LIBRARIES"] = self.options.shared
-        tc.variables["CELERO_COMPILE_PIC"] = self.options.get_safe("fPIC", True)
-        tc.variables["CELERO_ENABLE_EXPERIMENTS"] = False
-        tc.variables["CELERO_ENABLE_FOLDERS"] = False
-        tc.variables["CELERO_ENABLE_TESTS"] = False
-        tc.variables["CELERO_TREAT_WARNINGS_AS_ERRORS"] = False
-        tc.generate()
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions["CELERO_COMPILE_DYNAMIC_LIBRARIES"] = self.options.shared
+        self._cmake.definitions["CELERO_COMPILE_PIC"] = self.options.get_safe("fPIC", True)
+        self._cmake.definitions["CELERO_ENABLE_EXPERIMENTS"] = False
+        self._cmake.definitions["CELERO_ENABLE_FOLDERS"] = False
+        self._cmake.definitions["CELERO_ENABLE_TESTS"] = False
+        self._cmake.definitions["CELERO_TREAT_WARNINGS_AS_ERRORS"] = False
+        self._cmake.configure()
+        return self._cmake
 
     def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("license.txt", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
@@ -91,25 +97,26 @@ class CeleroConan(ConanFile):
             {"celero": "celero::celero"}
         )
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
+    @staticmethod
+    def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
-        save(self, module_file, content)
+            """.format(alias=alias, aliased=aliased))
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Celero")
         self.cpp_info.set_property("cmake_target_name", "celero")
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         if not self.options.shared:
             self.cpp_info.defines = ["CELERO_STATIC"]
         if self.settings.os in ("FreeBSD", "Linux"):

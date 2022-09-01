@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.33.0"
@@ -27,20 +28,20 @@ class MsdfAtlasGenConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            tools.build.check_min_cppstd(self, 11)
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _patch_sources(self):
         cmakelists = os.path.join(
             self._source_subfolder, "CMakeLists.txt")
 
-        tools.replace_in_file(cmakelists,
+        tools.files.replace_in_file(self, cmakelists,
                               "add_subdirectory(msdfgen)", "")
         tools.save_append(cmakelists,
                           "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")

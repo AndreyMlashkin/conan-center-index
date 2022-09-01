@@ -1,6 +1,7 @@
 from conan.tools.microsoft import msvc_runtime_flag
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 import os
 import shutil
 
@@ -83,7 +84,7 @@ class Libx265Conan(ConanFile):
                 self.build_requires("nasm/2.15.05")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
         if self._cmake:
@@ -103,7 +104,7 @@ class Libx265Conan(ConanFile):
             self._cmake.definitions["STATIC_LINK_CRT"] = "MT" in msvc_runtime_flag(self)
         if self.settings.os == "Linux":
             self._cmake.definitions["PLATFORM_LIBS"] = "dl"
-        if tools.cross_building(self.settings):
+        if tools.build.cross_building(self, self.settings):
             # FIXME: too specific and error prone, should be delegated to CMake helper
             cmake_system_processor = {
                 "armv8": "aarch64",
@@ -111,22 +112,22 @@ class Libx265Conan(ConanFile):
             }.get(str(self.settings.arch), str(self.settings.arch))
             self._cmake.definitions["CONAN_LIBX265_SYSTEM_PROCESSOR"] = cmake_system_processor
         if "arm" in self.settings.arch:
-            self._cmake.definitions["CROSS_COMPILE_ARM"] = tools.cross_building(self.settings)
+            self._cmake.definitions["CROSS_COMPILE_ARM"] = tools.build.cross_building(self, self.settings)
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 
     def _patch_sources(self):
         cmakelists = os.path.join(self._source_subfolder, "source", "CMakeLists.txt")
-        tools.replace_in_file(cmakelists,
+        tools.files.replace_in_file(self, cmakelists,
                                 "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",
                                 "if(FALSE)")
         if self.settings.os == "Android":
-            tools.replace_in_file(cmakelists,
+            tools.files.replace_in_file(self, cmakelists,
                 "list(APPEND PLATFORM_LIBS pthread)", "")
-            tools.replace_in_file(cmakelists,
+            tools.files.replace_in_file(self, cmakelists,
                 "list(APPEND PLATFORM_LIBS rt)", "")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
 
     def build(self):
         self._patch_sources()
@@ -151,12 +152,12 @@ class Libx265Conan(ConanFile):
                         os.path.join(self.package_folder, "lib", "x265.lib"))
 
         if self.settings.os != "Windows" or not self.options.shared:
-            tools.rmdir(os.path.join(self.package_folder, "bin"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "bin"))
         else:
             for file in os.listdir(os.path.join(self.package_folder, "bin")):
                 if not file.endswith(".dll"):
                     os.unlink(os.path.join(self.package_folder, "bin", file))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "x265")

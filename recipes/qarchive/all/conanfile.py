@@ -1,4 +1,5 @@
-from conans import ConanFile, tools, CMake
+from conan import ConanFile, tools
+from conans import CMake
 import functools
 import os
 import textwrap
@@ -54,7 +55,7 @@ class QarchiveConan(ConanFile):
         self.build_requires("cmake/3.23.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
@@ -65,7 +66,7 @@ class QarchiveConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -73,8 +74,8 @@ class QarchiveConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
@@ -92,7 +93,7 @@ class QarchiveConan(ConanFile):
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
             """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+        tools.files.save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

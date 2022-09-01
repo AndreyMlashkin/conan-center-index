@@ -1,5 +1,5 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
 import os
 
 class MagicEnumConan(ConanFile):
@@ -36,11 +36,11 @@ class MagicEnumConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            tools.build.check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("magic_enum requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif tools.scm.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("magic_enum: Unsupported compiler: {}-{} "
                                             "(https://github.com/Neargye/magic_enum#compiler-compatibility)."
                                             .format(self.settings.compiler, self.settings.compiler.version))
@@ -49,7 +49,7 @@ class MagicEnumConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 

@@ -1,5 +1,5 @@
 from conans import ConanFile, Meson, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.29.0"
@@ -32,7 +32,7 @@ class LibnameConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.compiler == "gcc":
-            if tools.Version(self.settings.compiler.version) < "5.0":
+            if tools.scm.Version(self.settings.compiler.version) < "5.0":
                 raise ConanInvalidConfiguration("graphene does not support GCC before 5.0")
     
     def build_requirements(self):
@@ -58,14 +58,14 @@ class LibnameConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_meson(self):
         meson = Meson(self)
         defs = {}
         defs["gobject_types"] = "true" if self.options.with_glib else "false"
-        if tools.Version(self.version) < "1.10.4":
+        if tools.scm.Version(self.version) < "1.10.4":
             defs["introspection"] = "false"
         else:
             defs["introspection"] = "disabled"
@@ -89,12 +89,12 @@ class LibnameConan(ConanFile):
             meson.install()
         
         if self.settings.compiler in ["Visual Studio", "msvc"] and not self.options.shared:
-            with tools.chdir(os.path.join(self.package_folder, "lib")):
+            with tools.files.chdir(self, os.path.join(self.package_folder, "lib")):
                 if os.path.isfile("libgraphene-1.0.a"):
-                    tools.rename("libgraphene-1.0.a", "graphene-1.0.lib")
+                    tools.files.rename(self, "libgraphene-1.0.a", "graphene-1.0.lib")
                 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rm(self, "*.pdb", self.package_folder)
 
     def package_info(self):
         self.cpp_info.components["graphene-1.0"].libs = ["graphene-1.0"]

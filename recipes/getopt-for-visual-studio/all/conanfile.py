@@ -1,53 +1,42 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, copy, get, load, save
-from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc
+from conan import ConanFile, tools
+from conans.errors import  ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.50.0"
 
-
-class GetoptForVisualStudioConan(ConanFile):
+class GetoptForVisualStudio(ConanFile):
     name = "getopt-for-visual-studio"
     description = "GNU getopt for Visual Studio"
-    topics = ("getopt", "cli", "command line", "options")
+    topics = ("conan", "getopt", "cli", "command line", "options")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/skandhurkat/Getopt-for-Visual-Studio"
     license = "MIT", "BSD-2-Clause"
-    settings = "os", "arch", "compiler", "build_type"
+    exports_sources = "patches/**"
+    settings = "compiler"
 
-    def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
-
-    def package_id(self):
-        self.info.clear()
-
-    def validate(self):
-        if not is_msvc(self):
+    def configure(self):
+        if self.settings.compiler != "Visual Studio":
             raise ConanInvalidConfiguration("getopt-for-visual-studio is only supported for Visual Studio")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version])
+        os.rename("Getopt-for-Visual-Studio-{}".format(os.path.splitext(os.path.basename(self.conan_data["sources"][self.version]["url"]))[0]), self._source_subfolder)
 
     def build(self):
-        apply_conandata_patches(self)
+        for patch in self.conan_data["patches"][self.version]:
+            tools.files.patch(self, **patch)
 
     @property
     def _license_text(self):
-        content = load(self, os.path.join(self.source_folder, "getopt.h"))
+        content = tools.files.load(self, os.path.join(self._source_subfolder, "getopt.h"))
         return "\n".join(list(l.strip() for l in content[content.find("/**", 3):content.find("#pragma")].split("\n")))
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
-        copy(self, "getopt.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        tools.files.save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        self.copy("getopt.h", src=self._source_subfolder, dst="include")
 
-    def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
+    def package_id(self):
+        self.info.header_only()

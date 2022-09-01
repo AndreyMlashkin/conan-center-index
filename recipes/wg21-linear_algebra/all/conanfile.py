@@ -1,5 +1,6 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.43.0"
@@ -37,7 +38,7 @@ class LAConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            tools.build.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(
             str(self.settings.compiler))
         if not min_version:
@@ -45,7 +46,7 @@ class LAConan(ConanFile):
                              "compiler support.".format(
                                  self.name, self.settings.compiler))
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if tools.scm.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. "
                     "The current compiler {} {} does not support it.".format(
@@ -57,7 +58,7 @@ class LAConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def package(self):

@@ -1,6 +1,7 @@
 import os
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 
 class LibFtdiConan(ConanFile):
@@ -34,7 +35,7 @@ class LibFtdiConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         extracted_dir = "libftdi1-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
@@ -75,7 +76,7 @@ class LibFtdiConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -84,8 +85,8 @@ class LibFtdiConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         lib_folder = os.path.join(self.package_folder, "lib",)
-        tools.rmdir(os.path.join(lib_folder, "cmake"))
-        tools.rmdir(os.path.join(lib_folder, "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(lib_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(lib_folder, "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "LibFTDI1"

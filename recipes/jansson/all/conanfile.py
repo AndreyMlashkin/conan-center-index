@@ -1,10 +1,10 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import msvc_runtime_flag
+from conan import ConanFile, tools
+from conans import CMake
+import functools
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.43.0"
 
 
 class JanssonConan(ConanFile):
@@ -29,6 +29,21 @@ class JanssonConan(ConanFile):
         "use_windows_cryptoapi": True,
     }
 
+    exports_sources = "CMakeLists.txt"
+    generators = "cmake"
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _build_subfolder(self):
+        return "build_subfolder"
+
+    @property
+    def _is_msvc(self):
+        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -36,46 +51,38 @@ class JanssonConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["JANSSON_BUILD_DOCS"] = False
-        tc.variables["JANSSON_BUILD_SHARED_LIBS"] = self.options.shared
-        tc.variables["JANSSON_EXAMPLES"] = False
-        tc.variables["JANSSON_WITHOUT_TESTS"] = True
-        tc.variables["USE_URANDOM"] = self.options.use_urandom
-        tc.variables["USE_WINDOWS_CRYPTOAPI"] = self.options.use_windows_cryptoapi
-        if is_msvc(self):
-            tc.variables["JANSSON_STATIC_CRT"] = is_msvc_static_runtime(self)
-        tc.generate()
+    @functools.lru_cache(1)
+    def _configure_cmake(self):
+        cmake = CMake(self)
+        cmake.definitions["JANSSON_BUILD_DOCS"] = False
+        cmake.definitions["JANSSON_BUILD_SHARED_LIBS"] = self.options.shared
+        cmake.definitions["JANSSON_EXAMPLES"] = False
+        cmake.definitions["JANSSON_WITHOUT_TESTS"] = True
+        cmake.definitions["USE_URANDOM"] = self.options.use_urandom
+        cmake.definitions["USE_WINDOWS_CRYPTOAPI"] = self.options.use_windows_cryptoapi
+        if self._is_msvc:
+            cmake.definitions["JANSSON_STATIC_CRT"] = "MT" in msvc_runtime_flag(self)
+        cmake.configure(build_folder=self._build_subfolder)
+        return cmake
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure()
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "jansson")

@@ -1,6 +1,7 @@
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
-from conans import ConanFile, tools, AutoToolsBuildEnvironment, VisualStudioBuildEnvironment
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import AutoToolsBuildEnvironment, VisualStudioBuildEnvironment
+from conan.errors import ConanInvalidConfiguration
 import functools
 import os
 
@@ -72,17 +73,17 @@ class LibxsltConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if is_msvc(self):
             self._build_msvc()
         else:
             # Relocatable shared libs on macOS
-            tools.replace_in_file(
+            tools.files.replace_in_file(self, 
                 os.path.join(self._source_subfolder, "configure"),
                 "-install_name \\$rpath/",
                 "-install_name @rpath/"
@@ -91,7 +92,7 @@ class LibxsltConan(ConanFile):
             autotools.make()
 
     def _build_msvc(self):
-        with tools.chdir(os.path.join(self._source_subfolder, "win32")):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder, "win32")):
             debug = "yes" if self.settings.build_type == "Debug" else "no"
             static = "no" if self.options.shared else "yes"
 
@@ -135,18 +136,18 @@ class LibxsltConan(ConanFile):
 
                 def fix_library(option, package, old_libname):
                     if option:
-                        tools.replace_in_file("Makefile.msvc",
+                        tools.files.replace_in_file(self, "Makefile.msvc",
                                               "LIBS = %s" % old_libname,
                                               "LIBS = %s" % format_libs(package))
 
                 if "icu" in self.deps_cpp_info.deps:
                     fix_library(True, 'icu', 'wsock32.lib')
 
-                tools.replace_in_file("Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
-                tools.replace_in_file("Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
+                tools.files.replace_in_file(self, "Makefile.msvc", "libxml2.lib", format_libs("libxml2"))
+                tools.files.replace_in_file(self, "Makefile.msvc", "libxml2_a.lib", format_libs("libxml2"))
 
                 # Avoid to indirectly build both static & shared when we build utils
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     "Makefile.msvc",
                     "$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt libxslta libexslt libexslta",
                     "$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt{0} libexslt{0}".format("" if self.options.shared else "a"),
@@ -164,7 +165,7 @@ class LibxsltConan(ConanFile):
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
             "--with-python=no",
-            "--with-libxml-src={}".format(tools.unix_path(self.deps_cpp_info["libxml2"].rootpath)),
+            "--with-libxml-src={}".format(tools.microsoft.unix_path(self, self.deps_cpp_info["libxml2"].rootpath)),
         ]
         for name in self._option_names:
             value = getattr(self.options, name)
@@ -190,10 +191,10 @@ class LibxsltConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
             os.remove(os.path.join(self.package_folder, "bin", "xslt-config"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.sh")
-            tools.rmdir(os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rm(self, "*.sh", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

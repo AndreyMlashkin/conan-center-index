@@ -70,7 +70,7 @@ class LibrasterliteConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _build_msvc(self):
@@ -79,8 +79,8 @@ class LibrasterliteConan(ConanFile):
         system_libs = [lib + ".lib" for lib in self.deps_cpp_info.system_libs]
         if self.options.shared:
             optflags.append("-DDLL_EXPORT")
-        with tools.chdir(self._source_subfolder):
-            tools.save(os.path.join("headers", "config.h"), "#define VERSION \"{}\"\n".format(self.version))
+        with tools.files.chdir(self, self._source_subfolder):
+            tools.files.save(self, os.path.join("headers", "config.h"), "#define VERSION \"{}\"\n".format(self.version))
             with tools.vcvars(self):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
                     self.run("nmake -f makefile.vc {} OPTFLAGS=\"{}\" SYSTEM_LIBS=\"{}\"".format(target,
@@ -88,14 +88,14 @@ class LibrasterliteConan(ConanFile):
                                                                                                  " ".join(system_libs)))
 
     def _build_autotools(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared libs on macOS
-            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.files.replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
-            if tools.is_apple_os(self.settings.os):
+            if tools.apple.is_apple_os(self):
                 libpaths = ":".join(self.deps_cpp_info.lib_paths)
-                tools.replace_in_file(
+                tools.files.replace_in_file(self, 
                     "configure",
                     "#! /bin/sh\n",
                     "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
@@ -118,7 +118,7 @@ class LibrasterliteConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self._is_msvc:
             self._build_msvc()
         else:
@@ -131,12 +131,12 @@ class LibrasterliteConan(ConanFile):
             self.copy("*.lib", dst="lib", src=self._source_subfolder)
             self.copy("*.dll", dst="bin", src=self._source_subfolder)
         else:
-            with tools.chdir(self._source_subfolder):
+            with tools.files.chdir(self, self._source_subfolder):
                 with tools.run_environment(self):
                     autotools = self._configure_autotools()
                     autotools.install()
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "rasterlite")

@@ -63,7 +63,7 @@ class MpfrConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def _configure_autotools(self):
@@ -73,8 +73,8 @@ class MpfrConan(ConanFile):
         yes_no = lambda v: "yes" if v else "no"
         args = [
             "--enable-thread-safe",
-            "--with-gmp-include={}".format(tools.unix_path(os.path.join(self.deps_cpp_info[str(self.options.exact_int)].rootpath, "include"))),
-            "--with-gmp-lib={}".format(tools.unix_path(os.path.join(self.deps_cpp_info[str(self.options.exact_int)].rootpath, "lib"))),
+            "--with-gmp-include={}".format(tools.microsoft.unix_path(self, os.path.join(self.deps_cpp_info[str(self.options.exact_int)].rootpath, "include"))),
+            "--with-gmp-lib={}".format(tools.microsoft.unix_path(self, os.path.join(self.deps_cpp_info[str(self.options.exact_int)].rootpath, "lib"))),
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
@@ -100,7 +100,7 @@ class MpfrConan(ConanFile):
         return self._cmake
 
     def _extract_makefile_variable(self, makefile, variable):
-        makefile_contents = tools.load(makefile)
+        makefile_contents = tools.files.load(self, makefile)
         match = re.search("{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\"))*)*)\n".format(variable), makefile_contents)
         if not match:
             raise ConanException("Cannot extract variable {} from {}".format(variable, makefile_contents))
@@ -136,19 +136,19 @@ class MpfrConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         if self.options.exact_int == "mpir":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "configure"),
                                        "-lgmp", "-lmpir")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "mpfr.h"),
+            tools.files.replace_in_file(self, os.path.join(self._source_subfolder, "src", "mpfr.h"),
                                        "<gmp.h>", "<mpir.h>")
-            tools.save("gmp.h", "#pragma once\n#include <mpir.h>\n")
+            tools.files.save(self, "gmp.h", "#pragma once\n#include <mpir.h>\n")
         with self._build_context():
             autotools = self._configure_autotools()
         if self.settings.os == "Windows":
-            cmakelists_in = tools.load("CMakeLists.txt.in")
+            cmakelists_in = tools.files.load(self, "CMakeLists.txt.in")
             sources, headers, definitions = self._extract_mpfr_autotools_variables()
-            tools.save(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), cmakelists_in.format(
+            tools.files.save(self, os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), cmakelists_in.format(
                 mpfr_sources=" ".join(sources),
                 mpfr_headers=" ".join(headers),
                 definitions=" ".join(definitions),
@@ -167,8 +167,8 @@ class MpfrConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
             os.unlink(os.path.join(self.package_folder, "lib", "libmpfr.la"))
-            tools.rmdir(os.path.join(self.package_folder, "share"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "share"))
+            tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["mpfr"]

@@ -1,11 +1,12 @@
 import os
-from conans import CMake, tools
+from conan import ConanFile
+from conans import CMake
 from conan import ConanFile
 from conan.tools.scm import Version
-from conan.tools.files import apply_conandata_patches, get, rm, rmdir, replace_in_file
+from conan.tools.files import apply_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.build.cross_building import cross_building
 
-required_conan_version = ">=1.50.2 <1.51.0 || >=1.51.2"
+required_conan_version = ">=1.50.2"
 
 
 class LibpngConan(ConanFile):
@@ -140,7 +141,6 @@ class LibpngConan(ConanFile):
         self._cmake.definitions["PNG_STATIC"] = not self.options.shared
         self._cmake.definitions["PNG_DEBUG"] = self.settings.build_type == "Debug"
         self._cmake.definitions["PNG_PREFIX"] = self.options.api_prefix
-        self._cmake.definitions["CMAKE_MACOSX_BUNDLE"] = False # prevents configure error on shared iOS/tvOS/watchOS
         if cross_building(self):
             self._cmake.definitions["CONAN_LIBPNG_SYSTEM_PROCESSOR"] = self._libpng_cmake_system_processor
         if self._has_neon_support:
@@ -165,7 +165,7 @@ class LibpngConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         if self.options.shared:
-            rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
+            tools.files.rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
         else:
             rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "libpng"))
@@ -182,10 +182,9 @@ class LibpngConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "PNG"
 
         prefix = "lib" if self._is_msvc else ""
+        suffix = "d" if self.settings.build_type == "Debug" else ""
         major_min_version = f"{Version(self.version).major}{Version(self.version).minor}"
-        suffix = major_min_version if self._is_msvc else ""
-        suffix += "d" if self._is_msvc and self.settings.build_type == "Debug" else ""
 
-        self.cpp_info.libs = [f"{prefix}png{suffix}"]
+        self.cpp_info.libs = ["{}png{}{}".format(prefix, major_min_version, suffix)]
         if self.settings.os in ["Linux", "Android", "FreeBSD", "SunOS", "AIX"]:
             self.cpp_info.system_libs.append("m")

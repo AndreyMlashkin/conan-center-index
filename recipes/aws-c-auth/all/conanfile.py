@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 required_conan_version = ">=1.43.0"
@@ -44,11 +45,11 @@ class AwsCAuth(ConanFile):
         self.requires("aws-c-cal/0.5.13")
         self.requires("aws-c-io/0.10.20")
         self.requires("aws-c-http/0.6.13")
-        if tools.Version(self.version) >= "0.6.5":
+        if tools.scm.Version(self.version) >= "0.6.5":
             self.requires("aws-c-sdkutils/0.1.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
 
     def _configure_cmake(self):
@@ -67,7 +68,7 @@ class AwsCAuth(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "aws-c-auth"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-auth"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-auth")
@@ -88,5 +89,5 @@ class AwsCAuth(ConanFile):
             "aws-c-io::aws-c-io-lib",
             "aws-c-http::aws-c-http-lib"
         ]
-        if tools.Version(self.version) >= "0.6.5":
+        if tools.scm.Version(self.version) >= "0.6.5":
             self.cpp_info.components["aws-c-auth-lib"].requires.append("aws-c-sdkutils::aws-c-sdkutils-lib")

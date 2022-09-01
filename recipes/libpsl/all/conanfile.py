@@ -59,7 +59,7 @@ class LibPslConan(ConanFile):
             self.requires("libunistring/0.9.10")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename("libpsl-{}".format(self.version), self._source_subfolder)
 
     @property
@@ -80,7 +80,7 @@ class LibPslConan(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         meson = self._configure_meson()
         meson.build()
 
@@ -90,12 +90,12 @@ class LibPslConan(ConanFile):
         meson = self._configure_meson()
         meson.install()
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        tools.files.rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         if not self.options.shared and self.settings.compiler == "Visual Studio":
             os.rename(os.path.join(self.package_folder, "lib", "libpsl.a"),
                       os.path.join(self.package_folder, "lib", "psl.lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["psl"]

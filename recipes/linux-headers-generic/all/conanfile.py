@@ -1,5 +1,5 @@
 from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.33.0"
@@ -26,15 +26,15 @@ class LinuxHeadersGenericConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("linux-headers-generic supports only Linux")
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and tools.build.cross_building(self):
             raise ConanInvalidConfiguration("linux-headers-generic can not be cross-compiled")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   destination=self._source_subfolder, strip_root=True)
 
     def build(self):
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with tools.files.chdir(self, os.path.join(self._source_subfolder)):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.make(target="headers")
 

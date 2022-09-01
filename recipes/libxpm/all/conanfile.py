@@ -1,8 +1,9 @@
 import functools
 import os
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, tools
+from conans import CMake
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
@@ -34,7 +35,7 @@ class LibXpmConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":

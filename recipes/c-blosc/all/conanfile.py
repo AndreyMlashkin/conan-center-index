@@ -1,9 +1,8 @@
 from conan import ConanFile, tools
-from conan.tools.files import apply_conandata_patches
 from conans import CMake
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.36.0"
 
 
 class CbloscConan(ConanFile):
@@ -80,11 +79,15 @@ class CbloscConan(ConanFile):
         tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
 
     def build(self):
-        apply_conandata_patches(self)
-        tools.files.rmdir(self, os.path.join(self._source_subfolder, "cmake"))
+        self._patch_sources()
         cmake = self._configure_cmake()
         cmake.build()
 
+    def _patch_sources(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.files.patch(self, **patch)
+        # Remove folder containing custom FindLib.cmake files
+        tools.files.rmdir(self, os.path.join(self._source_subfolder, "cmake"))
 
     def _configure_cmake(self):
         if self._cmake:

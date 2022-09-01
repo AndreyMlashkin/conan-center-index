@@ -2,7 +2,7 @@ import os
 
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 from conan.tools.files import get, rmdir
-from conans.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.47.0"
 
@@ -66,7 +66,7 @@ class UserspaceRCUConan(ConanFile):
 
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with tools.files.chdir(self, self._source_subfolder):
             self.run("./bootstrap")
         autotools = self._configure_autotools()
         autotools.make()
@@ -76,7 +76,7 @@ class UserspaceRCUConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        tools.files.rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 

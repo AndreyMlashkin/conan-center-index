@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 import os
 
 class KeychainConan(ConanFile):
@@ -20,7 +21,7 @@ class KeychainConan(ConanFile):
 
     def configure(self):
      if self.settings.compiler.cppstd:
-         tools.check_min_cppstd(self, 11)
+         tools.build.check_min_cppstd(self, 11)
 
     def config_options(self):
         if self.settings.os == 'Windows':
@@ -35,7 +36,7 @@ class KeychainConan(ConanFile):
             self.build_requires("pkgconf/1.7.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        tools.files.get(self, **self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -54,7 +55,7 @@ class KeychainConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
 
         if self.settings.os == 'Macos':
             self.cpp_info.frameworks = ['Security', 'CoreFoundation']

@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile, tools
+from conans import CMake
 
 class DjinniSuppotLib(ConanFile):
     name = "djinni-support-lib"
@@ -28,7 +29,7 @@ class DjinniSuppotLib(ConanFile):
     @property
     def objc_support(self):
         if self.options.target == "auto":
-            return tools.is_apple_os(self.settings.os)
+            return tools.apple.is_apple_os(self)
         else:
             return self.options.target == "objc"
 
@@ -56,7 +57,7 @@ class DjinniSuppotLib(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.files.get(self, **self.conan_data["sources"][self.version],
                   strip_root=True, destination=self._source_subfolder)
 
     def _configure_cmake(self):
@@ -75,7 +76,7 @@ class DjinniSuppotLib(ConanFile):
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+            tools.files.patch(self, **patch)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -85,7 +86,7 @@ class DjinniSuppotLib(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.files.collect_libs(self, self)
         # these should not be here, but to support old generated files ....
         if self.objc_support:
             self.cpp_info.includedirs.append(os.path.join("include", "djinni", "objc"))
