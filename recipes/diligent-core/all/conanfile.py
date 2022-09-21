@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, check_min_cppstd
 from conan.tools.scm import Version
@@ -93,6 +93,12 @@ class DiligentCoreConan(ConanFile):
         tc.variables["ENABLE_EXCEPTIONS"] = True
         tc.variables[self._diligent_platform()] = True
         tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
+    def layout(self):
+        cmake_layout(self)
 
     def configure(self):
         if self.options.shared:
