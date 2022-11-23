@@ -66,6 +66,10 @@ class JsoncppConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
+        # ccache does not work on windows using mingw
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                              "if(CCACHE_EXECUTABLE)", "if(0)")
+
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                               "${jsoncpp_SOURCE_DIR}",
                               "${JSONCPP_SOURCE_DIR}")
