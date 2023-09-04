@@ -13,7 +13,7 @@ main(int argc, char *argv[])
     Py_Initialize();
     PyRun_SimpleString("from time import time, ctime\n"
                        "print('Today is', ctime(time()))\n");
-    if (Py_FinalizeEx() < 0) {
+    if (Py_Finalize() < 0) {
         exit(120);
     }
     PyMem_RawFree(program);
