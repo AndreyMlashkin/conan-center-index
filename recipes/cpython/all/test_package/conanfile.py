@@ -113,6 +113,8 @@ class TestPackageConan(ConanFile):
                         "MSSdk": "1"
                     }
                     env.update(**AutoToolsBuildEnvironment(self).vars)
+                    print("\n\n\n\n\n")
+                    print(os.path.join(self.build_folder, "lib_setuptools"))
                     with tools.environment_append(env):
                         setup_args = [
                             "{}/setup.py".format(self.source_folder),
