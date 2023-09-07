@@ -174,10 +174,10 @@ class CPythonConan(ConanFile):
 
     def requirements(self):
         self.requires("fontconfig/2.14.2@#32685cac13abefc0ac5a61258cf4dbf6", override=True)
-        self.requires("zlib/1.2.11")
+        self.requires("zlib/1.2.13")
         if self._supports_modules:
-            self.requires("openssl/1.1.1l")
-            self.requires("expat/2.4.1")
+            self.requires("openssl/1.1.1v")
+            self.requires("expat/2.5.0")
             if self._with_libffi:
                 self.requires("libffi/3.2.1")
             if tools.Version(self._version_number_only) < "3.8":
